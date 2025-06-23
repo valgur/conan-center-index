@@ -34,7 +34,7 @@ class OneDNNConan(ConanFile):
         "build_graph_api": True,
         "workload": "training",
         "cpu_runtime": "omp",
-        "gpu_runtime": "none",
+        "gpu_runtime": "ocl",
         "gpu_vendor": "intel",
         "blas_vendor": "internal",
     }
@@ -54,7 +54,6 @@ class OneDNNConan(ConanFile):
                         "- 'armpl'. Use Arm Performance Libraries on Arm platforms."
                         "- 'external'. Use an external BLAS library. This vendor is supported for performance analysis purposes only.")
     }
-    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -66,6 +65,12 @@ class OneDNNConan(ConanFile):
             # Intel compiler users can take advantage of SYCL support
             self.options.cpu_runtime = "sycl"
             self.options.gpu_runtime = "sycl"
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.gpu_runtime == "none":
+            del self.options.gpu_vendor
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -96,7 +101,7 @@ class OneDNNConan(ConanFile):
                 raise ConanInvalidConfiguration("SYCL runtime is only supported with Intel icpx or dpcpp compilers.")
             if self.options.cpu_runtime != self.options.gpu_runtime:
                 raise ConanInvalidConfiguration("SYCL CPU runtime requires matching SYCL GPU runtime.")
-        if self.options.build_graph_api and self.options.gpu_vendor not in ["none", "intel", "nvidia"]:
+        if self.options.build_graph_api and self.options.get_safe("gpu_vendor", "none") not in ["none", "intel", "nvidia"]:
             raise ConanInvalidConfiguration("enable_graph_api can only be used with gpu_vendor set to 'none', 'intel' or 'nvidia'.")
         if self.options.blas_vendor == "accelerate" and self.settings.os != "Macos":
             raise ConanInvalidConfiguration("blas_vendor=accelerate is only supported on macOS.")
@@ -129,7 +134,7 @@ class OneDNNConan(ConanFile):
         tc.cache_variables["DNNL_ENABLE_WORKLOAD"] = self.options.workload.value.upper()
         tc.cache_variables["DNNL_CPU_RUNTIME"] = self.options.cpu_runtime.value.upper()
         tc.cache_variables["DNNL_GPU_RUNTIME"] = self.options.gpu_runtime.value.upper()
-        tc.cache_variables["DNNL_GPU_VENDOR"] = self.options.gpu_vendor.value.upper()
+        tc.cache_variables["DNNL_GPU_VENDOR"] = self.options.get_safe("gpu_vendor", "none").value.upper()
         tc.cache_variables["DNNL_BLAS_VENDOR"] = {"internal": "NONE", "accelerate": "ACCELERATE", "external": "ANY"}[self.options.blas_vendor.value]
         tc.generate()
 
@@ -163,7 +168,7 @@ class OneDNNConan(ConanFile):
 
         if self.options.cpu_runtime == "sycl" or self.options.gpu_runtime == "sycl":
             self.cpp_info.cxxflags.append("-fsycl")
-            if self.options.gpu_vendor == "nvidia":
+            if self.options.get_safe("gpu_vendor", "none") == "nvidia":
                 # TODO: use dedicated CUDA packages
                 if not self.options.shared:
                     self.cpp_info.system_libs.extend(["cublas", "cublasLt", "cudnn"])
