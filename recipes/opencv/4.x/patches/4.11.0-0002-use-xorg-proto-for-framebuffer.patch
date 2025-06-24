@@ -1,0 +1,11 @@
+--- a/modules/highgui/cmake/detect_framebuffer.cmake
++++ b/modules/highgui/cmake/detect_framebuffer.cmake
+@@ -1,5 +1,8 @@
+ # --- FB ---
+ set(HAVE_FRAMEBUFFER ON)
++find_package(xorg-proto REQUIRED)
++include_directories(${xorg-proto}_INCLUDE_DIRECTORIES})
++set(HAVE_FRAMEBUFFER_XVFB 1)
+ if(WITH_FRAMEBUFFER_XVFB)
+   try_compile(HAVE_FRAMEBUFFER_XVFB
+     "${CMAKE_CURRENT_BINARY_DIR}"

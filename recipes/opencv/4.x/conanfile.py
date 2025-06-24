@@ -1,6 +1,7 @@
 import os
 import re
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
@@ -107,6 +108,7 @@ class OpenCVConan(ConanFile):
         "parallel": [False, "tbb", "openmp"],
         "with_ipp": [False, "intel-ipp", "opencv-icv"],
         "with_eigen": [True, False],
+        "with_lapack": [True, False],
         "neon": [True, False],
         "with_opencl": [True, False],
         "with_cuda": [True, False],
@@ -116,6 +118,7 @@ class OpenCVConan(ConanFile):
         "cuda_arch_bin": [None, "ANY"],
         "cpu_baseline": [None, "ANY"],
         "cpu_dispatch": [None, "ANY"],
+        "with_itt": [True, False],
         "world": [True, False],
         "nonfree": [True, False],
         # dnn module options
@@ -125,15 +128,17 @@ class OpenCVConan(ConanFile):
         "with_openvino": [True, False],
         "dnn_cuda": [True, False],
         # highgui module options
+        "with_framebuffer": [True, False],
         "with_gtk": [True, False],
         "with_qt": [True, False],
         "with_wayland": [True, False],
         # imgcodecs module options
         "with_avif": [True, False],
         "with_jpeg": [True, False],
+        "with_jpegxl": [True, False],
+        "with_jpeg2000": [False, "jasper", "openjpeg"],
         "with_png": [True, False],
         "with_tiff": [True, False],
-        "with_jpeg2000": [False, "jasper", "openjpeg"],
         "with_openexr": [True, False],
         "with_webp": [True, False],
         "with_gdal": [True, False],
@@ -147,10 +152,19 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": [True, False],
         # videoio module options
+        "with_1394": [True, False],
+        "with_aravis": [True, False],
         "with_ffmpeg": [True, False],
+        "with_gphoto2": [True, False],
+        "with_gstreamer": [True, False],
+        "with_librealsense": [True, False],
+        "with_openni2": [True, False],
+        "with_va": [True, False],
         "with_v4l": [True, False],
         # text module options
         "with_tesseract": [True, False],
+        # videostab module options
+        "with_clp": [True, False],
 
         # Force all main module options to True
         "build_all_base": [True, False],
@@ -167,6 +181,7 @@ class OpenCVConan(ConanFile):
         "parallel": "openmp",
         "with_ipp": False,
         "with_eigen": True,
+        "with_lapack": False,
         "neon": True,
         "with_opencl": False,
         "with_cuda": False,
@@ -176,6 +191,7 @@ class OpenCVConan(ConanFile):
         "cuda_arch_bin": None,
         "cpu_baseline": None,
         "cpu_dispatch": None,
+        "with_itt": False,
         "world": False,
         "nonfree": False,
         # dnn module options
@@ -185,15 +201,17 @@ class OpenCVConan(ConanFile):
         "with_openvino": False,
         "dnn_cuda": False,
         # highgui module options
+        "with_framebuffer": False,
         "with_gtk": False,
         "with_qt": False,
         "with_wayland": True,
         # imgcodecs module options
         "with_avif": False,
         "with_jpeg": True,
+        "with_jpegxl": False,
+        "with_jpeg2000": False,
         "with_png": True,
         "with_tiff": True,
-        "with_jpeg2000": False,
         "with_openexr": False,
         "with_webp": True,
         "with_gdal": False,
@@ -207,10 +225,19 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": False,
         # videoio module options
+        "with_1394": False,
+        "with_aravis": False,
         "with_ffmpeg": True,
+        "with_gphoto2": False,
+        "with_gstreamer": False,
+        "with_librealsense": False,
+        "with_openni2": False,
+        "with_va": False,
         "with_v4l": True,
         # text module options
         "with_tesseract": True,
+        # videostab module options
+        "with_clp": False,
 
         # main modules - enable the more lightweight ones by default
         "calib3d": True,
@@ -254,20 +281,63 @@ class OpenCVConan(ConanFile):
         return os.path.join(self._contrib_folder, "modules")
 
     @property
+    def _build_depends_on_pkgconfig(self):
+        return (
+            self.options.get_safe("with_clp")
+            or self.options.get_safe("with_1394")
+            or self.options.get_safe("with_aravis")
+            or self.options.get_safe("with_gphoto2")
+            or self.options.get_safe("with_gstreamer")
+            or self.options.get_safe("with_wayland")
+        )
+
+    @property
+    def _is_apple_device_os(self):
+        return is_apple_os(self) and self.settings.os != "Macos"
+
+    @property
+    def _has_jpegxl_option(self):
+        return Version(self.version) >= "4.11.0"
+
+    @property
     def _has_with_jpeg2000_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_with_tiff_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_with_ffmpeg_option(self):
-        return self.settings.os != "iOS" and self.settings.os != "WindowsStore"
+        return self.settings.os not in ["WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_gstreamer_option(self):
+        return self.settings.os not in ["Android", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_1394_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_aravis_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_gphoto2_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_openni2_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_va_option(self):
+        return self.settings.os in ["Linux", "FreeBSD"]
 
     @property
     def _has_superres_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_alphamat_option(self):
@@ -298,6 +368,10 @@ class OpenCVConan(ConanFile):
         return Version(self.version) >= "4.10.0"
 
     @property
+    def _has_framebuffer_option(self):
+        return Version(self.version) >= "4.11.0" and self.settings.os in ["Linux", "FreeBSD"]
+
+    @property
     def _has_with_wayland_option(self):
         return Version(self.version) >= "4.7.0" and self.settings.os in ["Linux", "FreeBSD"]
 
@@ -318,7 +392,7 @@ class OpenCVConan(ConanFile):
         if self.settings.os != "Linux":
             del self.options.with_gtk
             del self.options.with_v4l
-        if self.settings.os in ["iOS", "Android"]:
+        if self.settings.os == "Android" or self._is_apple_device_os:
             del self.options.with_opencl
         if self.settings.os != "Windows":
             del self.options.with_msmf
@@ -332,13 +406,27 @@ class OpenCVConan(ConanFile):
         else:
             del self.options.with_ffmpeg
 
+        if not self._has_jpegxl_option:
+            del self.options.with_jpegxl
         if not self._has_with_jpeg2000_option:
             del self.options.with_jpeg2000
 
-        if "arm" not in self.settings.arch or Version(self.version) >= "4.11.0":
+        if "arm" not in str(self.settings.arch) or Version(self.version) >= "4.11.0":
             del self.options.neon
         if not self._has_with_tiff_option:
             del self.options.with_tiff
+        if not self._has_with_gstreamer_option:
+            del self.options.with_gstreamer
+        if not self._has_with_1394_option:
+            del self.options.with_1394
+        if not self._has_with_aravis_option:
+            del self.options.with_aravis
+        if not self._has_with_gphoto2_option:
+            del self.options.with_gphoto2
+        if not self._has_with_openni2_option:
+            del self.options.with_openni2
+        if not self._has_with_va_option:
+            del self.options.with_va
         if not self._has_superres_option:
             del self.options.superres
         if not self._has_alphamat_option:
@@ -353,6 +441,8 @@ class OpenCVConan(ConanFile):
             del self.options.wechat_qrcode
         if not self._has_barcode_option:
             del self.options.barcode
+        if not self._has_framebuffer_option:
+            del self.options.with_framebuffer
         if not self._has_with_wayland_option:
             del self.options.with_wayland
         if not self._has_with_avif_option:
@@ -379,12 +469,14 @@ class OpenCVConan(ConanFile):
             components = []
             if self.options.get_safe("with_avif"):
                 components.append("libavif::libavif")
+            if self.options.get_safe("with_jpeg"):
+                components.append("libjpeg-meta::jpeg")
+            if self.options.get_safe("with_jpegxl"):
+                components.append("libjxl::libjxl")
             if self.options.get_safe("with_jpeg2000"):
                 components.append("{0}::{0}".format(self.options.with_jpeg2000))
             if self.options.get_safe("with_png"):
                 components.append("libpng::libpng")
-            if self.options.get_safe("with_jpeg"):
-                components.append("libjpeg-meta::jpeg")
             if self.options.get_safe("with_tiff"):
                 components.append("libtiff::tiff")
             if self.options.get_safe("with_openexr"):
@@ -397,14 +489,50 @@ class OpenCVConan(ConanFile):
                 components.append("gdcm::gdcm")
             return components
 
+        def itt():
+            return ["ittapi::ittapi"] if self.options.with_itt else []
+
+        def dc1394():
+            return ["libdc1394::libdc1394"] if self.options.get_safe("with_1394") else []
+
+        def aravis():
+            return ["aravis::aravis"] if self.options.get_safe("with_aravis") else []
+
         def eigen():
             return ["eigen::eigen"] if self.options.with_eigen else []
+
+        def lapack():
+            return ["openblas::openblas"] if self.options.with_lapack else []
+
+        def clp():
+            return ["coin-clp::coin-clp"] if self.options.get_safe("with_clp") else []
 
         def ffmpeg():
             components = []
             if self.options.get_safe("with_ffmpeg"):
                 components = ["ffmpeg::avcodec", "ffmpeg::avformat", "ffmpeg::avutil", "ffmpeg::swscale"]
             return components
+
+        def gphoto2():
+            return ["libgphoto2::libgphoto2"] if self.options.get_safe("with_gphoto2") else []
+
+        def gstreamer():
+            if self.options.get_safe("with_gstreamer"):
+                return [
+                    "gstreamer::gstreamer-base-1.0",
+                    "gst-plugins-base::gstreamer-app-1.0",
+                    "gst-plugins-base::gstreamer-riff-1.0",
+                    "gst-plugins-base::gstreamer-pbutils-1.0",
+                    "gst-plugins-base::gstreamer-video-1.0",
+                    "gst-plugins-base::gstreamer-audio-1.0",
+                ]
+            return []
+
+        def openni2():
+            return ["openni2::openni2"] if self.options.get_safe("with_openni2") else []
+
+        def va():
+            return ["libva::libva"] if self.options.get_safe("with_va") else []
 
         def gtk():
             return ["gtk::gtk"] if self.options.get_safe("with_gtk") else []
@@ -415,6 +543,14 @@ class OpenCVConan(ConanFile):
             elif self.options.with_ipp == "opencv-icv" and not self.options.shared:
                 return ["ippiw"]
             return []
+
+        def opencl():
+            if self.options.get_safe("with_opencl") and not is_apple_os(self):
+                return ["opencl-icd-loader::opencl-icd-loader"]
+            return []
+
+        def librealsense():
+            return ["librealsense::librealsense"] if self.options.get_safe("with_librealsense") else []
 
         def parallel():
             if self.options.parallel == "openmp":
@@ -443,6 +579,9 @@ class OpenCVConan(ConanFile):
 
         def xkbcommon():
             return ["xkbcommon::libxkbcommon"] if self.options.get_safe("with_wayland") else []
+
+        def xvfb():
+            return ["xorg-proto::xorg-proto"] if self.options.get_safe("with_framebuffer") else []
 
         def openvino():
             return ["openvino::Runtime"] if self.options.get_safe("with_openvino") else []
@@ -503,12 +642,13 @@ class OpenCVConan(ConanFile):
             "calib3d": {
                 "is_built": self.options.calib3d,
                 "mandatory_options": ["features2d", "flann", "imgproc"],
-                "requires": ["opencv_core", "opencv_features2d", "opencv_flann", "opencv_imgproc"] + eigen() + ipp(),
+                "requires": ["opencv_core", "opencv_features2d", "opencv_flann", "opencv_imgproc"] +
+                            eigen() + lapack() + ipp(),
             },
             "core": {
                 "is_built": True,
                 "no_option": True,
-                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp(),
+                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp() + opencl() + va() + itt(),
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
@@ -521,7 +661,8 @@ class OpenCVConan(ConanFile):
             "dnn": {
                 "is_built": self.options.dnn,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_core", "opencv_imgproc"] + protobuf() + vulkan() + ipp() + openvino(),
+                "requires": ["opencv_core", "opencv_imgproc"] +
+                            protobuf() + vulkan() + ipp() + openvino() + lapack(),
             },
             "features2d": {
                 "is_built": self.options.features2d,
@@ -535,7 +676,7 @@ class OpenCVConan(ConanFile):
             "gapi": {
                 "is_built": self.options.gapi,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_imgproc", "ade::ade"] + openvino(),
+                "requires": ["opencv_imgproc", "ade::ade"] + openvino() + gstreamer() + va() + itt(),
                 "system_libs": [
                     (self.settings.os == "Windows", ["ws2_32", "wsock32"]),
                 ],
@@ -544,7 +685,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.highgui,
                 "mandatory_options": ["imgproc"],
                 "requires": ["opencv_core", "opencv_imgproc"] + opencv_imgcodecs() +
-                            opencv_videoio() + gtk() + qt() + xkbcommon() + wayland() + ipp(),
+                            opencv_videoio() + xvfb() + gtk() + qt() + xkbcommon() + wayland() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Windows", ["comctl32", "gdi32", "ole32", "setupapi", "ws2_32", "vfw32"]),
                 ],
@@ -595,7 +736,8 @@ class OpenCVConan(ConanFile):
             "videoio": {
                 "is_built": self.options.videoio,
                 "mandatory_options": ["imgcodecs", "imgproc"],
-                "requires": ["opencv_imgcodecs", "opencv_imgproc"] + ffmpeg() + ipp(),
+                "requires": ["opencv_imgcodecs", "opencv_imgproc"] +
+                            dc1394() + aravis() + ffmpeg() + gphoto2() + gstreamer() + librealsense() + openni2() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk"]),
                 ],
@@ -861,7 +1003,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.videostab,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "photo", "video"],
                 "requires": ["opencv_calib3d", "opencv_features2d", "opencv_imgproc", "opencv_photo", "opencv_video"] +
-                            opencv_videoio() + ipp() + opencv_cudawarping() + opencv_cudaoptflow(),
+                            opencv_videoio() + clp() + ipp() + opencv_cudawarping() + opencv_cudaoptflow(),
             },
             "viz": {
                 "is_built": self.options.viz,
@@ -1017,6 +1159,8 @@ class OpenCVConan(ConanFile):
         if not (self._has_openvino_option and (self.options.gapi or self.options.dnn)):
             self.options.rm_safe("with_openvino")
 
+        if not self.options.calib3d and not self.options.dnn:
+            self.options.rm_safe("with_lapack")
         if not self.options.dnn:
             self.options.rm_safe("dnn_cuda")
             self.options.rm_safe("with_flatbuffers")
@@ -1030,6 +1174,7 @@ class OpenCVConan(ConanFile):
         if not self.options.imgcodecs:
             self.options.rm_safe("with_avif")
             self.options.rm_safe("with_jpeg")
+            self.options.rm_safe("with_jpegxl")
             self.options.rm_safe("with_jpeg2000")
             self.options.rm_safe("with_openexr")
             self.options.rm_safe("with_png")
@@ -1046,8 +1191,16 @@ class OpenCVConan(ConanFile):
         if not self.options.objdetect:
             self.options.rm_safe("with_quirc")
         if not self.options.videoio:
+            self.options.rm_safe("with_1394")
+            self.options.rm_safe("with_aravis")
             self.options.rm_safe("with_ffmpeg")
+            self.options.rm_safe("with_gphoto2")
+            self.options.rm_safe("with_librealsense")
+            self.options.rm_safe("with_openni2")
             self.options.rm_safe("with_v4l")
+            self.options.rm_safe("with_va")
+        if not self.options.videoio and not self.options.gapi:
+            self.options.rm_safe("with_gstreamer")
         if not self.options.with_cuda:
             self.options.rm_safe("with_cublas")
             self.options.rm_safe("with_cudnn")
@@ -1056,6 +1209,8 @@ class OpenCVConan(ConanFile):
             self.options.rm_safe("cuda_arch_bin")
         if not self.options.text:
             self.options.rm_safe("with_tesseract")
+        if not self.options.videostab:
+            self.options.rm_safe("with_clp")
 
         if self.options.build_all_base:
             self.options.update(
@@ -1080,6 +1235,11 @@ class OpenCVConan(ConanFile):
         self.requires("zlib-ng/[^2.0]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
+        if self.options.get_safe("with_lapack"):
+            # TODO: add a BLAS/LAPACK meta-package for Conan
+            self.requires("openblas/[>=0.3.28 <1]")
+        if self.options.get_safe("with_clp"):
+            self.requires("coin-clp/[^1.17.6]")
         if self.options.parallel == "openmp":
             # Used in a public header:
             # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
@@ -1088,6 +1248,10 @@ class OpenCVConan(ConanFile):
             self.requires("onetbb/[>=2021 <2023]")
         if self.options.with_ipp == "intel-ipp":
             self.requires("intel-ipp/2020")
+        if self.options.get_safe("with_opencl") and not is_apple_os(self):
+            self.requires("opencl-icd-loader/[*]")
+        if self.options.with_itt:
+            self.requires("ittapi/[^3.25.5]")
         # dnn module dependencies
         if self.options.get_safe("with_protobuf"):
             # Symbols are exposed https://github.com/conan-io/conan-center-index/pull/16678#issuecomment-1507811867
@@ -1103,6 +1267,8 @@ class OpenCVConan(ConanFile):
         if self.options.gapi:
             self.requires("ade/0.1.2d")
         # highgui module dependencies
+        if self.options.get_safe("with_framebuffer"):
+            self.requires("xorg-proto/2024.1")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/[~3.24]")
         if self.options.get_safe("with_qt"):
@@ -1115,6 +1281,8 @@ class OpenCVConan(ConanFile):
             self.requires("libavif/[^1.0.4]")
         if self.options.get_safe("with_jpeg"):
             self.requires("libjpeg-meta/latest")
+        if self.options.get_safe("with_jpegxl"):
+            self.requires("libjxl/0.11.1")
         if self.options.get_safe("with_jpeg2000") == "openjpeg":
             self.requires("openjpeg/[^2.5.2]")
         elif self.options.get_safe("with_jpeg2000") == "jasper":
@@ -1137,6 +1305,21 @@ class OpenCVConan(ConanFile):
         # videoio module dependencies
         if self.options.get_safe("with_ffmpeg"):
             self.requires("ffmpeg/[>=6 <8]")
+        if self.options.get_safe("with_gstreamer"):
+            self.requires("gst-plugins-base/[^1.16]")
+            self.requires("gstreamer/[^1.16]")
+        if self.options.get_safe("with_1394"):
+            self.requires("libdc1394/[^2.2.6]")
+        if self.options.get_safe("with_aravis"):
+            self.requires("aravis/[>=0.8.30 <1]")
+        if self.options.get_safe("with_gphoto2"):
+            self.requires("libgphoto2/[^2.5.31]")
+        if self.options.get_safe("with_librealsense"):
+            self.requires("librealsense/[^2.53.1]")
+        if self.options.get_safe("with_openni2"):
+            self.requires("openni2/[^2.2.0]")
+        if self.options.get_safe("with_va"):
+            self.requires("libva/[^2.20.0]")
         # freetype module dependencies
         if self.options.freetype:
             self.requires("freetype/[^2.13.2]")
@@ -1199,14 +1382,13 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_jpeg2000") == "openjpeg" and Version(self.version) < "4.3.0":
             raise ConanInvalidConfiguration("openjpeg is not available for OpenCV before 4.3.0")
 
-
     def build_requirements(self):
         if self.options.get_safe("with_protobuf"):
             self.tool_requires("protobuf/<host_version>")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self._build_depends_on_pkgconfig and not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_qt"):
             self.tool_requires("cmake/[>=3.27 <5]")
             self.tool_requires("qt/<host_version>")
@@ -1215,43 +1397,63 @@ class OpenCVConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
         get(self, **self.conan_data["sources"][self.version][1], destination=self._contrib_folder, strip_root=True)
         apply_conandata_patches(self)
+
         ## Remove 3rd party libs
         for directory in [
-            "libjasper", "libjpeg", "libjpeg-turbo", "libpng", "libspng", "libtiff",
-            "libwebp", "openexr", "openjpeg", "protobuf", "quirc", "tbb", "zlib",
+            "include", "libjasper", "libjpeg", "libjpeg-turbo", "libpng", "libspng", "libtiff",
+            "libwebp", "openexr", "openjpeg", "protobuf", "quirc", "tbb", "zlib", "zlib-ng",
         ]:
-            rmdir(self, os.path.join(self.source_folder, "3rdparty", directory))
+            rmdir(self, os.path.join("3rdparty", directory))
+        replace_in_file(self, "cmake/OpenCVDetectOpenCL.cmake", "ocv_install_3rdparty_licenses", "# ocv_install_3rdparty_licenses")
+        replace_in_file(self, "CMakeLists.txt", "add_subdirectory(3rdparty/quirc)", "")
 
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "ANDROID OR NOT UNIX", "FALSE")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "elseif(EMSCRIPTEN)", "elseif(QNXNTO)\nelseif(EMSCRIPTEN)")
-
-        ## Upstream CMakeLists vendors quirc in CMakeLists of 3rdparty/quirc.
-        ## Instead we rely on find-quirc.patch in order to link external quirc.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(3rdparty/quirc)", "")
+        replace_in_file(self, "CMakeLists.txt", "ANDROID OR NOT UNIX", "FALSE")
+        replace_in_file(self, "CMakeLists.txt", "elseif(EMSCRIPTEN)", "elseif(QNXNTO)\nelseif(EMSCRIPTEN)")
 
         ## Fix link to several dependencies
-        replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "JASPER_", "Jasper_")
-        replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "${GDAL_LIBRARY}", "GDAL::GDAL")
+        replace_in_file(self, "modules/imgcodecs/CMakeLists.txt", "JASPER_", "Jasper_")
+        replace_in_file(self, "modules/imgcodecs/CMakeLists.txt", "${GDAL_LIBRARY}", "GDAL::GDAL")
         if Version(self.version) >= "4.8.0":
-            replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "${AVIF_LIBRARY}", "avif")
+            replace_in_file(self, "modules/imgcodecs/CMakeLists.txt", "${AVIF_LIBRARY}", "avif")
+        replace_in_file(self, "modules/videoio/cmake/detect_realsense.cmake",
+                        'ocv_add_external_target(librealsense "" "${realsense2_LIBRARY}" "HAVE_LIBREALSENSE")',
+                        'ocv_add_external_target(librealsense "${realsense2_INCLUDE_DIRS}" "${realsense2_LIBRARIES}" "HAVE_LIBREALSENSE")')
 
         ## Fix detection of ffmpeg
-        replace_in_file(self, os.path.join(self.source_folder, "modules", "videoio", "cmake", "detect_ffmpeg.cmake"),
-                        "FFMPEG_FOUND", "ffmpeg_FOUND")
+        replace_in_file(self, "modules/videoio/cmake/detect_ffmpeg.cmake", "FFMPEG_FOUND", "ffmpeg_FOUND")
+
+        # Find libva from Conan
+        save(self, "cmake/OpenCVFindVA.cmake", "find_package(libva ${VA_REQUIRED})\n")
+
+        save(self, "modules/videoio/cmake/detect_openni2.cmake",
+             "find_package(OPENNI2 ${OPENNI2_REQUIRED})\n"
+             "set(HAVE_OPENNI2 ${OPENNI2_FOUND})\n"
+             'ocv_add_external_target(openni2 "${OPENNI2_INCLUDE_DIRS}" "${OPENNI2_LIBRARIES}" "HAVE_OPENNI2")\n')
+
+        # Use pkg-config to find Clp even on Windows
+        replace_in_file(self, "cmake/OpenCVFindLibsPerf.cmake", "if(UNIX)", "if(TRUE)")
+        # Fix a CMake bug
+        replace_in_file(self, "cmake/OpenCVFindLibsPerf.cmake",
+                        'if(NOT ${CLP_INCLUDE_DIRS} STREQUAL "")',
+                        'if(NOT CLP_INCLUDE_DIRS STREQUAL "")')
+
+        # Add support for external ITT
+        save(self, "cmake/OpenCVDetectTrace.cmake",
+             "if(WITH_ITT)\n"
+             "  find_package(ITT REQUIRED)\n"
+             "  set(HAVE_ITT 1)\n"
+             "endif()\n"
+             "set(OPENCV_TRACE 1)")
+
+        if Version(self.version) >= "4.11.0":
+            save(self, "cmake/OpenCVFindJPEGXL.cmake", "find_package(JPEGXL REQUIRED)\n")
 
         ## Cleanup RPATH
-        install_layout_file = os.path.join(self.source_folder, "cmake", "OpenCVInstallLayout.cmake")
-        replace_in_file(self, install_layout_file,
-                        'ocv_update(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}")',
-                        "")
-        replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        replace_in_file(self, "cmake/OpenCVInstallLayout.cmake", 'ocv_update(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}")', "")
+        replace_in_file(self, "cmake/OpenCVInstallLayout.cmake", "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
         # Respect cppstd from Conan
-        replace_in_file(self, os.path.join("cmake", "OpenCVDetectCXXCompiler.cmake"),
-                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")', "")
-        if Version(self.version) <= "4.2":
-            replace_in_file(self, os.path.join("cmake", "OpenCVDetectCXXCompiler.cmake"),
-                            "set(CMAKE_CXX_STANDARD 11)", "")
+        replace_in_file(self, "cmake/OpenCVDetectCXXCompiler.cmake", 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")', "")
         for path, min_ver in [
             ("cmake/OpenCVPluginStandalone.cmake", "4.5.2"),
             ("modules/dnn/cmake/plugin.cmake", "4.7.0"),
@@ -1307,9 +1509,9 @@ class OpenCVConan(ConanFile):
         tc.variables["BUILD_opencv_python_tests"] = False
         tc.variables["BUILD_opencv_ts"] = False
 
-        tc.variables["WITH_1394"] = False
-        tc.variables["WITH_ARAVIS"] = False
-        tc.variables["WITH_CLP"] = False
+        tc.variables["WITH_1394"] = self.options.get_safe("with_1394", False)
+        tc.variables["WITH_ARAVIS"] = self.options.get_safe("with_aravis", False)
+        tc.variables["WITH_CLP"] = self.options.get_safe("with_clp", False)
         tc.variables["WITH_NVCUVID"] = False
 
         tc.variables["WITH_FFMPEG"] = self.options.get_safe("with_ffmpeg", False)
@@ -1330,7 +1532,8 @@ class OpenCVConan(ConanFile):
                     tc.variables[f"FFMPEG_lib{component}_VERSION"] = ffmpeg_component_version
             tc.variables["FFMPEG_LIBRARIES"] = ";".join(ffmpeg_libraries)
 
-        tc.variables["WITH_GSTREAMER"] = False
+        tc.variables["WITH_GSTREAMER"] = self.options.get_safe("with_gstreamer", False)
+        tc.variables["OPENCV_GAPI_GSTREAMER"] = self.options.get_safe("with_gstreamer", False)
         tc.variables["WITH_HALIDE"] = False
         tc.variables["WITH_HPX"] = False
         tc.variables["WITH_IMGCODEC_HDR"] = self.options.get_safe("with_imgcodec_hdr", False)
@@ -1342,8 +1545,8 @@ class OpenCVConan(ConanFile):
             ipp_root = self.dependencies["intel-ipp"].package_folder.replace("\\", "/")
             tc.variables["IPPROOT"] = ipp_root
             tc.variables["IPPIWROOT"] = ipp_root
-        tc.variables["WITH_ITT"] = False
-        tc.variables["WITH_LIBREALSENSE"] = False
+        tc.variables["WITH_ITT"] = self.options.with_itt
+        tc.variables["WITH_LIBREALSENSE"] = self.options.get_safe("with_librealsense", False)
         tc.variables["WITH_MFX"] = False
         tc.variables["WITH_OPENCL"] = self.options.get_safe("with_opencl", False)
         tc.variables["WITH_OPENCLAMDBLAS"] = False
@@ -1353,7 +1556,7 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_TBB"] = self.options.parallel == "tbb"
         tc.variables["WITH_OPENMP"] = self.options.parallel == "openmp"
         tc.variables["WITH_OPENNI"] = False
-        tc.variables["WITH_OPENNI2"] = False
+        tc.variables["WITH_OPENNI2"] = self.options.get_safe("with_openni2", False)
         tc.variables["WITH_OPENVX"] = False
         tc.variables["WITH_CAROTENE"] = False
         tc.variables["WITH_PLAIDML"] = False
@@ -1361,20 +1564,23 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_QT"] = self.options.get_safe("with_qt", False)
         tc.variables["WITH_QUIRC"] = self.options.get_safe("with_quirc", False)
         tc.variables["WITH_V4L"] = self.options.get_safe("with_v4l", False)
-        tc.variables["WITH_VA"] = False
-        tc.variables["WITH_VA_INTEL"] = False
+        tc.variables["WITH_VA"] = self.options.get_safe("with_va", False)
+        tc.variables["WITH_VA_INTEL"] = self.options.get_safe("with_va", False) and self.options.get_safe("with_opencl", False)
         tc.variables["WITH_VTK"] = self.options.viz
         tc.variables["WITH_VULKAN"] = self.options.get_safe("with_vulkan", False)
         if self.options.get_safe("with_vulkan"):
             tc.variables["VULKAN_INCLUDE_DIRS"] = os.path.join(self.dependencies["vulkan-headers"].package_folder, "include").replace("\\", "/")
         tc.variables["WITH_XIMEA"] = False
         tc.variables["WITH_XINE"] = False
-        tc.variables["WITH_LAPACK"] = False
+        tc.variables["WITH_LAPACK"] = self.options.get_safe("with_lapack", False)
 
+        tc.variables["WITH_FRAMEBUFFER"] = self.options.get_safe("with_framebuffer", False)
+        tc.variables["WITH_FRAMEBUFFER_XVFB"] = self.options.get_safe("with_framebuffer", False)
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_GTK_2_X"] = self._is_gtk_version2
         tc.variables["WITH_WEBP"] = self.options.get_safe("with_webp", False)
         tc.variables["WITH_JPEG"] = bool(self.options.get_safe("with_jpeg", False))
+        tc.variables["WITH_JPEGXL"] = self.options.get_safe("with_jpegxl", False)
         tc.variables["WITH_PNG"] = self.options.get_safe("with_png", False)
         if self._has_with_tiff_option:
             tc.variables["WITH_TIFF"] = self.options.get_safe("with_tiff", False)
@@ -1383,6 +1589,7 @@ class OpenCVConan(ConanFile):
             tc.variables["WITH_OPENJPEG"] = self.options.get_safe("with_jpeg2000") == "openjpeg"
         tc.variables["WITH_OPENEXR"] = self.options.get_safe("with_openexr", False)
         tc.variables["WITH_GDAL"] = self.options.get_safe("with_gdal", False)
+        tc.variables["WITH_GPHOTO2"] = self.options.get_safe("with_gphoto2", False)
         tc.variables["WITH_GDCM"] = self.options.get_safe("with_gdcm", False)
         tc.variables["WITH_EIGEN"] = self.options.with_eigen
         tc.variables["WITH_DSHOW"] = self._is_cl_like
@@ -1455,11 +1662,25 @@ class OpenCVConan(ConanFile):
         if self.options.text:
             tc.variables["WITH_TESSERACT"] = self.options.with_tesseract
 
+        if self.options.get_safe("with_openni"):
+            tc.variables["OPENNI2_REQUIRED"] = "REQUIRED"
+
+        if self.options.get_safe("with_va"):
+            tc.variables["VA_INCLUDE_DIR"] = self.dependencies["libva"].cpp_info.includedir.replace("\\", "/")
+            tc.variables["VA_LIBRARIES"] = "libva::libva"
+            tc.variables["VA_REQUIRED"] = "REQUIRED"
+
         if self.options.get_safe("with_jpeg2000") == "openjpeg":
             openjpeg_version = Version(self.dependencies["openjpeg"].ref.version)
             tc.variables["OPENJPEG_MAJOR_VERSION"] = openjpeg_version.major
             tc.variables["OPENJPEG_MINOR_VERSION"] = openjpeg_version.minor
             tc.variables["OPENJPEG_BUILD_VERSION"] = openjpeg_version.patch
+
+        if self.options.get_safe("with_opencl") and not is_apple_os(self):
+            tc.variables["OPENCL_INCLUDE_DIR"] = self.dependencies["opencl-headers"].cpp_info.includedir.replace("\\", "/")
+            opencl_libdir = self.dependencies["opencl-icd-loader"].cpp_info.libdir
+            opencl_lib = sorted(Path(opencl_libdir).iterdir())[0]
+            tc.variables["OPENCL_LIBRARY"] = str(opencl_lib).replace("\\", "/")
 
         tc.variables["WITH_CUDA"] = self.options.with_cuda
         if self.options.with_cuda:
@@ -1480,11 +1701,17 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Android":
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
 
+        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+
         tc.generate()
 
-        CMakeDeps(self).generate()
+        deps = CMakeDeps(self)
+        deps.set_property("ittapi", "cmake_file_name", "ITT")
+        deps.set_property("libjxl", "cmake_file_name", "JPEGXL")
+        deps.set_property("openni2", "cmake_file_name", "OPENNI2")
+        deps.generate()
 
-        if self.options.get_safe("with_wayland"):
+        if self._build_depends_on_pkgconfig:
             deps = PkgConfigDeps(self)
             deps.generate()
 
