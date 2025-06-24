@@ -448,20 +448,16 @@ class OpenCVConan(ConanFile):
             return ["libgphoto2::libgphoto2"] if self.options.get_safe("with_gphoto2") else []
 
         def gstreamer():
-            components = []
             if self.options.get_safe("with_gstreamer"):
-                components.extend([
+                return [
                     "gstreamer::gstreamer-base-1.0",
                     "gst-plugins-base::gstreamer-app-1.0",
                     "gst-plugins-base::gstreamer-riff-1.0",
                     "gst-plugins-base::gstreamer-pbutils-1.0",
                     "gst-plugins-base::gstreamer-video-1.0",
                     "gst-plugins-base::gstreamer-audio-1.0",
-                ])
-            return components
-
-        def gstreamer_in_gapi():
-            return gstreamer() if Version(self.version) >= "4.5.5" else []
+                ]
+            return []
 
         def gtk():
             return ["gtk::gtk"] if self.options.get_safe("with_gtk") else []
@@ -595,7 +591,7 @@ class OpenCVConan(ConanFile):
             "gapi": {
                 "is_built": self.options.gapi,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_imgproc", "ade::ade"] + openvino() + gstreamer_in_gapi(),
+                "requires": ["opencv_imgproc", "ade::ade"] + openvino() + gstreamer(),
                 "system_libs": [
                     (self.settings.os == "Windows", ["ws2_32", "wsock32"]),
                 ],
@@ -1111,7 +1107,7 @@ class OpenCVConan(ConanFile):
             self.options.rm_safe("with_aravis")
             self.options.rm_safe("with_gphoto2")
             self.options.rm_safe("with_librealsense")
-        if not (self.options.videoio or (self.options.gapi and Version(self.version) >= "4.5.5")):
+        if not self.options.videoio and not self.options.gapi:
             self.options.rm_safe("with_gstreamer")
         if not self.options.with_cuda:
             self.options.rm_safe("with_cublas")
@@ -1407,8 +1403,7 @@ class OpenCVConan(ConanFile):
             tc.variables["FFMPEG_LIBRARIES"] = ";".join(ffmpeg_libraries)
 
         tc.variables["WITH_GSTREAMER"] = self.options.get_safe("with_gstreamer", False)
-        if Version(self.version) >= "4.5.5":
-            tc.variables["OPENCV_GAPI_GSTREAMER"] = self.options.get_safe("with_gstreamer", False)
+        tc.variables["OPENCV_GAPI_GSTREAMER"] = self.options.get_safe("with_gstreamer", False)
         tc.variables["WITH_HALIDE"] = False
         tc.variables["WITH_HPX"] = False
         tc.variables["WITH_IMGCODEC_HDR"] = self.options.get_safe("with_imgcodec_hdr", False)
