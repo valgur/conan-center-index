@@ -148,6 +148,7 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": [True, False],
         # videoio module options
+        "with_1394": [True, False],
         "with_aravis": [True, False],
         "with_ffmpeg": [True, False],
         "with_gphoto2": [True, False],
@@ -213,6 +214,7 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": False,
         # videoio module options
+        "with_1394": False,
         "with_aravis": False,
         "with_ffmpeg": True,
         "with_gphoto2": False,
@@ -267,35 +269,44 @@ class OpenCVConan(ConanFile):
     @property
     def _build_depends_on_pkgconfig(self):
         return (
-            self.options.get_safe("with_aravis")
+            self.options.get_safe("with_1394")
+            or self.options.get_safe("with_aravis")
             or self.options.get_safe("with_gphoto2")
             or self.options.get_safe("with_gstreamer")
             or self.options.get_safe("with_wayland")
         )
 
     @property
+    def _is_apple_device_os(self):
+        return is_apple_os(self) and self.settings.os != "Macos"
+
+    @property
     def _has_with_jpeg2000_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_with_tiff_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_with_ffmpeg_option(self):
-        return self.settings.os not in ["iOS", "WindowsStore"]
+        return self.settings.os not in ["WindowsStore"] and not self._is_apple_device_os
 
     @property
     def _has_with_gstreamer_option(self):
-        return self.settings.os not in ["Android", "iOS", "WindowsStore"]
+        return self.settings.os not in ["Android", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_1394_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
 
     @property
     def _has_with_aravis_option(self):
-        return self.settings.os not in ["Android", "iOS", "Windows", "WindowsStore"]
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
 
     @property
     def _has_with_gphoto2_option(self):
-        return self.settings.os not in ["Android", "iOS", "Windows", "WindowsStore"]
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
 
     @property
     def _has_with_va_option(self):
@@ -303,7 +314,7 @@ class OpenCVConan(ConanFile):
 
     @property
     def _has_superres_option(self):
-        return self.settings.os != "iOS"
+        return not self._is_apple_device_os
 
     @property
     def _has_alphamat_option(self):
@@ -354,7 +365,7 @@ class OpenCVConan(ConanFile):
         if self.settings.os != "Linux":
             del self.options.with_gtk
             del self.options.with_v4l
-        if self.settings.os in ["iOS", "Android"]:
+        if self.settings.os == "Android" or self._is_apple_device_os:
             del self.options.with_opencl
         if self.settings.os != "Windows":
             del self.options.with_msmf
@@ -371,12 +382,14 @@ class OpenCVConan(ConanFile):
         if not self._has_with_jpeg2000_option:
             del self.options.with_jpeg2000
 
-        if "arm" not in self.settings.arch or Version(self.version) >= "4.11.0":
+        if "arm" not in str(self.settings.arch) or Version(self.version) >= "4.11.0":
             del self.options.neon
         if not self._has_with_tiff_option:
             del self.options.with_tiff
         if not self._has_with_gstreamer_option:
             del self.options.with_gstreamer
+        if not self._has_with_1394_option:
+            del self.options.with_1394
         if not self._has_with_aravis_option:
             del self.options.with_aravis
         if not self._has_with_gphoto2_option:
@@ -440,6 +453,9 @@ class OpenCVConan(ConanFile):
             if self.options.get_safe("with_gdcm"):
                 components.append("gdcm::gdcm")
             return components
+
+        def dc1394():
+            return ["libdc1394::libdc1394"] if self.options.get_safe("with_1394") else []
 
         def aravis():
             return ["aravis::aravis"] if self.options.get_safe("with_aravis") else []
@@ -668,7 +684,8 @@ class OpenCVConan(ConanFile):
             "videoio": {
                 "is_built": self.options.videoio,
                 "mandatory_options": ["imgcodecs", "imgproc"],
-                "requires": ["opencv_imgcodecs", "opencv_imgproc"] + aravis() + ffmpeg() + gphoto2() + gstreamer() + librealsense() + ipp(),
+                "requires": ["opencv_imgcodecs", "opencv_imgproc"] +
+                            dc1394() + aravis() + ffmpeg() + gphoto2() + gstreamer() + librealsense() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk"]),
                 ],
@@ -1119,6 +1136,7 @@ class OpenCVConan(ConanFile):
         if not self.options.objdetect:
             self.options.rm_safe("with_quirc")
         if not self.options.videoio:
+            self.options.rm_safe("with_1394")
             self.options.rm_safe("with_aravis")
             self.options.rm_safe("with_ffmpeg")
             self.options.rm_safe("with_gphoto2")
@@ -1221,6 +1239,8 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_gstreamer"):
             self.requires("gst-plugins-base/[^1.16]")
             self.requires("gstreamer/[^1.16]")
+        if self.options.get_safe("with_1394"):
+            self.requires("libdc1394/[^2.2.6]")
         if self.options.get_safe("with_aravis"):
             self.requires("aravis/[>=0.8.30 <1]")
         if self.options.get_safe("with_gphoto2"):
@@ -1395,7 +1415,7 @@ class OpenCVConan(ConanFile):
         tc.variables["BUILD_opencv_python_tests"] = False
         tc.variables["BUILD_opencv_ts"] = False
 
-        tc.variables["WITH_1394"] = False
+        tc.variables["WITH_1394"] = self.options.get_safe("with_1394", False)
         tc.variables["WITH_ARAVIS"] = self.options.get_safe("with_aravis", False)
         tc.variables["WITH_CLP"] = False
         tc.variables["WITH_NVCUVID"] = False
