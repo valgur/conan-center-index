@@ -1,6 +1,6 @@
-import glob
 import os
 import re
+from pathlib import Path
 
 import yaml
 from conan import ConanFile
@@ -22,7 +22,6 @@ class XorgProtoConan(ConanFile):
     homepage = "https://gitlab.freedesktop.org/xorg/proto/xorgproto"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "PkgConfigDeps"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,7 +44,6 @@ class XorgProtoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -61,34 +59,33 @@ class XorgProtoConan(ConanFile):
         autotools.make()
 
     @property
-    def _pc_data_path(self):
-        return os.path.join(self.package_folder, "share", self.name, "pc_data.yml")
+    def _pc_data_yml_path(self):
+        return Path(self.package_folder, "share", "conan", self.name, "pc_data.yml")
 
-    def package(self):
-        copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-
-        autotools = Autotools(self)
-        autotools.install()
-
+    def _read_pc_data(self):
         pc_data = {}
-        for fn in glob.glob(os.path.join(self.package_folder, "share", "pkgconfig", "*.pc")):
-            pc_text = load(self, fn)
-            filename = os.path.basename(fn)[:-3]
-            name = next(re.finditer("^Name: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
-            version = next(re.finditer("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
-            pc_data[filename] = {
+        for path in Path(self.package_folder, "share", "pkgconfig").glob("*.pc"):
+            pc_text = path.read_text(encoding="utf-8")
+            name = re.search("^Name: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE).group(1)
+            version = re.search("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE).group(1)
+            pc_data[path.stem] = {
                 "version": version,
                 "name": name,
             }
-        mkdir(self, os.path.dirname(self._pc_data_path))
-        save(self, self._pc_data_path, yaml.dump(pc_data))
+        return pc_data
 
-        rmdir(self, os.path.join(self.package_folder, "share"))
+    def package(self):
+        copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        autotools = Autotools(self)
+        autotools.install()
+        save(self, self._pc_data_yml_path, yaml.dump(self._read_pc_data()))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
 
     def package_info(self):
-        for filename, name_version in yaml.safe_load(open(self._pc_data_path)).items():
-            self.cpp_info.components[filename].libdirs = []
-            self.cpp_info.components[filename].version = name_version["version"]
+        for filename, name_version in yaml.safe_load(self._pc_data_yml_path.read_text()).items():
             self.cpp_info.components[filename].set_property("pkg_config_name", filename)
+            self.cpp_info.components[filename].set_property("component_version", name_version["version"])
+            self.cpp_info.components[filename].libdirs = []
 
         self.cpp_info.components["xproto"].includedirs.append(os.path.join("include", "X11"))
