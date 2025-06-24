@@ -118,6 +118,7 @@ class OpenCVConan(ConanFile):
         "cuda_arch_bin": [None, "ANY"],
         "cpu_baseline": [None, "ANY"],
         "cpu_dispatch": [None, "ANY"],
+        "with_itt": [True, False],
         "world": [True, False],
         "nonfree": [True, False],
         # dnn module options
@@ -190,6 +191,7 @@ class OpenCVConan(ConanFile):
         "cuda_arch_bin": None,
         "cpu_baseline": None,
         "cpu_dispatch": None,
+        "with_itt": False,
         "world": False,
         "nonfree": False,
         # dnn module options
@@ -487,6 +489,9 @@ class OpenCVConan(ConanFile):
                 components.append("gdcm::gdcm")
             return components
 
+        def itt():
+            return ["ittapi::ittapi"] if self.options.with_itt else []
+
         def dc1394():
             return ["libdc1394::libdc1394"] if self.options.get_safe("with_1394") else []
 
@@ -643,7 +648,7 @@ class OpenCVConan(ConanFile):
             "core": {
                 "is_built": True,
                 "no_option": True,
-                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp() + opencl() + va(),
+                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp() + opencl() + va() + itt(),
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
@@ -671,7 +676,7 @@ class OpenCVConan(ConanFile):
             "gapi": {
                 "is_built": self.options.gapi,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_imgproc", "ade::ade"] + openvino() + gstreamer() + va(),
+                "requires": ["opencv_imgproc", "ade::ade"] + openvino() + gstreamer() + va() + itt(),
                 "system_libs": [
                     (self.settings.os == "Windows", ["ws2_32", "wsock32"]),
                 ],
@@ -1245,6 +1250,8 @@ class OpenCVConan(ConanFile):
             self.requires("intel-ipp/2020")
         if self.options.get_safe("with_opencl") and not is_apple_os(self):
             self.requires("opencl-icd-loader/[*]")
+        if self.options.with_itt:
+            self.requires("ittapi/[^3.25.5]")
         # dnn module dependencies
         if self.options.get_safe("with_protobuf"):
             # Symbols are exposed https://github.com/conan-io/conan-center-index/pull/16678#issuecomment-1507811867
@@ -1430,6 +1437,14 @@ class OpenCVConan(ConanFile):
                         'if(NOT ${CLP_INCLUDE_DIRS} STREQUAL "")',
                         'if(NOT CLP_INCLUDE_DIRS STREQUAL "")')
 
+        # Add support for external ITT
+        save(self, "cmake/OpenCVDetectTrace.cmake",
+             "if(WITH_ITT)\n"
+             "  find_package(ITT REQUIRED)\n"
+             "  set(HAVE_ITT 1)\n"
+             "endif()\n"
+             "set(OPENCV_TRACE 1)")
+
         if Version(self.version) >= "4.11.0":
             save(self, "cmake/OpenCVFindJPEGXL.cmake", "find_package(JPEGXL REQUIRED)\n")
 
@@ -1530,7 +1545,7 @@ class OpenCVConan(ConanFile):
             ipp_root = self.dependencies["intel-ipp"].package_folder.replace("\\", "/")
             tc.variables["IPPROOT"] = ipp_root
             tc.variables["IPPIWROOT"] = ipp_root
-        tc.variables["WITH_ITT"] = False
+        tc.variables["WITH_ITT"] = self.options.with_itt
         tc.variables["WITH_LIBREALSENSE"] = self.options.get_safe("with_librealsense", False)
         tc.variables["WITH_MFX"] = False
         tc.variables["WITH_OPENCL"] = self.options.get_safe("with_opencl", False)
@@ -1691,6 +1706,7 @@ class OpenCVConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("ittapi", "cmake_file_name", "ITT")
         deps.set_property("libjxl", "cmake_file_name", "JPEGXL")
         deps.set_property("openni2", "cmake_file_name", "OPENNI2")
         deps.generate()
