@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-24:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -231,6 +231,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - json-glib/1.10.6
 - jsonifier/0.9.98
 - kdsingleapplication/1.1.0
+- kleidiai/1.9.0
 - klib/cci.20250205
 - kokkos/4.3.1
 - lapack/3.12.0
@@ -358,10 +359,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ocl-icd/2.3.3
 - odbc/2.3.12
 - ogre/14.3.4
+- onednn-openvino/3.6.2.cci.20250514
 - onednn/3.8.1
+- onednn/3.9.0-pc
 - onemath/0.7
 - onemkl/2025.1.0
 - onetbb/2022.1.0
+- onnx/1.18.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
 - opencl-clhpp-headers/2024.10.24
@@ -558,6 +562,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - x86simdsortcpp/7.0
 - xbyak/7.26
 - xbyak_aarch64/1.1.3
+- xbyak_riscv/6.68.cci.20250422
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
