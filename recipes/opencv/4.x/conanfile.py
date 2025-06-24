@@ -108,6 +108,7 @@ class OpenCVConan(ConanFile):
         "parallel": [False, "tbb", "openmp"],
         "with_ipp": [False, "intel-ipp", "opencv-icv"],
         "with_eigen": [True, False],
+        "with_lapack": [True, False],
         "neon": [True, False],
         "with_opencl": [True, False],
         "with_cuda": [True, False],
@@ -177,6 +178,7 @@ class OpenCVConan(ConanFile):
         "parallel": "openmp",
         "with_ipp": False,
         "with_eigen": True,
+        "with_lapack": False,
         "neon": True,
         "with_opencl": False,
         "with_cuda": False,
@@ -489,6 +491,9 @@ class OpenCVConan(ConanFile):
         def eigen():
             return ["eigen::eigen"] if self.options.with_eigen else []
 
+        def lapack():
+            return ["openblas::openblas"] if self.options.with_lapack else []
+
         def ffmpeg():
             components = []
             if self.options.get_safe("with_ffmpeg"):
@@ -624,7 +629,8 @@ class OpenCVConan(ConanFile):
             "calib3d": {
                 "is_built": self.options.calib3d,
                 "mandatory_options": ["features2d", "flann", "imgproc"],
-                "requires": ["opencv_core", "opencv_features2d", "opencv_flann", "opencv_imgproc"] + eigen() + ipp(),
+                "requires": ["opencv_core", "opencv_features2d", "opencv_flann", "opencv_imgproc"] +
+                            eigen() + lapack() + ipp(),
             },
             "core": {
                 "is_built": True,
@@ -642,7 +648,8 @@ class OpenCVConan(ConanFile):
             "dnn": {
                 "is_built": self.options.dnn,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_core", "opencv_imgproc"] + protobuf() + vulkan() + ipp() + openvino(),
+                "requires": ["opencv_core", "opencv_imgproc"] +
+                            protobuf() + vulkan() + ipp() + openvino() + lapack(),
             },
             "features2d": {
                 "is_built": self.options.features2d,
@@ -1139,6 +1146,8 @@ class OpenCVConan(ConanFile):
         if not (self._has_openvino_option and (self.options.gapi or self.options.dnn)):
             self.options.rm_safe("with_openvino")
 
+        if not self.options.calib3d and not self.options.dnn:
+            self.options.rm_safe("with_lapack")
         if not self.options.dnn:
             self.options.rm_safe("dnn_cuda")
             self.options.rm_safe("with_flatbuffers")
@@ -1211,6 +1220,9 @@ class OpenCVConan(ConanFile):
         self.requires("zlib-ng/[^2.0]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
+        if self.options.get_safe("with_lapack"):
+            # TODO: add a BLAS/LAPACK meta-package for Conan
+            self.requires("openblas/[>=0.3.28 <1]")
         if self.options.parallel == "openmp":
             # Used in a public header:
             # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
@@ -1526,7 +1538,7 @@ class OpenCVConan(ConanFile):
             tc.variables["VULKAN_INCLUDE_DIRS"] = os.path.join(self.dependencies["vulkan-headers"].package_folder, "include").replace("\\", "/")
         tc.variables["WITH_XIMEA"] = False
         tc.variables["WITH_XINE"] = False
-        tc.variables["WITH_LAPACK"] = False
+        tc.variables["WITH_LAPACK"] = self.options.get_safe("with_lapack", False)
 
         tc.variables["WITH_FRAMEBUFFER"] = self.options.get_safe("with_framebuffer", False)
         tc.variables["WITH_FRAMEBUFFER_XVFB"] = self.options.get_safe("with_framebuffer", False)
@@ -1654,6 +1666,8 @@ class OpenCVConan(ConanFile):
 
         if self.settings.os == "Android":
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
+
+        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
 
         tc.generate()
 
