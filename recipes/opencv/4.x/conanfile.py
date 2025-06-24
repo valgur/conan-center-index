@@ -156,6 +156,7 @@ class OpenCVConan(ConanFile):
         "with_gphoto2": [True, False],
         "with_gstreamer": [True, False],
         "with_librealsense": [True, False],
+        "with_openni2": [True, False],
         "with_va": [True, False],
         "with_v4l": [True, False],
         # text module options
@@ -224,6 +225,7 @@ class OpenCVConan(ConanFile):
         "with_gphoto2": False,
         "with_gstreamer": False,
         "with_librealsense": False,
+        "with_openni2": False,
         "with_va": False,
         "with_v4l": True,
         # text module options
@@ -314,6 +316,10 @@ class OpenCVConan(ConanFile):
 
     @property
     def _has_with_gphoto2_option(self):
+        return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
+
+    @property
+    def _has_with_openni2_option(self):
         return self.settings.os not in ["Android", "Windows", "WindowsStore"] and not self._is_apple_device_os
 
     @property
@@ -408,6 +414,8 @@ class OpenCVConan(ConanFile):
             del self.options.with_aravis
         if not self._has_with_gphoto2_option:
             del self.options.with_gphoto2
+        if not self._has_with_openni2_option:
+            del self.options.with_openni2
         if not self._has_with_va_option:
             del self.options.with_va
         if not self._has_superres_option:
@@ -501,6 +509,9 @@ class OpenCVConan(ConanFile):
                     "gst-plugins-base::gstreamer-audio-1.0",
                 ]
             return []
+
+        def openni2():
+            return ["openni2::openni2"] if self.options.get_safe("with_openni2") else []
 
         def va():
             return ["libva::libva"] if self.options.get_safe("with_va") else []
@@ -706,7 +717,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.videoio,
                 "mandatory_options": ["imgcodecs", "imgproc"],
                 "requires": ["opencv_imgcodecs", "opencv_imgproc"] +
-                            dc1394() + aravis() + ffmpeg() + gphoto2() + gstreamer() + librealsense() + ipp(),
+                            dc1394() + aravis() + ffmpeg() + gphoto2() + gstreamer() + librealsense() + openni2() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk"]),
                 ],
@@ -1163,6 +1174,7 @@ class OpenCVConan(ConanFile):
             self.options.rm_safe("with_ffmpeg")
             self.options.rm_safe("with_gphoto2")
             self.options.rm_safe("with_librealsense")
+            self.options.rm_safe("with_openni2")
             self.options.rm_safe("with_v4l")
             self.options.rm_safe("with_va")
         if not self.options.videoio and not self.options.gapi:
@@ -1273,6 +1285,8 @@ class OpenCVConan(ConanFile):
             self.requires("libgphoto2/[^2.5.31]")
         if self.options.get_safe("with_librealsense"):
             self.requires("librealsense/[^2.53.1]")
+        if self.options.get_safe("with_openni2"):
+            self.requires("openni2/[^2.2.0]")
         if self.options.get_safe("with_va"):
             self.requires("libva/[^2.20.0]")
         # freetype module dependencies
@@ -1379,6 +1393,11 @@ class OpenCVConan(ConanFile):
 
         # Find libva from Conan
         save(self, "cmake/OpenCVFindVA.cmake", "find_package(libva ${VA_REQUIRED})\n")
+
+        save(self, "modules/videoio/cmake/detect_openni2.cmake",
+             "find_package(OPENNI2 ${OPENNI2_REQUIRED})\n"
+             "set(HAVE_OPENNI2 ${OPENNI2_FOUND})\n"
+             'ocv_add_external_target(openni2 "${OPENNI2_INCLUDE_DIRS}" "${OPENNI2_LIBRARIES}" "HAVE_OPENNI2")\n')
 
         if Version(self.version) >= "4.11.0":
             save(self, "cmake/OpenCVFindJPEGXL.cmake", "find_package(JPEGXL REQUIRED)\n")
@@ -1491,7 +1510,7 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_TBB"] = self.options.parallel == "tbb"
         tc.variables["WITH_OPENMP"] = self.options.parallel == "openmp"
         tc.variables["WITH_OPENNI"] = False
-        tc.variables["WITH_OPENNI2"] = False
+        tc.variables["WITH_OPENNI2"] = self.options.get_safe("with_openni2", False)
         tc.variables["WITH_OPENVX"] = False
         tc.variables["WITH_CAROTENE"] = False
         tc.variables["WITH_PLAIDML"] = False
@@ -1597,6 +1616,9 @@ class OpenCVConan(ConanFile):
         if self.options.text:
             tc.variables["WITH_TESSERACT"] = self.options.with_tesseract
 
+        if self.options.get_safe("with_openni"):
+            tc.variables["OPENNI2_REQUIRED"] = "REQUIRED"
+
         if self.options.get_safe("with_va"):
             tc.variables["VA_INCLUDE_DIR"] = self.dependencies["libva"].cpp_info.includedir.replace("\\", "/")
             tc.variables["VA_LIBRARIES"] = "libva::libva"
@@ -1637,6 +1659,7 @@ class OpenCVConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.set_property("libjxl", "cmake_file_name", "JPEGXL")
+        deps.set_property("openni2", "cmake_file_name", "OPENNI2")
         deps.generate()
 
         if self._build_depends_on_pkgconfig:
