@@ -1356,7 +1356,7 @@ class OpenCVConan(ConanFile):
         ## Remove 3rd party libs
         for directory in [
             "include", "libjasper", "libjpeg", "libjpeg-turbo", "libpng", "libspng", "libtiff",
-            "libwebp", "openexr", "openjpeg", "protobuf", "quirc", "tbb", "zlib",
+            "libwebp", "openexr", "openjpeg", "protobuf", "quirc", "tbb", "zlib", "zlib-ng",
         ]:
             rmdir(self, os.path.join("3rdparty", directory))
         replace_in_file(self, "cmake/OpenCVDetectOpenCL.cmake", "ocv_install_3rdparty_licenses", "# ocv_install_3rdparty_licenses")
