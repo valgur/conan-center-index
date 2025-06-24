@@ -133,9 +133,10 @@ class OpenCVConan(ConanFile):
         # imgcodecs module options
         "with_avif": [True, False],
         "with_jpeg": [True, False],
+        "with_jpegxl": [True, False],
+        "with_jpeg2000": [False, "jasper", "openjpeg"],
         "with_png": [True, False],
         "with_tiff": [True, False],
-        "with_jpeg2000": [False, "jasper", "openjpeg"],
         "with_openexr": [True, False],
         "with_webp": [True, False],
         "with_gdal": [True, False],
@@ -200,9 +201,10 @@ class OpenCVConan(ConanFile):
         # imgcodecs module options
         "with_avif": False,
         "with_jpeg": True,
+        "with_jpegxl": False,
+        "with_jpeg2000": False,
         "with_png": True,
         "with_tiff": True,
-        "with_jpeg2000": False,
         "with_openexr": False,
         "with_webp": True,
         "with_gdal": False,
@@ -281,6 +283,10 @@ class OpenCVConan(ConanFile):
     @property
     def _is_apple_device_os(self):
         return is_apple_os(self) and self.settings.os != "Macos"
+
+    @property
+    def _has_jpegxl_option(self):
+        return Version(self.version) >= "4.11.0"
 
     @property
     def _has_with_jpeg2000_option(self):
@@ -385,6 +391,8 @@ class OpenCVConan(ConanFile):
         else:
             del self.options.with_ffmpeg
 
+        if not self._has_jpegxl_option:
+            del self.options.with_jpegxl
         if not self._has_with_jpeg2000_option:
             del self.options.with_jpeg2000
 
@@ -444,12 +452,14 @@ class OpenCVConan(ConanFile):
             components = []
             if self.options.get_safe("with_avif"):
                 components.append("libavif::libavif")
+            if self.options.get_safe("with_jpeg"):
+                components.append("libjpeg-meta::jpeg")
+            if self.options.get_safe("with_jpegxl"):
+                components.append("libjxl::libjxl")
             if self.options.get_safe("with_jpeg2000"):
                 components.append("{0}::{0}".format(self.options.with_jpeg2000))
             if self.options.get_safe("with_png"):
                 components.append("libpng::libpng")
-            if self.options.get_safe("with_jpeg"):
-                components.append("libjpeg-meta::jpeg")
             if self.options.get_safe("with_tiff"):
                 components.append("libtiff::tiff")
             if self.options.get_safe("with_openexr"):
@@ -1131,6 +1141,7 @@ class OpenCVConan(ConanFile):
         if not self.options.imgcodecs:
             self.options.rm_safe("with_avif")
             self.options.rm_safe("with_jpeg")
+            self.options.rm_safe("with_jpegxl")
             self.options.rm_safe("with_jpeg2000")
             self.options.rm_safe("with_openexr")
             self.options.rm_safe("with_png")
@@ -1227,6 +1238,8 @@ class OpenCVConan(ConanFile):
             self.requires("libavif/[^1.0.4]")
         if self.options.get_safe("with_jpeg"):
             self.requires("libjpeg-meta/latest")
+        if self.options.get_safe("with_jpegxl"):
+            self.requires("libjxl/0.11.1")
         if self.options.get_safe("with_jpeg2000") == "openjpeg":
             self.requires("openjpeg/[^2.5.2]")
         elif self.options.get_safe("with_jpeg2000") == "jasper":
@@ -1367,6 +1380,9 @@ class OpenCVConan(ConanFile):
         # Find libva from Conan
         save(self, "cmake/OpenCVFindVA.cmake", "find_package(libva ${VA_REQUIRED})\n")
 
+        if Version(self.version) >= "4.11.0":
+            save(self, "cmake/OpenCVFindJPEGXL.cmake", "find_package(JPEGXL REQUIRED)\n")
+
         ## Cleanup RPATH
         replace_in_file(self, "cmake/OpenCVInstallLayout.cmake", 'ocv_update(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}")', "")
         replace_in_file(self, "cmake/OpenCVInstallLayout.cmake", "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
@@ -1499,6 +1515,7 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_GTK_2_X"] = self._is_gtk_version2
         tc.variables["WITH_WEBP"] = self.options.get_safe("with_webp", False)
         tc.variables["WITH_JPEG"] = bool(self.options.get_safe("with_jpeg", False))
+        tc.variables["WITH_JPEGXL"] = self.options.get_safe("with_jpegxl", False)
         tc.variables["WITH_PNG"] = self.options.get_safe("with_png", False)
         if self._has_with_tiff_option:
             tc.variables["WITH_TIFF"] = self.options.get_safe("with_tiff", False)
@@ -1618,7 +1635,9 @@ class OpenCVConan(ConanFile):
 
         tc.generate()
 
-        CMakeDeps(self).generate()
+        deps = CMakeDeps(self)
+        deps.set_property("libjxl", "cmake_file_name", "JPEGXL")
+        deps.generate()
 
         if self._build_depends_on_pkgconfig:
             deps = PkgConfigDeps(self)
