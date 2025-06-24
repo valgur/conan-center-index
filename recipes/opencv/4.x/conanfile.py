@@ -147,12 +147,12 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": [True, False],
         # videoio module options
-        "with_ffmpeg": [True, False],
-        "with_gstreamer": [True, False],
-        "with_v4l": [True, False],
         "with_aravis": [True, False],
+        "with_ffmpeg": [True, False],
         "with_gphoto2": [True, False],
+        "with_gstreamer": [True, False],
         "with_librealsense": [True, False],
+        "with_v4l": [True, False],
         # text module options
         "with_tesseract": [True, False],
 
@@ -211,12 +211,12 @@ class OpenCVConan(ConanFile):
         # objdetect module options
         "with_quirc": False,
         # videoio module options
-        "with_ffmpeg": True,
-        "with_gstreamer": False,
-        "with_v4l": True,
         "with_aravis": False,
+        "with_ffmpeg": True,
         "with_gphoto2": False,
+        "with_gstreamer": False,
         "with_librealsense": False,
+        "with_v4l": True,
         # text module options
         "with_tesseract": True,
 
@@ -1102,11 +1102,11 @@ class OpenCVConan(ConanFile):
         if not self.options.objdetect:
             self.options.rm_safe("with_quirc")
         if not self.options.videoio:
-            self.options.rm_safe("with_ffmpeg")
-            self.options.rm_safe("with_v4l")
             self.options.rm_safe("with_aravis")
+            self.options.rm_safe("with_ffmpeg")
             self.options.rm_safe("with_gphoto2")
             self.options.rm_safe("with_librealsense")
+            self.options.rm_safe("with_v4l")
         if not self.options.videoio and not self.options.gapi:
             self.options.rm_safe("with_gstreamer")
         if not self.options.with_cuda:
