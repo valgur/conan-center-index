@@ -126,6 +126,7 @@ class OpenCVConan(ConanFile):
         "with_openvino": [True, False],
         "dnn_cuda": [True, False],
         # highgui module options
+        "with_framebuffer": [True, False],
         "with_gtk": [True, False],
         "with_qt": [True, False],
         "with_wayland": [True, False],
@@ -192,6 +193,7 @@ class OpenCVConan(ConanFile):
         "with_openvino": False,
         "dnn_cuda": False,
         # highgui module options
+        "with_framebuffer": False,
         "with_gtk": False,
         "with_qt": False,
         "with_wayland": True,
@@ -345,6 +347,10 @@ class OpenCVConan(ConanFile):
         return Version(self.version) >= "4.10.0"
 
     @property
+    def _has_framebuffer_option(self):
+        return Version(self.version) >= "4.11.0" and self.settings.os in ["Linux", "FreeBSD"]
+
+    @property
     def _has_with_wayland_option(self):
         return Version(self.version) >= "4.7.0" and self.settings.os in ["Linux", "FreeBSD"]
 
@@ -410,6 +416,8 @@ class OpenCVConan(ConanFile):
             del self.options.wechat_qrcode
         if not self._has_barcode_option:
             del self.options.barcode
+        if not self._has_framebuffer_option:
+            del self.options.with_framebuffer
         if not self._has_with_wayland_option:
             del self.options.with_wayland
         if not self._has_with_avif_option:
@@ -533,6 +541,9 @@ class OpenCVConan(ConanFile):
         def xkbcommon():
             return ["xkbcommon::libxkbcommon"] if self.options.get_safe("with_wayland") else []
 
+        def xvfb():
+            return ["xorg-proto::xorg-proto"] if self.options.get_safe("with_framebuffer") else []
+
         def openvino():
             return ["openvino::Runtime"] if self.options.get_safe("with_openvino") else []
 
@@ -633,7 +644,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.highgui,
                 "mandatory_options": ["imgproc"],
                 "requires": ["opencv_core", "opencv_imgproc"] + opencv_imgcodecs() +
-                            opencv_videoio() + gtk() + qt() + xkbcommon() + wayland() + ipp(),
+                            opencv_videoio() + xvfb() + gtk() + qt() + xkbcommon() + wayland() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Windows", ["comctl32", "gdi32", "ole32", "setupapi", "ws2_32", "vfw32"]),
                 ],
@@ -1202,6 +1213,8 @@ class OpenCVConan(ConanFile):
         if self.options.gapi:
             self.requires("ade/0.1.2d")
         # highgui module dependencies
+        if self.options.get_safe("with_framebuffer"):
+            self.requires("xorg-proto/2024.1")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/[~3.24]")
         if self.options.get_safe("with_qt"):
@@ -1480,6 +1493,8 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_XINE"] = False
         tc.variables["WITH_LAPACK"] = False
 
+        tc.variables["WITH_FRAMEBUFFER"] = self.options.get_safe("with_framebuffer", False)
+        tc.variables["WITH_FRAMEBUFFER_XVFB"] = self.options.get_safe("with_framebuffer", False)
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_GTK_2_X"] = self._is_gtk_version2
         tc.variables["WITH_WEBP"] = self.options.get_safe("with_webp", False)
