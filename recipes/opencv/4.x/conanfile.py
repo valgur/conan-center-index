@@ -162,6 +162,8 @@ class OpenCVConan(ConanFile):
         "with_v4l": [True, False],
         # text module options
         "with_tesseract": [True, False],
+        # videostab module options
+        "with_clp": [True, False],
 
         # Force all main module options to True
         "build_all_base": [True, False],
@@ -232,6 +234,8 @@ class OpenCVConan(ConanFile):
         "with_v4l": True,
         # text module options
         "with_tesseract": True,
+        # videostab module options
+        "with_clp": False,
 
         # main modules - enable the more lightweight ones by default
         "calib3d": True,
@@ -277,7 +281,8 @@ class OpenCVConan(ConanFile):
     @property
     def _build_depends_on_pkgconfig(self):
         return (
-            self.options.get_safe("with_1394")
+            self.options.get_safe("with_clp")
+            or self.options.get_safe("with_1394")
             or self.options.get_safe("with_aravis")
             or self.options.get_safe("with_gphoto2")
             or self.options.get_safe("with_gstreamer")
@@ -493,6 +498,9 @@ class OpenCVConan(ConanFile):
 
         def lapack():
             return ["openblas::openblas"] if self.options.with_lapack else []
+
+        def clp():
+            return ["coin-clp::coin-clp"] if self.options.get_safe("with_clp") else []
 
         def ffmpeg():
             components = []
@@ -990,7 +998,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.videostab,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "photo", "video"],
                 "requires": ["opencv_calib3d", "opencv_features2d", "opencv_imgproc", "opencv_photo", "opencv_video"] +
-                            opencv_videoio() + ipp() + opencv_cudawarping() + opencv_cudaoptflow(),
+                            opencv_videoio() + clp() + ipp() + opencv_cudawarping() + opencv_cudaoptflow(),
             },
             "viz": {
                 "is_built": self.options.viz,
@@ -1196,6 +1204,8 @@ class OpenCVConan(ConanFile):
             self.options.rm_safe("cuda_arch_bin")
         if not self.options.text:
             self.options.rm_safe("with_tesseract")
+        if not self.options.videostab:
+            self.options.rm_safe("with_clp")
 
         if self.options.build_all_base:
             self.options.update(
@@ -1223,6 +1233,8 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_lapack"):
             # TODO: add a BLAS/LAPACK meta-package for Conan
             self.requires("openblas/[>=0.3.28 <1]")
+        if self.options.get_safe("with_clp"):
+            self.requires("coin-clp/[^1.17.6]")
         if self.options.parallel == "openmp":
             # Used in a public header:
             # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
@@ -1411,6 +1423,13 @@ class OpenCVConan(ConanFile):
              "set(HAVE_OPENNI2 ${OPENNI2_FOUND})\n"
              'ocv_add_external_target(openni2 "${OPENNI2_INCLUDE_DIRS}" "${OPENNI2_LIBRARIES}" "HAVE_OPENNI2")\n')
 
+        # Use pkg-config to find Clp even on Windows
+        replace_in_file(self, "cmake/OpenCVFindLibsPerf.cmake", "if(UNIX)", "if(TRUE)")
+        # Fix a CMake bug
+        replace_in_file(self, "cmake/OpenCVFindLibsPerf.cmake",
+                        'if(NOT ${CLP_INCLUDE_DIRS} STREQUAL "")',
+                        'if(NOT CLP_INCLUDE_DIRS STREQUAL "")')
+
         if Version(self.version) >= "4.11.0":
             save(self, "cmake/OpenCVFindJPEGXL.cmake", "find_package(JPEGXL REQUIRED)\n")
 
@@ -1477,7 +1496,7 @@ class OpenCVConan(ConanFile):
 
         tc.variables["WITH_1394"] = self.options.get_safe("with_1394", False)
         tc.variables["WITH_ARAVIS"] = self.options.get_safe("with_aravis", False)
-        tc.variables["WITH_CLP"] = False
+        tc.variables["WITH_CLP"] = self.options.get_safe("with_clp", False)
         tc.variables["WITH_NVCUVID"] = False
 
         tc.variables["WITH_FFMPEG"] = self.options.get_safe("with_ffmpeg", False)
