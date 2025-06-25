@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
 
@@ -27,6 +28,7 @@ class FltkConan(ConanFile):
         "with_threads": [True, False],
         "with_gdiplus": [True, False],
         "abi_version": ["ANY"],
+        "with_pango": [True, False],
         "with_xft": [True, False],
         "with_wayland": [True, False],
     }
@@ -36,6 +38,7 @@ class FltkConan(ConanFile):
         "with_gl": True,
         "with_threads": True,
         "with_gdiplus": True,
+        "with_pango": False,
         "with_xft": False,
         "with_wayland": False,
     }
@@ -48,16 +51,14 @@ class FltkConan(ConanFile):
     def _is_cl_like_static_runtime(self):
         return self._is_cl_like and "MT" in msvc_runtime_flag(self)
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            self.options.rm_safe("with_gdiplus")
+            del self.options.with_gdiplus
 
         if self.settings.os not in ["Linux", "FreeBSD"]:
+            del self.options.with_pango
             del self.options.with_xft
             del self.options.with_wayland
 
@@ -70,6 +71,13 @@ class FltkConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if self.options.get_safe("with_wayland"):
+            self.options.with_pango.value = True
+            self.options.with_gl.value = True
+        if self.options.get_safe("with_pango"):
+            self.options.with_xft.value = True
+            self.options["pango"].with_cairo = True
+            self.options["pango"].with_freetype = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -81,9 +89,12 @@ class FltkConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_gl:
                 self.requires("opengl/system")
+                self.requires("egl/system")
                 self.requires("glu/system")
             self.requires("fontconfig/[^2.15.0]")
             self.requires("xorg/system")
+            if self.options.with_pango:
+                self.requires("pango/[^1.54.0]")
             if self.options.with_xft:
                 self.requires("libxft/[^2.3.8]")
             if self.options.with_wayland:
@@ -95,34 +106,51 @@ class FltkConan(ConanFile):
     def build_requirements(self):
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+                self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # Use libxft CMake target instead of relying on find_library for it and its dependencies.
+        replace_in_file(self, "src/CMakeLists.txt",
+                        "  list(APPEND OPTIONAL_LIBS ${X11_Xft_LIB})",
+                        "  find_package(libxft REQUIRED)\n"
+                        "  list(APPEND OPTIONAL_LIBS libxft::libxft)\n")
+        # Use CMake targets directly instead of their INTERFACE_LINK_LIBRARIES property, which breaks with CMakeDeps.
+        replace_in_file(self, "src/CMakeLists.txt",
+                        "if(_link_libraries)",
+                        "list(APPEND OPTIONAL_LIBS ${_target})\n"
+                        "if(FALSE)")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["FLTK_BUILD_TEST"] = False
-        tc.variables["FLTK_BUILD_EXAMPLES"] = False
-        tc.variables["FLTK_BUILD_SHARED_LIBS"] = self.options.shared
-        tc.variables["FLTK_BUILD_GL"] = self.options.with_gl
-        tc.variables["FLTK_USE_PTHREADS"] = self.options.with_threads
-        tc.variables["FLTK_BUILD_HTML_DOCS"] = False
-        tc.variables["FLTK_BUILD_PDF_DOCS"] = False
-        tc.variables["FLTK_USE_XFT"] = self.options.get_safe("with_xft", False)
-        tc.variables["FLTK_USE_WAYLAND"] = self.options.get_safe("with_wayland", False)
-        tc.variables["FLTK_USE_SYSTEM_LIBDECOR"] = True
-        if self.options.abi_version:
-            tc.variables["FLTK_ABI_VERSION"] = self.options.abi_version
-        tc.variables["FLTK_USE_SYSTEM_LIBJPEG"] = True
-        tc.variables["FLTK_USE_SYSTEM_ZLIB"] = True
-        tc.variables["FLTK_USE_SYSTEM_LIBPNG"] = True
-        tc.variables["FLTK_BUILD_FLUID"] = False
+        tc.cache_variables["FLTK_BUILD_TEST"] = False
+        tc.cache_variables["FLTK_BUILD_EXAMPLES"] = False
+        tc.cache_variables["FLTK_BUILD_HTML_DOCS"] = False
+        tc.cache_variables["FLTK_BUILD_PDF_DOCS"] = False
+        tc.cache_variables["FLTK_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["FLTK_BUILD_GL"] = self.options.with_gl
+        tc.cache_variables["FLTK_USE_PTHREADS"] = self.options.with_threads
+        tc.cache_variables["FLTK_USE_PANGO"] = self.options.get_safe("with_pango", False)
+        tc.cache_variables["FLTK_GRAPHICS_CAIRO"] = self.options.get_safe("with_pango", False)
+        tc.cache_variables["FLTK_USE_XFT"] = self.options.get_safe("with_xft", False)
+        tc.cache_variables["FLTK_BACKEND_WAYLAND"] = self.options.get_safe("with_wayland", False)
+        tc.cache_variables["FLTK_USE_SYSTEM_LIBDECOR"] = True
+        tc.cache_variables["FLTK_ABI_VERSION"] = self.options.abi_version
+        tc.cache_variables["FLTK_USE_SYSTEM_LIBJPEG"] = True
+        tc.cache_variables["FLTK_USE_SYSTEM_ZLIB"] = True
+        tc.cache_variables["FLTK_USE_SYSTEM_LIBPNG"] = True
+        tc.cache_variables["FLTK_BUILD_FLUID"] = False
         if self._is_cl_like:
-            tc.variables["FLTK_MSVC_RUNTIME_DLL"] = not self._is_cl_like_static_runtime
+            tc.cache_variables["FLTK_MSVC_RUNTIME_DLL"] = not self._is_cl_like_static_runtime
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            deps = PkgConfigDeps(self)
+            deps.set_property("opengl", "pkg_config_name", "gl")
+            deps.generate()
 
     def _patch_sources(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -191,10 +219,12 @@ class FltkConan(ConanFile):
                 # https://github.com/fltk/fltk/blob/release-1.3.9/CMake/options.cmake#L236
                 "xorg::xext",
             ])
+            if self.options.with_pango:
+                self.cpp_info.requires.extend(["pango::pango_", "pango::pangocairo", "pango::pangoxft"])
             if self.options.with_xft:
                 self.cpp_info.requires.append("libxft::libxft")
             if self.options.with_gl:
-                self.cpp_info.requires.extend(["opengl::opengl", "glu::glu"])
+                self.cpp_info.requires.extend(["opengl::opengl", "egl::egl", "glu::glu"])
             if self.options.with_wayland:
                 self.cpp_info.requires.extend([
                     "wayland::wayland",
