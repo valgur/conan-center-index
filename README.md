@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-24:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-25:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
