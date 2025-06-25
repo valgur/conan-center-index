@@ -5,6 +5,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -61,17 +62,10 @@ class FltkConan(ConanFile):
             del self.options.with_wayland
 
         if self.options.abi_version == None:
-            _version_token = self.version.split(".")
-            _version_major = int(_version_token[0])
-            if len(_version_token) >= 3:
-                _version_minor = int(_version_token[1])
-                _version_patch = int(_version_token[2])
-            elif len(_version_token) >= 2:
-                _version_minor = int(_version_token[1])
-                _version_patch = 0
-            self.options.abi_version = str(
-                int(_version_major) * 10000 + int(_version_minor) * 100 + int(_version_patch)
-            )
+            version = Version(self.version + ".0")
+            self.options.abi_version = str(int(version.major.value) * 10000 +
+                                           int(version.minor.value) * 100 +
+                                           int(version.patch.value))
 
     def configure(self):
         if self.options.shared:
