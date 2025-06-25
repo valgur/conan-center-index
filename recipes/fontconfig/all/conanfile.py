@@ -22,11 +22,13 @@ class FontconfigConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "i18n": [True, False],
+        "xml_backend": ["expat", "libxml2"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "i18n": False,
+        "xml_backend": "libxml2",
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -38,7 +40,10 @@ class FontconfigConan(ConanFile):
 
     def requirements(self):
         self.requires("freetype/[^2.13.2]")
-        self.requires("expat/[>=2.6.2 <3]")
+        if self.options.xml_backend == "libxml2":
+            self.requires("libxml2/[^2.12.5]")
+        elif self.options.xml_backend == "expat":
+            self.requires("expat/[>=2.6.2 <3]")
 
     def build_requirements(self):
         self.tool_requires("gperf/3.1")
@@ -58,6 +63,7 @@ class FontconfigConan(ConanFile):
         tc.project_options["nls"] = "enabled" if self.options.i18n else "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["tools"] = "disabled"
+        tc.project_options["xml-backend"] = self.options.xml_backend.value
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

@@ -2,6 +2,3 @@ sources:
   "2.16.2":
     url: "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.16.2/fontconfig-2.16.2.tar.bz2"
     sha256: "fd9dfb5fe4d4503ae286e95fd85973c3c0490cf5d88ebf49e7f943973443262b"
-  "2.15.0":
-    url: "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.16.2/fontconfig-2.15.0.tar.bz2"
-    sha256: "efb0a8fa80c35f31c288b63a3844dab45b642bd2759f1aa6057c3b12d6b6c2a6"
