@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
         if self._full_findx11_test:
-            self.requires("libxft/2.3.8", transitive_headers=True, transitive_libs=True)
+            self.requires("libxft/[^2.3.8]", transitive_headers=True, transitive_libs=True)
             self.requires("xkbcommon/[^1.6.0]", transitive_headers=True, transitive_libs=True, options={
                 "with_wayland": False,
                 "with_x11": True

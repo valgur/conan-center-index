@@ -85,7 +85,7 @@ class FltkConan(ConanFile):
             self.requires("fontconfig/[^2.15.0]")
             self.requires("xorg/system")
             if self.options.with_xft:
-                self.requires("libxft/2.3.8")
+                self.requires("libxft/[^2.3.8]")
             if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
                 self.requires("xkbcommon/[^1.6.0]")
