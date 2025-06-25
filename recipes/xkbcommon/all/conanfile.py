@@ -56,7 +56,7 @@ class XkbcommonConan(ConanFile):
         if self.options.use_xorg_system:
             self.requires("xkeyboard-config/system")
         else:
-            self.requires("xkeyboard-config/2.43")
+            self.requires("xkeyboard-config/[^2.43]")
         if self.options.get_safe("with_x11"):
             if self.options.use_xorg_system:
                 self.requires("xorg/system")
