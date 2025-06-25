@@ -33,9 +33,6 @@ class FontconfigConan(ConanFile):
 
     python_requires = "conan-meson/latest"
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -53,7 +50,6 @@ class FontconfigConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = MesonToolchain(self)
