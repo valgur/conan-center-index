@@ -88,7 +88,7 @@ class FltkConan(ConanFile):
                 self.requires("libxft/2.3.8")
             if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
-                self.requires("xkbcommon/1.6.0")
+                self.requires("xkbcommon/[^1.6.0]")
                 self.requires("libdecor/[>=0.2.2 <1]")
                 self.requires("dbus/[^1.15]")
 

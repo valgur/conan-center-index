@@ -315,7 +315,7 @@ class GStPluginsBadConan(ConanFile):
         if "vulkan-loader" in reqs:
             self.requires("vulkan-loader/[^1.3.239.0]")
             if self.options.get_safe("with_wayland") or self.options.get_safe("with_xorg"):
-                self.requires("xkbcommon/1.6.0")
+                self.requires("xkbcommon/[^1.6.0]")
             if is_apple_os(self):
                 self.requires("moltenvk/1.2.2")
         if self.options.get_safe("with_wayland"):

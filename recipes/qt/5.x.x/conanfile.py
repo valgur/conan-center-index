@@ -436,7 +436,7 @@ class QtConan(ConanFile):
             elif self.options.get_safe("opengl", "no")  == "es2":
                 self.requires("egl/system")
         if self.options.get_safe("with_x11") or self.options.qtwayland:
-            self.requires("xkbcommon/1.6.0")
+            self.requires("xkbcommon/[^1.6.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.qtwebengine and self.settings.os in ["Linux", "FreeBSD"]:

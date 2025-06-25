@@ -75,7 +75,7 @@ class GlfwConan(ConanFile):
                 self.requires("xorg/system", libs=False)
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("xkbcommon/1.6.0")
+            self.requires("xkbcommon/[^1.6.0]")
 
     def validate(self):
         if self.options.get_safe("with_wayland"):

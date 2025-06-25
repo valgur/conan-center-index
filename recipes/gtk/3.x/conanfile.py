@@ -112,7 +112,7 @@ class GtkConan(ConanFile):
         self.requires("harfbuzz/[*]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("xkbcommon/1.6.0")
+            self.requires("xkbcommon/[^1.6.0]")
             self.requires("egl/system")
         if self.options.get_safe("with_x11"):
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gdk/x11/gdkx11display.h#L34-35

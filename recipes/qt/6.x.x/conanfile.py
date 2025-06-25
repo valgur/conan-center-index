@@ -456,7 +456,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/[~1.2.10]")
         if self.options.get_safe("with_x11") or self.options.get_safe("qtwayland"):
-            self.requires("xkbcommon/1.6.0")
+            self.requires("xkbcommon/[^1.6.0]")
         if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
         if self.options.get_safe("with_egl"):

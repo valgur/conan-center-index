@@ -172,7 +172,7 @@ class wxWidgetsConan(ConanFile):
             if self.options.mediactrl and self._toolkit.startswith("gtk"):
                 self.requires("gst-plugins-base/[^1.24]")
             if self._toolkit.startswith("gtk"):
-                self.requires("xkbcommon/1.6.0", options={"with_x11": True})
+                self.requires("xkbcommon/[^1.6.0]", options={"with_x11": True})
             if self.options.webrequest:
                 self.requires("libcurl/[>=7.78.0 <9]")
 
