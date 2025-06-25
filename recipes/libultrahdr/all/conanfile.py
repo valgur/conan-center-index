@@ -1,103 +1,93 @@
-from conan import ConanFile
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-
 import os
 
-required_conan_version = ">=2.0.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import *
+
+required_conan_version = ">=2.1"
 
 
 class LibultrahdrConan(ConanFile):
     name = "libultrahdr"
     description = "libultrahdr is an image format for storing SDR and HDR versions of an image for android."
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/libultrahdr"
+    topics = ("ultrahdr", "graphics", "image", "hdr")
     package_type = "library"
-    license = "Apache-2.0"
-    topics = ("ultrahdr", "graphics", "image")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "enable_gles": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_jpeg": "libjpeg",
+        "enable_gles": False,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.0")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.3")
+        self.requires("libjpeg-meta/latest")
+        # TODO: might want to unvendor Google's image_io library as well
 
     def validate(self):
         check_min_cppstd(self, 17)
+        if self.options.enable_gles and not self.options.shared:
+            # The GLESv3/GLESv2 system lib deps cannot be predetermined.
+            # Propagate them as dynamic library dependencies instead.
+            raise ConanInvalidConfiguration("enable_gles option requires shared=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # Don't disable installation when cross-compiling
+        replace_in_file(self, "CMakeLists.txt", "if(CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL)", "if(FALSE)")
+        # Conan expects CMP0091=NEW
+        replace_in_file(self, "CMakeLists.txt", "cmake_policy(SET CMP0091 OLD)", "cmake_policy(SET CMP0091 NEW)")
+        # Let Conan set cppstd
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
+        # Must find libjpeg provided by Conan
+        replace_in_file(self, "CMakeLists.txt", "find_package(JPEG QUIET)", "find_package(JPEG REQUIRED)")
 
     def generate(self):
         tc = CMakeToolchain(self)
-
-        # Force-disable fallback to internal dependency builder if no deps found
         tc.cache_variables["UHDR_BUILD_DEPS"] = False
-        tc.cache_variables['UHDR_BUILD_EXAMPLES'] = False
-        if self.options.with_jpeg == "libjpeg":
-            tc.cache_variables["CONAN_USE_JPEG"] = True
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            tc.cache_variables["CONAN_USE_JPEGTURBO"] = True
-        elif self.options.with_jpeg == "mozjpeg":
-            tc.cache_variables["CONAN_USE_MOZJPEG"] = True
-
+        tc.cache_variables["UHDR_BUILD_EXAMPLES"] = False
+        tc.cache_variables["UHDR_ENABLE_GLES"] = self.options.enable_gles
         tc.generate()
         deps = CMakeDeps(self)
-        #if self.options.with_jpeg:
-        #    deps.set_property(self.options.with_jpeg, "cmake_file_name", "JPEG")
-        #    deps.set_property(self.options.with_jpeg, "cmake_target_name", "JPEG::JPEG")
         deps.generate()
 
     def build(self):
+        if self.options.shared:
+            # Don't build and install a static version in addition to the shared one
+            save(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                 "\nset_target_properties(uhdr-static PROPERTIES EXCLUDE_FROM_ALL TRUE)\n",
+                 append=True)
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "install(TARGETS ${UHDR_TARGET_NAME} ${UHDR_TARGET_NAME_STATIC} ",
+                            "install(TARGETS ${UHDR_TARGET_NAME} ")
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.libs = ['uhdr']
-
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.requires = ["libjpeg::libjpeg"]
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.requires = ["libjpeg-turbo::jpeg"]
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.requires = ["mozjpeg::libjpeg"]
-
+        self.cpp_info.set_property("pkg_config_name", "libuhdr")
+        self.cpp_info.libs = ["uhdr"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["m", "pthread"]
+        elif self.settings.os == "Android":
+            self.cpp_info.system_libs = ["log"]
+        self.cpp_info.requires = ["libjpeg-meta::jpeg"]
