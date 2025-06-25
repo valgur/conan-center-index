@@ -8,7 +8,6 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -40,13 +39,7 @@ class XkbcommonConan(ConanFile):
     }
     languages = ["C"]
 
-    @property
-    def _has_xkbregistry_option(self):
-        return Version(self.version) >= "1.0.0"
-
     def config_options(self):
-        if not self._has_xkbregistry_option:
-            del self.options.xkbregistry
         if self.settings.os not in ("Linux", "Android"):
             del self.options.with_wayland
 
@@ -69,7 +62,7 @@ class XkbcommonConan(ConanFile):
                 self.requires("xorg/system")
             else:
                 self.requires("libxcb/1.17.0")
-        if self.options.get_safe("xkbregistry"):
+        if self.options.xkbregistry:
             self.requires("libxml2/[^2.12.5]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
@@ -92,13 +85,11 @@ class XkbcommonConan(ConanFile):
     def generate(self):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
-        if Version(self.version) >= "1.6":
-            tc.project_options["enable-bash-completion"] = False
+        tc.project_options["enable-bash-completion"] = False
         tc.project_options["enable-docs"] = False
         tc.project_options["enable-wayland"] = self.options.get_safe("with_wayland", False)
         tc.project_options["enable-x11"] = self.options.get_safe("with_x11", False)
-        if self._has_xkbregistry_option:
-            tc.project_options["enable-xkbregistry"] = self.options.xkbregistry
+        tc.project_options["enable-xkbregistry"] = self.options.xkbregistry
         if self.settings.os == "Android":
             tc.project_options["enable-tools"] = False
         tc.generate()
@@ -144,7 +135,7 @@ class XkbcommonConan(ConanFile):
                 self.cpp_info.components["libxkbcommon-x11"].requires.extend(["xorg::xcb", "xorg::xcb-xkb"])
             else:
                 self.cpp_info.components["libxkbcommon-x11"].requires.extend(["libxcb::xcb", "libxcb::xcb-xkb"])
-        if self.options.get_safe("xkbregistry"):
+        if self.options.xkbregistry:
             self.cpp_info.components["libxkbregistry"].set_property("pkg_config_name", "xkbregistry")
             self.cpp_info.components["libxkbregistry"].set_property("cmake_target_aliases", ["X11::xkbregistry"])
             self.cpp_info.components["libxkbregistry"].libs = ["xkbregistry"]
