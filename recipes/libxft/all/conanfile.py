@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -37,10 +36,10 @@ class libxftConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("xorg-proto/2024.1", transitive_headers=True)
         if self.options.use_xorg_system:
             self.requires("xorg/system", transitive_headers=True)
         else:
-            self.requires("xorg-proto/2024.1", transitive_headers=True)
             self.requires("libxrender/0.9.11", transitive_headers=True)
         self.requires("freetype/[^2.13.2]", transitive_headers=True)
         self.requires("fontconfig/[^2.15.0]", transitive_headers=True)
@@ -58,7 +57,6 @@ class libxftConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
         deps = PkgConfigDeps(self)
@@ -82,8 +80,8 @@ class libxftConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xft")
         self.cpp_info.set_property("cmake_target_aliases", ["X11::Xft"])
         self.cpp_info.libs = ["Xft"]
-        self.cpp_info.requires = ["freetype::freetype", "fontconfig::fontconfig"]
+        self.cpp_info.requires = ["xorg-proto::xorg-proto", "freetype::freetype", "fontconfig::fontconfig"]
         if self.options.use_xorg_system:
             self.cpp_info.requires.append("xorg::xrender")
         else:
-            self.cpp_info.requires.extend(["xorg-proto::xorg-proto", "libxrender::libxrender"])
+            self.cpp_info.requires.append("libxrender::libxrender")
