@@ -6,6 +6,7 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -72,6 +73,10 @@ class XkeyboardConfigConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        if Version(self.version) >= "2.45":
+            # Fix an absolute-path symlink to the new location
+            os.unlink(os.path.join(self.package_folder, "share", "X11", "xkb"))
+            os.symlink("../xkeyboard-config-2", os.path.join(self.package_folder, "share", "X11", "xkb"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "xkeyboard-config")

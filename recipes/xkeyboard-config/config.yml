@@ -1,4 +1,6 @@
 versions:
+  "2.45":
+    folder: all
   "2.43":
     folder: all
   "system":

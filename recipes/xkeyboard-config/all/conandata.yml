@@ -1,4 +1,7 @@
 sources:
+  "2.45":
+    url: "https://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-2.45.tar.xz"
+    sha256: "169e075a92d957a57787c199e84e359df2931b7196c1c5b4a3d576ee6235a87c"
   "2.43":
     url: "https://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-2.43.tar.xz"
     sha256: "c810f362c82a834ee89da81e34cd1452c99789339f46f6037f4b9e227dd06c01"
