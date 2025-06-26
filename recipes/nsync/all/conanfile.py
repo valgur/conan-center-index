@@ -1,10 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanException
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -57,6 +56,13 @@ class NsyncConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             f"{ar_dest})",
                             f"{ar_dest}\n{rt_dest})")
+
+        if is_apple_os(self):
+            # Following the Darwin codepath when the OS is an apple OS (e.g. iOS)
+            # matches https://github.com/google/nsync/blob/99e0e9e1e32db42e88b98b96e874f4884620b755/BUILD#L131
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            'elseif ("${CMAKE_SYSTEM_NAME}X" STREQUAL "DarwinX")',
+                            'elseif(1)')
 
     def build(self):
         self._patch_sources()
