@@ -178,7 +178,7 @@ class AssimpConan(ConanFile):
         if self._depends_on_poly2tri:
             self.requires("poly2tri/cci.20130502")
         if self._depends_on_rapidjson:
-            self.requires("rapidjson/[^1.1.0]")
+            self.requires("rapidjson/[>=cci.20250205]")
         if self._depends_on_draco:
             self.requires("draco/1.5.6")
         if self._depends_on_clipper:

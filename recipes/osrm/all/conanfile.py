@@ -87,7 +87,7 @@ class OsrmConan(ConanFile):
         self.requires("mapbox-geometry/2.0.3")
         self.requires("mapbox-variant/1.2.0", transitive_headers=True)
         self.requires("microtar/0.1.0")
-        self.requires("rapidjson/[^1.1.0]")
+        self.requires("rapidjson/[>=cci.20250205]")
         self.requires("sol2/3.3.1")
         # TODO
         # self.requires("mapbox-cheap-ruler/0")

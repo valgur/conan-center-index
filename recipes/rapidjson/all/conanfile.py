@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class RapidjsonConan(ConanFile):
     name = "rapidjson"
     description = "A fast JSON parser/generator for C++ with both SAX/DOM style API"
-    topics = ("rapidjson", "json", "parser", "generator")
+    topics = ("json", "parser", "generator")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://rapidjson.org"
     license = "MIT"
@@ -35,5 +35,6 @@ class RapidjsonConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "RapidJSON")
         self.cpp_info.set_property("cmake_target_name", "rapidjson")
+        self.cpp_info.set_property("pkg_config_name", "RapidJSON")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []

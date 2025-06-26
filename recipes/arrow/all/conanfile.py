@@ -164,7 +164,7 @@ class ArrowConan(ConanFile):
         if self.options.with_grpc:
             self.requires("grpc/[^1.50.2]")
         if self._requires_rapidjson:
-            self.requires("rapidjson/[^1.1.0]")
+            self.requires("rapidjson/[>=cci.20250205]")
         if self.options.gandiva:
             self.requires("llvm-core/[>=19]")
         if self.options.with_openssl:

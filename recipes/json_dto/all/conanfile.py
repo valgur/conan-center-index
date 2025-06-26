@@ -21,35 +21,17 @@ class JsonDtoConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "5",
-            "clang": "4",
-            "apple-clang": "8",
-            "msvc": "190",
-        }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("rapidjson/[^1.1.0]")
+        self.requires("rapidjson/[>=cci.20250205]")
 
     def package_id(self):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
         # several gcc doesn't allow "this" in noexcept clauses due to bug. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100752
         if Version(self.version) >= "0.3.2" and \
             self.settings.compiler == "gcc" and \

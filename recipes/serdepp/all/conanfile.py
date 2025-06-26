@@ -62,7 +62,7 @@ class SerdeppConan(ConanFile):
         if self.options.with_yamlcpp:
             self.requires("yaml-cpp/[>=0.8.0 <1]")
         if self.options.with_rapidjson:
-            self.requires("rapidjson/[^1.1.0]")
+            self.requires("rapidjson/[>=cci.20250205]")
         if self.options.with_fmt:
             self.requires("fmt/[>=5]")
         if self.options.with_nlohmann_json:

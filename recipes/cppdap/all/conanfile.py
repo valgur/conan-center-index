@@ -41,7 +41,7 @@ class PackageConan(ConanFile):
         if self.options.with_json == "jsoncpp":
             self.requires("jsoncpp/[^1.9.5]")
         elif self.options.with_json == "rapidjson":
-            self.requires("rapidjson/[^1.1.0]")
+            self.requires("rapidjson/[>=cci.20250205]")
         elif self.options.with_json == "nlohmann_json":
             self.requires("nlohmann_json/[^3]")
 

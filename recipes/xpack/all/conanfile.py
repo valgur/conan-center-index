@@ -25,7 +25,7 @@ class XpackConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/[>=cci.20250205]")
         self.requires("rapidxml/1.13")
 
     def package_id(self):

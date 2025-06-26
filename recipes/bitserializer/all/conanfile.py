@@ -69,7 +69,7 @@ class BitserializerConan(ConanFile):
         if self.options.get_safe("with_cpprestsdk"):
             self.requires("cpprestsdk/2.10.19", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_rapidjson"):
-            self.requires("rapidjson/[^1.1.0]", transitive_headers=True, transitive_libs=True)
+            self.requires("rapidjson/[>=cci.20250205]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_pugixml"):
             self.requires("pugixml/[^1.14]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_rapidyaml"):
@@ -81,20 +81,8 @@ class BitserializerConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires at least {self.settings.compiler} {minimum_version}.",
-            )
-
-        # Check stdlib ABI compatibility
-        compiler_name = str(self.settings.compiler)
-        if compiler_name == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration(f'Using {self.ref} with GCC requires "compiler.libcxx=libstdc++11"')
-        elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
-            raise ConanInvalidConfiguration(f'Using {self.ref} with Clang requires either "compiler.libcxx=libstdc++11"'
-                                            ' or "compiler.libcxx=libc++"')
+        if self.settings.compiler.get_safe("libcxx") == "libstdc++":
+            raise ConanInvalidConfiguration("compiler.libcxx=libstdc++ is not supported, please use libstdc++11 or libc++")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

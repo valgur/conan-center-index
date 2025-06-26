@@ -9,6 +9,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
+
 class CassandraCppDriverConan(ConanFile):
     name = "cassandra-cpp-driver"
     description = "DataStax C/C++ Driver for Apache Cassandra and DataStax Products"
@@ -61,7 +62,7 @@ class CassandraCppDriverConan(ConanFile):
     def requirements(self):
         self.requires("libuv/[^1.45.0]")
         self.requires("http_parser/2.9.4")
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/[>=cci.20250205]")
 
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
