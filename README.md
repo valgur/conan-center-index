@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-25:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-26:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -122,6 +122,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fmi/1.0.1
 - fmi/2.0.5
 - fmi/3.0.2
+- fontconfig/2.16.2
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
@@ -159,8 +160,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gl2ps/1.4.2
 - glib-gir/2.82.4
 - glib-gir/2.84.1
-- glib/2.82.5
 - glib/2.84.3
+- glib/2.85.1
 - glibmm/2.84.0
 - glim/1.0.4
 - glim_ext/1.0.0
@@ -287,6 +288,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtorch/2.4.0
 - libudev/255.13
 - libudev/255.18
+- libultrahdr/1.4.0
 - libv4l/1.28.1
 - libva/2.22.0
 - libwacom/2.15.0
@@ -300,6 +302,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxdmcp/1.1.5
 - libxext/1.3.6
 - libxfixes/6.0.1
+- libxft/2.3.9
 - libxi/1.8.2
 - libxinerama/1.1.5
 - libxkbfile/1.1.3
@@ -474,6 +477,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - stablehlo/1.8.11
 - stablehlo/1.9.7
 - stb/cci.20250314
+- stdexec/0.11.0.cci.20250624
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - stk/5.0.1
@@ -574,7 +578,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xcb-util/0.4.1
 - xfonts-encodings/1.1.0
 - xgboost/2.0.3
+- xkbcommon/1.10.0
 - xkeyboard-config/2.43
+- xkeyboard-config/2.45
 - xorg-macros/1.20.2
 - xorg/1.8.10
 - xpack/1.0.6
