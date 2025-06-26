@@ -59,6 +59,10 @@ patches:
     - patch_file: "patches/4.11.0-0002-use-xorg-proto-for-framebuffer.patch"
       patch_description: "Framebuffer: use xorg-proto headers from Conan"
       patch_type: "conan"
+    - patch_file: "patches/4.11.0-0003-add-missing-include.patch"
+      patch_description: "Add a missing include in system.cpp"
+      patch_source: "https://github.com/opencv/opencv/pull/27483"
+      patch_type: "bugfix"
   "4.10.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"
