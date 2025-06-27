@@ -124,29 +124,29 @@ class PackageConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system")
         if self.options.with_pthread and self.settings.os == "Windows":
-            self.requires("pthreads4w/3.0.0")
+            self.requires("pthreads4w/[^3.0.0]")
         if self.options.with_opencl:
-            self.requires("opencl-headers/2023.12.14")
+            self.requires("opencl-headers/[>=2023.12.14]")
         if self.options.with_osqp:
-            self.requires("osqp/0.6.3")
+            self.requires("osqp/[>=0.6.3 <1]")
         if self.options.with_tinyxml:
             self.requires("tinyxml2/[^10.0.0]")
         if self.options.with_lapack:
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_ipopt:
-            self.requires("coin-ipopt/3.14.13")
+            self.requires("coin-ipopt/[^3.14.13]")
         if self.options.with_cbc:
-            self.requires("coin-cbc/2.10.11")
+            self.requires("coin-cbc/[^2.10.11]")
         if self.options.with_clp:
-            self.requires("coin-clp/1.17.9")
+            self.requires("coin-clp/[^1.17.9]")
         if self.options.with_mumps:
-            self.requires("coin-mumps/3.0.5")
+            self.requires("coin-mumps/[^3.0.5]")
         if self.options.with_bonmin:
-            self.requires("coin-cgl/0.60.8")
-            self.requires("coin-osi/0.108.10")
-            self.requires("coin-utils/2.11.11")
+            self.requires("coin-cgl/[>=0.60.8 <1]")
+            self.requires("coin-osi/[>=0.108.10 <1]")
+            self.requires("coin-utils/[^2.11.11]")
         if self.options.with_spral:
-            self.requires("metis/5.2.1")
+            self.requires("metis/[^5.2.1]")
         if self.options.with_csparse:
             self.requires("suitesparse-cxsparse/[^4.4.1]")
 
