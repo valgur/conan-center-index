@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-26:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-27:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -288,7 +288,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtorch/2.4.0
 - libudev/255.13
 - libudev/255.18
-- libultrahdr/1.4.0
 - libv4l/1.28.1
 - libva/2.22.0
 - libwacom/2.15.0
@@ -306,6 +305,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxi/1.8.2
 - libxinerama/1.1.5
 - libxkbfile/1.1.3
+- libxml2/2.14.4
 - libxmu/1.2.1
 - libxrandr/1.5.4
 - libxrender/0.9.11
@@ -430,6 +430,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qt/6.8.3
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
+- rapidjson/cci.20250205
 - re2/20220601
 - reduct-cpp/1.14.0
 - renderdoc/1.37
@@ -442,6 +443,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - rust/1.84.0
 - rust/1.85.1
+- sbgecom/5.2.590
 - secsipidx/1.3.2
 - serf/1.3.10
 - sfcgal/1.5.0
