@@ -3,7 +3,6 @@ import os
 import re
 import shlex
 import shutil
-import sys
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
@@ -86,8 +85,7 @@ class BoostConan(ConanFile):
         "layout": ["system", "versioned", "tagged"],
         "magic_autolink": [True, False],  # enables BOOST_ALL_NO_LIB
         "diagnostic_definitions": [True, False],  # enables BOOST_LIB_DIAGNOSTIC
-        "python_executable": [None, "ANY"],  # system default python installation is used, if None
-        "python_version": [None, "ANY"],  # major.minor; computed automatically, if None
+        "python_executable": [None, "ANY"],  # defaults to user.cpython:python conf value, followed by the cpython recipe if unset
         "namespace": ["ANY"],  # custom boost namespace for bcp, e.g. myboost
         "namespace_alias": [True, False],  # enable namespace alias for bcp, boost=myboost
         "multithreading": [True, False],  # enables multithreading support
@@ -125,7 +123,6 @@ class BoostConan(ConanFile):
         "magic_autolink": False,
         "diagnostic_definitions": False,
         "python_executable": None,
-        "python_version": None,
         "namespace": "boost",
         "namespace_alias": False,
         "multithreading": True,
@@ -263,15 +260,6 @@ class BoostConan(ConanFile):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
     @property
-    def _python_executable(self):
-        """
-        obtain full path to the python interpreter executable
-        :return: path to the python interpreter executable, either set by option, or system default
-        """
-        exe = self.options.python_executable if self.options.python_executable else sys.executable
-        return str(exe).replace("\\", "/")
-
-    @property
     def _is_windows_platform(self):
         return self.settings.os in ["Windows", "WindowsStore", "WindowsCE"]
 
@@ -282,6 +270,8 @@ class BoostConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+        self.options.python_executable = self.conf.get("user.cpython:python", default=None, check_type=str)
 
         # Test whether all config_options from the yml are available in CONFIGURE_OPTIONS
         for opt_name in self._available_modules:
@@ -345,11 +335,8 @@ class BoostConan(ConanFile):
             self.options.rm_safe("i18n_backend_iconv")
             self.options.rm_safe("i18n_backend_icu")
 
-        if self.options.with_python:
-            if not self.options.python_version:
-                self.options.python_version = self._detect_python_version()
-                self.options.python_executable = self._python_executable
-        else:
+        if not self.options.with_python:
+            self.options.rm_safe("python_executable")
             self.options.rm_safe("python_buildid")
 
         if not self._stacktrace_addr2line_available:
@@ -578,6 +565,10 @@ class BoostConan(ConanFile):
         return not self._header_only and self._with_dependency("iconv") and self.options.get_safe("i18n_backend_iconv") == "libiconv"
 
     @property
+    def _with_cpython(self):
+        return not self._header_only and self.options.with_python and not self.options.python_executable
+
+    @property
     def _with_stacktrace_backtrace(self):
         return not self._header_only and self.options.get_safe("with_stacktrace_backtrace", False)
 
@@ -592,11 +583,12 @@ class BoostConan(ConanFile):
             self.requires("zstd/[>=1.5 <1.6]")
         if self._with_stacktrace_backtrace:
             self.requires("libbacktrace/cci.20210118", transitive_headers=True, transitive_libs=True)
-
         if self._with_icu:
             self.requires("icu/[*]")
         if self._with_iconv:
             self.requires("libiconv/[^1.17]")
+        if self._with_cpython:
+            self.requires("cpython/[^3]", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         if self._header_only:
@@ -605,13 +597,15 @@ class BoostConan(ConanFile):
             del self.info.options.debug_level
             del self.info.options.filesystem_version
             del self.info.options.pch
-            del self.info.options.python_executable  # PATH to the interpreter is not important, only version matters
-            if not self.info.options.with_python:
-                del self.info.options.python_version
+            if self.info.options.with_python:
+                self.info.python_version = self._python_version
+                del self.info.options.python_executable
 
     def build_requirements(self):
         if not self._header_only:
             self.tool_requires("b2/[>=5.2 <6]")
+        if self._with_cpython:
+            self.tool_requires("cpython/[^3]", visible=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -627,6 +621,13 @@ class BoostConan(ConanFile):
 
     ##################### BUILDING METHODS ###########################
 
+    @cached_property
+    def _python_executable(self):
+        opt = self.info.options.get_safe("python_executable") or self.options.python_executable
+        # user.cpython:python is set by the cpython recipe
+        exe = opt.value if opt else self.conf.get("user.cpython:python", default=None, check_type=str)
+        return exe.replace("\\", "/")
+
     def _run_python_script(self, script):
         """
         execute python one-liner script and return its output
@@ -637,7 +638,7 @@ class BoostConan(ConanFile):
         command = f'"{self._python_executable}" -c "{script}"'
         self.output.info(f"running {command}")
         try:
-            self.run(command, output, scope="run")
+            self.run(command, output, scope="build")
         except ConanException:
             self.output.info("(failed)")
             return None
@@ -689,31 +690,20 @@ class BoostConan(ConanFile):
 
         NOTE: distutils is deprecated and breaks the recipe since Python 3.10
         """
-        python_version_parts = str(self.info.options.python_version).split('.')
-        python_major = int(python_version_parts[0])
-        python_minor = int(python_version_parts[1])
-        if python_major >= 3 and python_minor >= 10:
+        if Version(self._python_version) >= "3.10":
             return self._get_python_sc_var(name)
-
         return self._get_python_sc_var(name) or self._get_python_du_var(name)
 
-    def _detect_python_version(self):
-        """
-        obtain version of python interpreter
-        :return: python interpreter version, in format major.minor
-        """
-        return self._run_python_script("from __future__ import print_function; "
-                                       "import sys; "
-                                       "print('{}.{}'.format(sys.version_info[0], sys.version_info[1]))")
-
-    @property
+    @cached_property
     def _python_version(self):
-        version = self._detect_python_version()
-        if self.options.python_version and version != self.options.python_version:
-            raise ConanInvalidConfiguration(f"detected python version {version} doesn't match conan option {self.options.python_version}")
-        return version
+        if self.info.options.python_executable:
+            return self._run_python_script("from __future__ import print_function; "
+                                           "import sys; "
+                                           "print('{}.{}'.format(sys.version_info[0], sys.version_info[1]))")
+        else:
+            return str(self.dependencies["cpython"].ref.version)
 
-    @property
+    @cached_property
     def _python_inc(self):
         """
         obtain the result of the "sysconfig.get_python_inc()" call
@@ -723,7 +713,7 @@ class BoostConan(ConanFile):
                                        "import sysconfig; "
                                        "print(sysconfig.get_python_inc())")
 
-    @property
+    @cached_property
     def _python_abiflags(self):
         """
         obtain python ABI flags, see https://www.python.org/dev/peps/pep-3149/ for the details
@@ -733,23 +723,22 @@ class BoostConan(ConanFile):
                                        "import sys; "
                                        "print(getattr(sys, 'abiflags', ''))")
 
-    @property
+    @cached_property
     def _python_includes(self):
         """
         attempt to find directory containing Python.h header file
         :return: the directory with python includes
         """
-        include = self._get_python_path("include")
-        plat_include = self._get_python_path("platinclude")
-        include_py = self._get_python_var("INCLUDEPY")
-        include_dir = self._get_python_var("INCLUDEDIR")
-        python_inc = self._python_inc
-
-        candidates = [include,
-                      plat_include,
-                      include_py,
-                      include_dir,
-                      python_inc]
+        if self._with_cpython:
+            python_component = self.dependencies["cpython"].cpp_info.components["python"]
+            return next(p for p in python_component.includedirs if Path(p, "pyconfig.h").is_file()).replace("\\", "/")
+        candidates = [
+            self._get_python_path("include"),
+            self._get_python_path("platinclude"),
+            self._get_python_var("INCLUDEPY"),
+            self._get_python_var("INCLUDEDIR"),
+            self._python_inc,
+        ]
         for candidate in candidates:
             if candidate:
                 python_h = os.path.join(candidate, 'Python.h')
@@ -759,12 +748,14 @@ class BoostConan(ConanFile):
                     return candidate.replace("\\", "/")
         raise Exception("couldn't locate Python.h - make sure you have installed python development files")
 
-    @property
+    @cached_property
     def _python_library_dir(self):
         """
         attempt to find python development library
         :return: the full path to the python library to be linked with
         """
+        if self._with_cpython:
+            return self.dependencies["cpython"].cpp_info.libdir.replace("\\", "/")
         library = self._get_python_var("LIBRARY")
         ldlibrary = self._get_python_var("LDLIBRARY")
         libdir = self._get_python_var("LIBDIR")
@@ -1306,7 +1297,8 @@ class BoostConan(ConanFile):
 
         if self.options.with_python:
             # https://www.boost.org/doc/libs/1_70_0/libs/python/doc/html/building/configuring_boost_build.html
-            contents += f'\nusing python : {self._python_version} : "{self._python_executable}" : "{self._python_includes}" : "{self._python_library_dir}" ;'
+            v = Version(self._python_version)
+            contents += f'\nusing python : {v.major}.{v.minor} : "{self._python_executable}" : "{self._python_includes}" : "{self._python_library_dir}" ;'
 
         if self.options.with_mpi:
             # https://www.boost.org/doc/libs/1_72_0/doc/html/mpi/getting_started.html
@@ -1493,7 +1485,7 @@ class BoostConan(ConanFile):
         return {
             "lzma": "xz_utils",
             "iconv": "libiconv",
-            "python": None,  # FIXME: change to cpython when it becomes available
+            "python": "cpython",
             "zlib": "zlib-ng",
         }.get(name, name)
 
