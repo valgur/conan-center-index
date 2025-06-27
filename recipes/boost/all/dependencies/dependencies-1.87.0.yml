@@ -121,7 +121,8 @@ dependencies:
   - filesystem
   - system
   program_options: []
-  python: []
+  python:
+    - graph
   random:
   - system
   regex: []
