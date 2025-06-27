@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.4"
@@ -29,6 +28,11 @@ class OpenSpecfunConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    @property
+    def _fortran_compiler(self):
+        executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        return executables.get("fortran")
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -36,17 +40,18 @@ class OpenSpecfunConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gfortran/[*]")
+        if not self._fortran_compiler:
+            self.requires("gfortran/[*]")
 
     def build_requirements(self):
-        self.tool_requires("gfortran/[*]")
+        if not self._fortran_compiler:
+            self.tool_requires("gfortran/[*]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.generate()
 
@@ -63,5 +68,6 @@ class OpenSpecfunConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["openspecfun"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
+            self.cpp_info.system_libs = ["m"]
+        if not self._fortran_compiler:
             self.cpp_info.system_libs.append("gfortran")

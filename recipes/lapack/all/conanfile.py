@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -44,20 +43,21 @@ class LapackConan(ConanFile):
         "complex": "Build single precision complex",
         "complex16": "Build double precision complex",
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
-    def config_options(self):
-        del self.options.fPIC
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    @property
+    def _fortran_compiler(self):
+        executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        return executables.get("fortran")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openblas/[>=0.3.28 <1]")
-        self.requires("gfortran/13.2.0")
+        if not self._fortran_compiler:
+            self.requires("gfortran/[*]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -66,7 +66,8 @@ class LapackConan(ConanFile):
             raise ConanInvalidConfiguration("No Fortran compiler currently available for Windows")
 
     def build_requirements(self):
-        self.tool_requires("gfortran/<host_version>")
+        if not self._fortran_compiler:
+            self.tool_requires("gfortran/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,9 +93,6 @@ class LapackConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -113,14 +111,16 @@ class LapackConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "LAPACK")
         self.cpp_info.set_property("cmake_target_name", "LAPACK::LAPACK")
 
-        self.cpp_info.components["lapack"].libs = ["lapack"]
         self.cpp_info.components["lapack"].set_property("cmake_target_name", "lapack")
         self.cpp_info.components["lapack"].set_property("pkg_config_name", "lapack")
-        self.cpp_info.components["lapack"].requires = ["openblas::openblas", "gfortran::libgfortran"]
+        self.cpp_info.components["lapack"].libs = ["lapack"]
+        self.cpp_info.components["lapack"].requires = ["openblas::openblas"]
+        if not self._fortran_compiler:
+            self.cpp_info.components["lapack"].requires.append("gfortran::libgfortran")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["lapack"].system_libs.append("m")
 
-        self.cpp_info.components["lapacke"].libs = ["lapacke"]
         self.cpp_info.components["lapacke"].set_property("cmake_target_name", "lapacke")
         self.cpp_info.components["lapacke"].set_property("pkg_config_name", "lapacke")
+        self.cpp_info.components["lapacke"].libs = ["lapacke"]
         self.cpp_info.components["lapacke"].requires = ["lapack"]
