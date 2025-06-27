@@ -1,15 +1,15 @@
 import os
 import textwrap
+from functools import cached_property
+from io import StringIO
 from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -21,8 +21,7 @@ class NumpyConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://numpy.org/devdocs/reference/c-api/index.html"
     topics = ("ndarray", "array", "linear algebra", "npymath")
-
-    package_type = "application"
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -30,49 +29,66 @@ class NumpyConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    @cached_property
+    def _python_executable(self):
+        return self.conf.get("user.cpython:python", default=None, check_type=str)
 
-    def validate(self):
-        # https://github.com/numpy/numpy/blob/v1.26.4/meson.build#L28
-        if self.settings.compiler == "gcc" and self.settings.compiler.version < Version("8.4"):
-            raise ConanInvalidConfiguration(f"{self.ref} requires GCC 8.4+")
+    @cached_property
+    def _executable_version(self):
+        stdout = StringIO()
+        self.run(f"{self._python_executable} --version", stdout, scope="build")
+        return stdout.getvalue().strip().split()[1]
+
+    def package_id(self):
+        if self._python_executable:
+            self.info.python_version = self._executable_version
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openblas/[>=0.3.26 <1]")
-        self.requires("cpython/[^3.12.2]", transitive_headers=True, transitive_libs=True)
+        if not self._python_executable:
+            self.requires("cpython/[^3]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        self.tool_requires("cpython/<host_version>")
         self.tool_requires("ninja/[^1.10]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if not self._python_executable:
+            self.tool_requires("cpython/<host_version>")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["numpy"], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["meson"], strip_root=True, destination=self._meson_root)
+        # Add missing wrapper scripts to the vendored meson
+        save(self, self._meson_root / "meson",
+             textwrap.dedent("""\
+                 #!/usr/bin/env bash
+                 meson_dir=$(dirname "$0")
+                 export PYTHONDONTWRITEBYTECODE=1
+                 exec "$meson_dir/meson.py" "$@"
+            """))
+        self._chmod_plus_x(self._meson_root.joinpath("meson"))
+        save(self, self._meson_root / "meson.cmd",
+             textwrap.dedent("""\
+                 @echo off
+                 set PYTHONDONTWRITEBYTECODE=1
+                 CALL python %~dp0/meson.py %*
+             """))
 
     @property
     def _meson_root(self):
         return Path(self.source_folder, "vendored-meson", "meson")
 
-    @property
-    def _build_site_packages(self):
-        return os.path.join(self.build_folder, "site-packages")
+    @staticmethod
+    def _chmod_plus_x(name):
+        os.chmod(name, os.stat(name).st_mode | 0o111)
 
     def generate(self):
-        env = Environment()
-        # NumPy can only be built with its vendored Meson
-        env.prepend_path("PATH", str(self._meson_root))
-        env.prepend_path("PYTHONPATH", self._build_site_packages)
-        env.prepend_path("PATH", os.path.join(self._build_site_packages, "bin"))
-        env.vars(self).save_script("conanbuild_paths")
-
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
         tc.project_options["allow-noblas"] = False
@@ -83,32 +99,24 @@ class NumpyConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
 
-    @staticmethod
-    def _chmod_plus_x(name):
-        os.chmod(name, os.stat(name).st_mode | 0o111)
+        env = Environment()
+        if self._python_executable:
+            env.define_path("PYTHON", self._python_executable)
+            env.prepend_path("PATH", os.path.dirname(self._python_executable))
+        env.prepend_path("PYTHONPATH", self._site_packages_dir)
+        env.prepend_path("PATH", os.path.join(self._site_packages_dir, "bin"))
+        env.prepend_path("PATH", str(self._meson_root))
+        env.vars(self).save_script("pythonpath")
 
-    def _patch_sources(self):
-        # Add missing wrapper scripts to the vendored meson
-        save(self, self._meson_root.joinpath("meson"),
-             textwrap.dedent("""\
-                 #!/usr/bin/env bash
-                 meson_dir=$(dirname "$0")
-                 export PYTHONDONTWRITEBYTECODE=1
-                 exec "$meson_dir/meson.py" "$@"
-            """))
-        self._chmod_plus_x(self._meson_root.joinpath("meson"))
-        save(self, self._meson_root.joinpath("meson.cmd"),
-             textwrap.dedent("""\
-                 @echo off
-                 set PYTHONDONTWRITEBYTECODE=1
-                 CALL python %~dp0/meson.py %*
-             """))
+    @property
+    def _site_packages_dir(self):
+        return os.path.join(self.build_folder, "site-packages")
 
-        # Install cython
-        self.run(f"python -m pip install cython --no-cache-dir --target {self._build_site_packages}")
+    def _pip_install(self, packages):
+        self.run(f"python3 -m pip install {' '.join(packages)} --target={self._site_packages_dir}")
 
     def build(self):
-        self._patch_sources()
+        self._pip_install(["cython"])
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -117,32 +125,16 @@ class NumpyConan(ConanFile):
         copy(self, "LICENSE*.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
+        rmdir(self, self._prefix_dir / "lib" / "pkgconfig")
 
-    @property
-    def _rel_site_packages(self):
-        if self.settings.os == "Windows":
-            return os.path.join("Lib", "site-packages")
-        else:
-            python_minor = Version(self.dependencies["cpython"].ref.version).minor
-            return os.path.join("lib", f"python3.{python_minor}", "site-packages")
-
-    @property
-    def _rel_pkg_root(self):
-        return os.path.join(self._rel_site_packages, "numpy")
+    @cached_property
+    def _prefix_dir(self):
+        # E.g. <package_folder>/lib/python3.13/site-packages/numpy/_core on Linux
+        return next(p.parent.parent.parent for p in Path(self.package_folder).rglob("numpyconfig.h"))
 
     def package_info(self):
-        self.cpp_info.components["npymath"].set_property("pkg_config_name", "npymath")
-        self.cpp_info.components["npymath"].libs = ["npymath"]
-        self.cpp_info.components["npymath"].libdirs = [
-            os.path.join(self._rel_pkg_root, "core", "lib"),
-            os.path.join(self._rel_pkg_root, "random", "lib"),
-        ]
-        self.cpp_info.components["npymath"].includedirs = [os.path.join(self._rel_pkg_root, "core", "include")]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["npymath"].system_libs = ["m"]
-
-        self.cpp_info.components["numpy"].libdirs = [os.path.join(self._rel_pkg_root, "core")]
-        self.cpp_info.components["numpy"].requires = ["openblas::openblas", "cpython::cpython", "npymath"]
-        self.cpp_info.components["numpy"].includedirs = []
-
-        self.runenv_info.prepend_path("PYTHONPATH", os.path.join(self.package_folder, self._rel_site_packages))
+        self.cpp_info.set_property("pkg_config_name", "numpy")
+        self.cpp_info.includedirs = [str(self._prefix_dir / "include")]
+        self.cpp_info.libdirs = []
+        self.cpp_info.bindirs = []
+        self.runenv_info.prepend_path("PYTHONPATH", str(self._prefix_dir.parent.parent))
