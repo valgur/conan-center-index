@@ -19,8 +19,6 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["Boost_USE_STATIC_LIBS"] = not opts.get_safe("shared")
         tc.cache_variables["WITH_PYTHON"] = opts.with_python
-        if opts.with_python:
-            tc.cache_variables["Python_EXECUTABLE"] = opts.python_executable
         tc.cache_variables["WITH_RANDOM"] = opts.with_random
         tc.cache_variables["WITH_REGEX"] = opts.with_regex
         tc.cache_variables["WITH_TEST"] = opts.with_test

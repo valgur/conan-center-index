@@ -85,7 +85,6 @@ class BoostConan(ConanFile):
         "layout": ["system", "versioned", "tagged"],
         "magic_autolink": [True, False],  # enables BOOST_ALL_NO_LIB
         "diagnostic_definitions": [True, False],  # enables BOOST_LIB_DIAGNOSTIC
-        "python_executable": [None, "ANY"],  # defaults to user.cpython:python conf value, followed by the cpython recipe if unset
         "namespace": ["ANY"],  # custom boost namespace for bcp, e.g. myboost
         "namespace_alias": [True, False],  # enable namespace alias for bcp, boost=myboost
         "multithreading": [True, False],  # enables multithreading support
@@ -122,7 +121,6 @@ class BoostConan(ConanFile):
         "layout": "system",
         "magic_autolink": False,
         "diagnostic_definitions": False,
-        "python_executable": None,
         "namespace": "boost",
         "namespace_alias": False,
         "multithreading": True,
@@ -271,8 +269,6 @@ class BoostConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        self.options.python_executable = self.conf.get("user.cpython:python", default=None, check_type=str)
-
         # Test whether all config_options from the yml are available in CONFIGURE_OPTIONS
         for opt_name in self._available_modules:
             if f"with_{opt_name}" not in self.options:
@@ -336,7 +332,6 @@ class BoostConan(ConanFile):
             self.options.rm_safe("i18n_backend_icu")
 
         if not self.options.with_python:
-            self.options.rm_safe("python_executable")
             self.options.rm_safe("python_buildid")
 
         if not self._stacktrace_addr2line_available:
@@ -564,9 +559,9 @@ class BoostConan(ConanFile):
     def _with_iconv(self):
         return not self._header_only and self._with_dependency("iconv") and self.options.get_safe("i18n_backend_iconv") == "libiconv"
 
-    @property
+    @cached_property
     def _with_cpython(self):
-        return not self._header_only and self.options.with_python and not self.options.python_executable
+        return not self._header_only and self.options.with_python and not self._python_executable
 
     @property
     def _with_stacktrace_backtrace(self):
@@ -599,7 +594,6 @@ class BoostConan(ConanFile):
             del self.info.options.pch
             if self.info.options.with_python:
                 self.info.python_version = self._python_version
-                del self.info.options.python_executable
 
     def build_requirements(self):
         if not self._header_only:
@@ -621,12 +615,17 @@ class BoostConan(ConanFile):
 
     ##################### BUILDING METHODS ###########################
 
-    @cached_property
+    @property
     def _python_executable(self):
-        opt = self.info.options.get_safe("python_executable") or self.options.python_executable
-        # user.cpython:python is set by the cpython recipe
-        exe = opt.value if opt else self.conf.get("user.cpython:python", default=None, check_type=str)
-        return exe.replace("\\", "/")
+        return self.conf.get("user.cpython:python", default=None, check_type=str)
+
+    @cached_property
+    def _python_version(self):
+        if not self._python_executable:
+            return str(self.dependencies["cpython"].ref.version)
+        stdout = StringIO()
+        self.run(f"{self._python_executable} --version", stdout, scope="build")
+        return stdout.getvalue().strip().split()[1]
 
     def _run_python_script(self, script):
         """
@@ -693,15 +692,6 @@ class BoostConan(ConanFile):
         if Version(self._python_version) >= "3.10":
             return self._get_python_sc_var(name)
         return self._get_python_sc_var(name) or self._get_python_du_var(name)
-
-    @cached_property
-    def _python_version(self):
-        if self.info.options.python_executable:
-            return self._run_python_script("from __future__ import print_function; "
-                                           "import sys; "
-                                           "print('{}.{}'.format(sys.version_info[0], sys.version_info[1]))")
-        else:
-            return str(self.dependencies["cpython"].ref.version)
 
     @cached_property
     def _python_inc(self):
@@ -1298,7 +1288,8 @@ class BoostConan(ConanFile):
         if self.options.with_python:
             # https://www.boost.org/doc/libs/1_70_0/libs/python/doc/html/building/configuring_boost_build.html
             v = Version(self._python_version)
-            contents += f'\nusing python : {v.major}.{v.minor} : "{self._python_executable}" : "{self._python_includes}" : "{self._python_library_dir}" ;'
+            executable = self._python_executable.replace('\\', '/')
+            contents += f'\nusing python : {v.major}.{v.minor} : "{executable}" : "{self._python_includes}" : "{self._python_library_dir}" ;'
 
         if self.options.with_mpi:
             # https://www.boost.org/doc/libs/1_72_0/doc/html/mpi/getting_started.html
