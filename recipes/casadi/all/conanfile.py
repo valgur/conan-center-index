@@ -4,9 +4,9 @@ from pathlib import Path
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -15,7 +15,6 @@ class PackageConan(ConanFile):
     name = "casadi"
     description = "CasADi is a symbolic framework for automatic differentation and numeric optimization"
     license = "LGPL-3.0-or-only"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://casadi.org"
     topics = ("optimization", "nonlinear", "numerical-calculations", "scientific-computing", "derivatives",
               "code-generation", "parameter-estimation", "optimal-control", "symbolic-manipulation",
@@ -38,6 +37,7 @@ class PackageConan(ConanFile):
         "with_hsl": [True, False],
         "with_ipopt": [True, False],
         "with_lapack": [True, False],
+        "with_libzip": [True, False],
         "with_mumps": [True, False],
         "with_opencl": [True, False],
         "with_openmp": [True, False],
@@ -66,6 +66,7 @@ class PackageConan(ConanFile):
         "with_hsl": False,
         "with_ipopt": True,
         "with_lapack": True,
+        "with_libzip": True,
         "with_mumps": True,
         "with_opencl": False,
         "with_openmp": True,
@@ -94,6 +95,7 @@ class PackageConan(ConanFile):
         "with_hsl": "Enable HSL interface (vendored by CasADi)",
         "with_ipopt": "Compile the interface to IPOPT",
         "with_lapack": "Compile the interface to LAPACK",
+        "with_libzip": "Add .zip support to the Archiver plugin",
         "with_mumps": "Enable MUMPS interface",
         "with_opencl": "Compile with OpenCL support (experimental)",
         "with_openmp": "Compile with parallelization support using OpenMP",
@@ -108,9 +110,9 @@ class PackageConan(ConanFile):
         "with_tinyxml": "Compile the interface to TinyXML",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 11
+    def config_options(self):
+        if Version(self.version) < "3.7.0":
+            del self.options.with_libzip
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -149,6 +151,9 @@ class PackageConan(ConanFile):
             self.requires("metis/[^5.2.1]")
         if self.options.with_csparse:
             self.requires("suitesparse-cxsparse/[^4.4.1]")
+        if self.options.get_safe("with_libzip"):
+            self.requires("libzip/[^1.7.3]")
+            self.requires("zlib-ng/[^2.0]")
 
         # FIXME: SUNDIALS v5+ available from CCI is not compatible
         # CasADi vendors v2.6.1
@@ -165,7 +170,7 @@ class PackageConan(ConanFile):
         #     self.requires("simde/[>=0.8.2 <1]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -174,6 +179,19 @@ class PackageConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=False)
         apply_conandata_patches(self)
+        cmakelists = Path(self.source_folder, "CMakeLists.txt")
+        content = cmakelists.read_text(encoding="utf-8")
+        # Ensure the WITH_* dependencies are REQUIRED
+        content = content.replace("find_package(${PKG})", "find_package(${PKG} REQUIRED)")
+        # Fix external dependencies using -external suffix
+        for dep in ["cbc", "cgl", "clp", "coinutils", "eigen3", "ipopt", "metis", "mumps", "osi", "osqp", "tinyxml", "libzip", "zlib"]:
+            repl = dep if dep != "metis" else "metis::metis"
+            content = content.replace(f"{dep}-external", repl)
+        cmakelists.write_text(content, encoding="utf-8")
+        if Version(self.version) < "3.7.0":
+            # The project incorrectly tries to enable Fortran support despite FORTRAN_REQUIRED=OFF
+            replace_in_file(self, "CMakeLists.txt", "enable_language(Fortran", "# enable_language(Fortran")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -211,6 +229,7 @@ class PackageConan(ConanFile):
         tc.variables["WITH_IPOPT"] = self.options.with_ipopt
         tc.variables["WITH_KNITRO"] = False
         tc.variables["WITH_LAPACK"] = self.options.with_lapack
+        tc.variables["WITH_LIBZIP"] = self.options.get_safe("with_libzip", False)
         tc.variables["WITH_MUMPS"] = self.options.with_mumps
         tc.variables["WITH_OOQP"] = False
         tc.variables["WITH_OPENCL"] = self.options.with_opencl
@@ -229,6 +248,7 @@ class PackageConan(ConanFile):
         tc.variables["WITH_THREAD"] = self.options.with_pthread
         tc.variables["WITH_TINYXML"] = self.options.with_tinyxml
         tc.variables["WITH_WORHP"] = False
+        tc.variables["WITH_ZLIB"] = self.options.get_safe("with_libzip", False)
 
         # TODO: create a CCI package for these vendored dependencies
         tc.variables["WITH_BUILD_ALPAQA"] = self.options.with_alpaqa
@@ -252,14 +272,13 @@ class PackageConan(ConanFile):
         tc.variables["WITH_BUILD_EIGEN3"] = False
         tc.variables["WITH_BUILD_IPOPT"] = False
         tc.variables["WITH_BUILD_LAPACK"] = False
+        tc.variables["WITH_BUILD_LIBZIP"] = False
         tc.variables["WITH_BUILD_METIS"] = False
         tc.variables["WITH_BUILD_MUMPS"] = False
         tc.variables["WITH_BUILD_OSQP"] = False
         tc.variables["WITH_BUILD_TINYXML"] = False
+        tc.variables["WITH_BUILD_ZLIB"] = False
         tc.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
         if self.options.with_osqp:
             osqp = self.dependencies["osqp"].cpp_info
@@ -297,20 +316,11 @@ class PackageConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        cmakelists = Path(self.source_folder, "CMakeLists.txt")
-        content = cmakelists.read_text(encoding="utf-8")
-        # Ensure the WITH_* dependencies are REQUIRED
-        content = content.replace("find_package(${PKG})", "find_package(${PKG} REQUIRED)")
-        # Fix external dependencies using -external suffix
-        for dep in ["cbc", "cgl", "clp", "coinutils", "eigen3", "ipopt", "metis", "mumps", "osi", "osqp", "tinyxml"]:
-            repl = dep if dep != "metis" else "metis::metis"
-            content = content.replace(f"{dep}-external", repl)
         # Add find_package() for coin-utils for Bonmin
         if self.options.with_bonmin:
-            content = content.replace("foreach(PKG ALPAQA ", "foreach(PKG COINCGL COINOSI COINUTILS ALPAQA ")
-        cmakelists.write_text(content, encoding="utf-8")
-        # The project incorrectly tries to enable Fortran support despite FORTRAN_REQUIRED=OFF
-        replace_in_file(self, cmakelists, "enable_language(Fortran", "# enable_language(Fortran")
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "foreach(PKG ALPAQA ",
+                            "foreach(PKG COINCGL COINOSI COINUTILS ALPAQA ")
 
     def build(self):
         self._patch_sources()
