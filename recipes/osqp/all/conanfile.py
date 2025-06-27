@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -36,6 +37,12 @@ class OsqpConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
+        # CMake v4 support
+        if Version(self.version) < "1.0.0":
+            for cmakelists in ["CMakeLists.txt", "lin_sys/direct/qdldl/qdldl_sources/CMakeLists.txt"]:
+                replace_in_file(self, cmakelists,
+                                "cmake_minimum_required (VERSION 3.2)",
+                                "cmake_minimum_required (VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
