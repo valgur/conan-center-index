@@ -635,7 +635,7 @@ class BoostConan(ConanFile):
         if not self._python_executable:
             return str(self.dependencies["cpython"].ref.version)
         stdout = StringIO()
-        self.run(f"{self._python_executable} --version", stdout, scope="build")
+        self.run(f'"{self._python_executable}" --version', stdout, scope="build")
         return stdout.getvalue().strip().split()[1]
 
     def _run_python_script(self, script):

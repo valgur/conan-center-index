@@ -39,7 +39,7 @@ class NumpyConan(ConanFile):
     @cached_property
     def _executable_version(self):
         stdout = StringIO()
-        self.run(f"{self._python_executable} --version", stdout, scope="build")
+        self.run(f'"{self._python_executable}" --version', stdout, scope="build")
         return stdout.getvalue().strip().split()[1]
 
     def package_id(self):
