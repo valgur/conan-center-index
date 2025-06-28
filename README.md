@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-27:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-28:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -43,6 +43,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cargo-c/0.10.12
 - cargo-c/0.10.8
 - casadi/3.6.6
+- casadi/3.7.0
 - catalyst/2.0.0
 - cgns/4.4.0
 - cilantro/cci.20230816
@@ -75,7 +76,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - conan-meson/latest
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
+- cppad/20250000.2
+- cppadcodegen/2.5.0
 - cppserver/1.0.4.1
+- cpptrace/1.0.0
 - cpuinfo/cci.20250522
 - cpython/3.10.18
 - cpython/3.11.13
@@ -102,6 +106,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - egl-headers/20220525
 - egl-headers/20250527
+- eigenpy/3.11.0
 - elfutils/0.191
 - elfutils/0.192
 - embree/3.12.0
@@ -356,7 +361,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - novatel_edie/3.7.5
 - nss/3.107
 - nss/3.110
-- numpy/1.26.4
+- numpy/2.3.1
 - nvidia-optical-flow-sdk/5.0.7
 - nvtx/3.2.1
 - ocl-icd/2.3.3
