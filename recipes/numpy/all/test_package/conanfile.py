@@ -31,7 +31,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run(f'{self._python_executable} -c "import numpy; print(numpy.__version__)"', scope="build")
+            self.run(f'{self._python_executable} -c "import numpy; print(numpy.get_include())"', scope="build")
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
 
