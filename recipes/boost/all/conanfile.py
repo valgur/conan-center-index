@@ -88,10 +88,11 @@ class BoostConan(ConanFile):
         "namespace": ["ANY"],  # custom boost namespace for bcp, e.g. myboost
         "namespace_alias": [True, False],  # enable namespace alias for bcp, boost=myboost
         "multithreading": [True, False],  # enables multithreading support
-        "numa": [True, False],
-        "zlib": [True, False],
         "bzip2": [True, False],
         "lzma": [True, False],
+        "numa": [True, False],
+        "numpy": [True, False],
+        "zlib": [True, False],
         "zstd": [True, False],
         "segmented_stacks": [True, False],
         "debug_level": list(range(0, 14)),
@@ -124,10 +125,11 @@ class BoostConan(ConanFile):
         "namespace": "boost",
         "namespace_alias": False,
         "multithreading": True,
-        "numa": True,
-        "zlib": True,
         "bzip2": True,
         "lzma": False,
+        "numpy": True,
+        "numa": True,
+        "zlib": True,
         "zstd": False,
         "segmented_stacks": False,
         "debug_level": 0,
@@ -332,6 +334,7 @@ class BoostConan(ConanFile):
             self.options.rm_safe("i18n_backend_icu")
 
         if not self.options.with_python:
+            self.options.rm_safe("numpy")
             self.options.rm_safe("python_buildid")
 
         if not self._stacktrace_addr2line_available:
@@ -563,6 +566,10 @@ class BoostConan(ConanFile):
     def _with_cpython(self):
         return not self._header_only and self.options.with_python and not self._python_executable
 
+    @cached_property
+    def _with_numpy(self):
+        return self._with_cpython and self.options.numpy
+
     @property
     def _with_stacktrace_backtrace(self):
         return not self._header_only and self.options.get_safe("with_stacktrace_backtrace", False)
@@ -584,6 +591,8 @@ class BoostConan(ConanFile):
             self.requires("libiconv/[^1.17]")
         if self._with_cpython:
             self.requires("cpython/[^3]", transitive_headers=True, transitive_libs=True)
+        if self._with_numpy:
+            self.requires("numpy/[^2.0]", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         if self._header_only:
@@ -600,6 +609,8 @@ class BoostConan(ConanFile):
             self.tool_requires("b2/[>=5.2 <6]")
         if self._with_cpython:
             self.tool_requires("cpython/[^3]", visible=True)
+        if self._with_numpy:
+            self.tool_requires("numpy/[^2.0]", visible=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -1449,6 +1460,11 @@ class BoostConan(ConanFile):
             for bin_file in dll_pdbs:
                 rename(self, bin_file, os.path.join(self.package_folder, "bin", os.path.basename(bin_file)))
 
+        if self.options.with_python and not self.options.numpy:
+            # Can't explicitly disable building of boost_numpy, so remove it here instead for consistency
+            rm(self, "*boost_numpy*", os.path.join(self.package_folder, "lib"))
+            rm(self, "*boost_numpy*", os.path.join(self.package_folder, "bin"))
+
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         if is_apple_os(self) and not self._shared and Version(self.version) >= "1.88.0":
             # FIXME: Boost 1.88 installs both .a and .dylib files for static libraries
@@ -1668,6 +1684,8 @@ class BoostConan(ConanFile):
                         continue
                     if not self.options.get_safe("numa") and "_numa" in name:
                         continue
+                    if not self.options.get_safe("numpy") and "_numpy" in name:
+                        continue
                     new_name = add_libprefix(name.format(**libformatdata)) + libsuffix
                     if self.options.namespace != 'boost':
                         new_name = new_name.replace("boost_", str(self.options.namespace) + "_")
@@ -1771,7 +1789,9 @@ class BoostConan(ConanFile):
                 if not self._shared:
                     self.cpp_info.components["python"].defines.append("BOOST_PYTHON_STATIC_LIB")
 
-                self.cpp_info.components[f"numpy{pyversion.major}{pyversion.minor}"].requires = ["numpy"]
+                if self.options.numpy:
+                    self.cpp_info.components["numpy"].requires.append("numpy::numpy")
+                    self.cpp_info.components[f"numpy{pyversion.major}{pyversion.minor}"].requires = ["numpy"]
 
             if self.options.get_safe("with_process"):
                 if self.settings.os == "Windows":

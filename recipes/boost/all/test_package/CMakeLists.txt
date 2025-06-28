@@ -154,11 +154,10 @@ if(WITH_PYTHON)
     add_test(NAME boost_python COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/python.py")
     set_property(TEST boost_python PROPERTY ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:hello_ext>")
 
-    if(TARGET Python3::NumPy)
+    if(WITH_NUMPY)
         add_executable(numpy_exe numpy.cpp)
         target_link_libraries(numpy_exe PRIVATE Boost::numpy Python3::Python Python3::NumPy)
         add_test(NAME boost_numpy COMMAND numpy_exe)
-        set_property(TEST boost_numpy PROPERTY ENVIRONMENT "PYTHONPATH=${Python_SITELIB}")
     endif()
 endif()
 
