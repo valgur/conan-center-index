@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -26,6 +27,7 @@ class EigenPyConan(ConanFile):
         "generate_python_stubs": False,
         "with_cholmod": False,
         "boost/*:with_python": True,
+        "boost/*:numpy": True,
     }
 
     def layout(self):
@@ -40,6 +42,9 @@ class EigenPyConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
+        boost = self.dependencies["boost"].options
+        if not boost.with_python or not boost.numpy:
+            raise ConanInvalidConfiguration("-o boost/*:with_python=True and -o boost/*:numpy=True is required")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
