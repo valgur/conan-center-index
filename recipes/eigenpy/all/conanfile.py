@@ -19,9 +19,11 @@ class EigenPyConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "generate_python_stubs": [True, False],
         "with_cholmod": [True, False],
     }
     default_options = {
+        "generate_python_stubs": False,
         "with_cholmod": False,
         "boost/*:with_python": True,
     }
@@ -47,21 +49,22 @@ class EigenPyConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["cmake"], strip_root=True, destination="cmake")
         save(self, "unittest/CMakeLists.txt", "")
-        # Fix linking against CHOLMOD, since the CMakeDeps output is not translated correctly by the project.
-        save(self, "CMakeLists.txt",
-             "if(BUILD_WITH_CHOLMOD_SUPPORT)\n"
-             "  target_link_libraries(eigenpy PRIVATE SuiteSparse::CHOLMOD)\n"
-             "endif()\n", append=True)
+        # Fix linking against Boost.Python, since the CMakeDeps output is not translated correctly by the project.
+        replace_in_file(self, "CMakeLists.txt",
+                        "target_link_boost_python(${PROJECT_NAME} PUBLIC)",
+                        "target_link_libraries(${PROJECT_NAME} PUBLIC Boost::python)")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["GENERATE_PYTHON_STUBS"] = self.options.generate_python_stubs
         tc.cache_variables["BUILD_WITH_CHOLMOD_SUPPORT"] = self.options.with_cholmod
         tc.cache_variables["BUILD_WITH_ACCELERATE_SUPPORT"] = False  # Requires pre-release Eigen 3.4.90
-        tc.cache_variables["GENERATE_PYTHON_STUBS"] = False
+        tc.cache_variables["SEARCH_FOR_BOOST_PYTHON_ARGS_NAME"] = "python"
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
         tc.cache_variables["BUILDING_ROS2_PACKAGE"] = False
         tc.generate()
         deps = CMakeDeps(self)
+        deps.set_property("suitesparse-cholmod", "cmake_target_name", "CHOLMOD::CHOLMOD")
         deps.generate()
 
     def build(self):
@@ -85,15 +88,19 @@ class EigenPyConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def _find_installed_site_packages(self):
-        return str(next(Path(self.package_folder).rglob("__init__.py")).parent)
+        return str(next(Path(self.package_folder).rglob("__init__.py")).parent.parent)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "eigenpy")
         self.cpp_info.set_property("cmake_target_name", "eigenpy::eigenpy")
+        self.cpp_info.set_property("cmake_config_version_compat", "AnyNewerVersion")
         self.cpp_info.set_property("pkg_config_name", "eigenpy")
         self.cpp_info.libs = ["eigenpy"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
+        self.cpp_info.requires = ["eigen::eigen", "boost::python", "numpy::numpy"]
+        if self.options.with_cholmod:
+            self.cpp_info.requires.append("suitesparse-cholmod::suitesparse-cholmod")
         self.runenv_info.prepend_path("PYTHONPATH", self._find_installed_site_packages())
 
 

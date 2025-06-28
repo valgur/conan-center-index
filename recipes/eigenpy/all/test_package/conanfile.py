@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run("python -c 'import eigenpy; print(eigenpy.__version__)'", env="conanrun")
+            self.run("python -c 'import eigenpy; print(eigenpy.__file__)'", env="conanrun")
 
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
