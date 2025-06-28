@@ -28,6 +28,7 @@ class Libde265Conan(ConanFile):
         "fPIC": True,
         "sse": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -37,10 +38,6 @@ class Libde265Conan(ConanFile):
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
             del self.options.sse
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -52,6 +49,10 @@ class Libde265Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required (VERSION 3.3.2)",
+                        "cmake_minimum_required (VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
