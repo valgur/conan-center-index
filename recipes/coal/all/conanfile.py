@@ -41,7 +41,7 @@ class CoalConan(ConanFile):
 
         # Python bindings
         "python_bindings": False,
-        "generate_python_stubs": False,
+        "generate_python_stubs": True,
 
         "boost/*:with_chrono": True,
         "boost/*:with_thread": True,
@@ -90,6 +90,10 @@ class CoalConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["coal"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["cmake"], strip_root=True, destination="cmake")
+        # Don't overwrite PYTHONPATH from Conan when generating Python stubs
+        replace_in_file(self, "cmake/stubs.cmake",
+                        "PYTHONPATH=${PYTHONPATH} ",
+                        "PYTHONPATH=${PYTHONPATH}:$ENV{PYTHONPATH} ")
 
     def generate(self):
         if self.options.generate_python_stubs and can_run(self):
