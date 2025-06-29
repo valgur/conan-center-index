@@ -1,0 +1,65 @@
+diff --git a/stubs.cmake b/stubs.cmake
+--- a/stubs.cmake
++++ b/stubs.cmake
+@@ -22,39 +22,10 @@
+ #
+ # Download and configure the stub generator module.
+ #
++set(STUBGEN_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/stubgen)
+ macro(LOAD_STUBGEN)
+-  # Handle optional argument
+-  set(GIT_TAG "master")
+-  set(extra_macro_args ${ARGN})
+-  list(LENGTH extra_macro_args num_extra_args)
+-  if(${num_extra_args} GREATER 0)
+-    list(GET extra_macro_args 0 GIT_TAG)
+-  endif()
+-
+-  # Download at configure time
+   set(STUBGEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/stubgen)
+-  configure_file(
+-    ${CURRENT_FILE_PATH}/stubgen/CMakeLists.txt.in
+-    stubgen/CMakeLists.txt
+-  )
+-  execute_process(
+-    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+-    RESULT_VARIABLE result
+-    WORKING_DIRECTORY ${STUBGEN_DIR}
+-  )
+-  if(result)
+-    message(FATAL_ERROR "CMake step for stubgen failed: ${result}")
+-  endif()
+-
+-  execute_process(
+-    COMMAND ${CMAKE_COMMAND} --build .
+-    RESULT_VARIABLE result
+-    WORKING_DIRECTORY ${STUBGEN_DIR}
+-  )
+-  if(result)
+-    message(FATAL_ERROR "Build step for stubgen failed: ${result}")
+-  endif()
+-
++  file(COPY ${STUBGEN_SOURCE_DIR}/ DESTINATION ${STUBGEN_DIR}/src)
+   set(STUBGEN_MAIN_FILE ${STUBGEN_DIR}/src/pybind11_stubgen/__init__.py)
+ endmacro(LOAD_STUBGEN)
+ 
+@@ -136,12 +107,17 @@
+     set(ENV_DLL_PATH PYBIND11_STUBGEN_ADD_DLL_DIRECTORY=${_join_target_path})
+   endif()
+ 
++  set(_pathsep ":")
++  if(WIN32)
++    set(_pathsep "\\;")
++  endif(WIN32)
+   add_custom_target(
+     ${target_name}
+     ALL
+     COMMAND
+-      ${CMAKE_COMMAND} -E env ${ENV_DLL_PATH} ${CMAKE_COMMAND} -E env
+-      PYTHONPATH=${PYTHONPATH} "${PYTHON_EXECUTABLE}" "${STUBGEN_MAIN_FILE}"
++      ${CMAKE_COMMAND} -E env ${ENV_DLL_PATH} ${CMAKE_COMMAND}
++      -E env PYTHONPATH=${module_path}${_pathsep}$ENV{PYTHONPATH}
++      "${PYTHON_EXECUTABLE}" "${STUBGEN_MAIN_FILE}"
+       "-o" "${module_path}" "${module_name}" "--boost-python" --ignore-invalid
+       signature "--no-setup-py" "--root-module-suffix" ""
+     VERBATIM
