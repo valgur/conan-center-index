@@ -90,10 +90,13 @@ class CoalConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["coal"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["cmake"], strip_root=True, destination="cmake")
+        get(self, **self.conan_data["sources"][self.version]["stubgen"], strip_root=True, destination="stubgen")
         # Don't overwrite PYTHONPATH from Conan when generating Python stubs
         replace_in_file(self, "cmake/stubs.cmake",
                         "PYTHONPATH=${PYTHONPATH} ",
                         "PYTHONPATH=${PYTHONPATH}:$ENV{PYTHONPATH} ")
+        # Don't clone stubgen
+        replace_in_file(self, "python/CMakeLists.txt", "LOAD_STUBGEN()", "")
 
     def generate(self):
         if self.options.generate_python_stubs and can_run(self):
@@ -108,6 +111,7 @@ class CoalConan(ConanFile):
         tc.cache_variables["GENERATE_PYTHON_STUBS"] = self.options.generate_python_stubs
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
         tc.cache_variables["BUILDING_ROS2_PACKAGE"] = False
+        tc.cache_variables["STUBGEN_MAIN_FILE"] = os.path.join(self.source_folder, "stubgen/pybind11_stubgen/__main__.py").replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)

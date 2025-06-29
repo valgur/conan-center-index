@@ -4,5 +4,8 @@ sources:
       url: "https://github.com/coal-library/coal/releases/download/v3.0.1/coal-3.0.1.tar.gz"
       sha256: "b9609301baefbbf45b4e0f80865abc2b2dcbb69c323a55b0cd95f141959c478c"
     cmake:
-      url: "https://github.com/jrl-umi3218/jrl-cmakemodules/archive/6b0564f45af29a90160aafdfd67eb7a07ace48ed.zip"
-      sha256: "f2ca157768ebcf37c97d8555df213e721673831d14bfaaca0c6c6137f7e2c55e"
+      url: "https://github.com/jrl-umi3218/jrl-cmakemodules/archive/6b0564f45af29a90160aafdfd67eb7a07ace48ed.tar.gz"
+      sha256: "3057f16738a884460a50005c28639e28d457a7272bf0b96ec2345d8d3efa6890"
+    stubgen:
+      url: "https://github.com/jcarpent/pybind11-stubgen/archive/0402ab02eb188a9012b6dfd5fe25508403e9eb2c.tar.gz"
+      sha256: "2a2af58c67c785319543e876e986d4b897a0845d3702b175aa7a4367b31e9a47"
