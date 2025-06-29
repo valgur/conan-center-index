@@ -44,6 +44,11 @@ class LibultrahdrConan(ConanFile):
             # Propagate them as dynamic library dependencies instead.
             raise ConanInvalidConfiguration("enable_gles option requires shared=True")
 
+
+    def build_requirements(self):
+        # Required for CMAKE_REQUIRE_FIND_PACKAGE_JPEG below
+        self.tool_requires("cmake/[>=3.22 <5]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # Don't disable installation when cross-compiling
@@ -59,6 +64,7 @@ class LibultrahdrConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["UHDR_BUILD_DEPS"] = False
         tc.cache_variables["UHDR_BUILD_EXAMPLES"] = False
+        tc.cache_variables["CMAKE_REQUIRE_FIND_PACKAGE_JPEG"] = True
         tc.cache_variables["UHDR_ENABLE_GLES"] = self.options.enable_gles
         tc.generate()
         deps = CMakeDeps(self)

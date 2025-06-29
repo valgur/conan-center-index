@@ -346,7 +346,7 @@ class SDLConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, pattern="LICENSE.txt", src=os.path.join(self.source_folder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         rm(self, "sdl2-config", os.path.join(self.package_folder, "bin"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -355,6 +355,10 @@ class SDLConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "libdata"))
         rmdir(self, os.path.join(self.package_folder, "share"))
+        if self.settings.os == "Android":
+            copy(self, "*",
+                 os.path.join(self.source_folder, "android-project", "app", "src", "main", "java"),
+                 os.path.join(self.package_folder, "share", "java", "SDL2"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SDL2")
