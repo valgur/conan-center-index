@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-29:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -63,6 +63,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cmake/3.28.6
 - cmake/3.29.7
 - cmake/3.30.5
+- coal/3.0.1
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -382,6 +383,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.5.0
+- openimageio/3.0.7.0
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
