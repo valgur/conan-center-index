@@ -23,7 +23,7 @@ class EigenPyConan(ConanFile):
         "with_cholmod": [True, False],
     }
     default_options = {
-        "generate_python_stubs": False,
+        "generate_python_stubs": True,
         "with_cholmod": False,
         "boost/*:with_python": True,
         "boost/*:numpy": True,
@@ -48,12 +48,17 @@ class EigenPyConan(ConanFile):
             raise ConanInvalidConfiguration("-o boost/*:with_python=True and -o boost/*:numpy=True is required")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.22 <5]")
+        self.tool_requires("jrl-cmakemodules/[*]")
         self.tool_requires("numpy/[^2.0]", visible=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
-        get(self, **self.conan_data["sources"][self.version]["cmake"], strip_root=True, destination="cmake")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # latest jrl-cmakemodules requires CMake 3.22 or greater
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.10)",
+                        "cmake_minimum_required(VERSION 3.22)")
+        replace_in_file(self, "CMakeLists.txt", "set(JRL_CMAKE_MODULES ", " # set(JRL_CMAKE_MODULES ")
+        # Disable tests
         save(self, "unittest/CMakeLists.txt", "")
         # Fix linking against Boost.Python, since the CMakeDeps output is not translated correctly by the project.
         replace_in_file(self, "CMakeLists.txt",
@@ -68,6 +73,7 @@ class EigenPyConan(ConanFile):
         tc.cache_variables["SEARCH_FOR_BOOST_PYTHON_ARGS_NAME"] = "python"
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
         tc.cache_variables["BUILDING_ROS2_PACKAGE"] = False
+        tc.cache_variables["JRL_CMAKE_MODULES"] = self.dependencies.build["jrl-cmakemodules"].cpp_info.builddirs[0].replace("\\", "/")
         tc.generate()
         deps = CMakeDeps(self)
         deps.set_property("suitesparse-cholmod", "cmake_target_name", "CHOLMOD::CHOLMOD")

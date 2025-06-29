@@ -1,8 +1,4 @@
 sources:
   "3.11.0":
-    source:
-      url: "https://github.com/stack-of-tasks/eigenpy/archive/refs/tags/v3.11.0.tar.gz"
-      sha256: "44a52d6a9307f4fb32e727c252083a4f6c809553a0c0d241c5b6e5b227e61aa9"
-    cmake:
-      url: "https://github.com/jrl-umi3218/jrl-cmakemodules/archive/b5ae8e49306840a50ae9c752c5b4040f892c89d8.zip"
-      sha256: "d2136ccb85904e1da03e983b51d9d9b43a709ee5da4d417fb2bb8df3cd06f553"
+    url: "https://github.com/stack-of-tasks/eigenpy/archive/refs/tags/v3.11.0.tar.gz"
+    sha256: "44a52d6a9307f4fb32e727c252083a4f6c809553a0c0d241c5b6e5b227e61aa9"
