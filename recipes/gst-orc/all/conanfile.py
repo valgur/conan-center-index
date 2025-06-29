@@ -31,7 +31,7 @@ class GStOrcConan(ConanFile):
     languages = ["C"]
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -63,7 +63,7 @@ class GStOrcConan(ConanFile):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = Meson(self)
         meson.install()
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 

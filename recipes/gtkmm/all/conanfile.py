@@ -35,7 +35,7 @@ class GtkmmConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     @property
     def _is_gtk4(self):
@@ -112,7 +112,7 @@ class GtkmmConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         if not self._is_gtk4:

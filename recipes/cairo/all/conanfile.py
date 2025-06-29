@@ -53,7 +53,7 @@ class CairoConan(ConanFile):
     }
     languages = ["C"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -164,7 +164,7 @@ class CairoConan(ConanFile):
     def package(self):
         meson = Meson(self)
         meson.install()
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
         copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

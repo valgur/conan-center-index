@@ -46,7 +46,7 @@ class GdkPixbufConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def configure(self):
         if self.options.shared:
@@ -177,7 +177,7 @@ class GdkPixbufConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "gdk-pixbuf-2.0")

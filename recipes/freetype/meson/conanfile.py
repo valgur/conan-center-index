@@ -45,7 +45,7 @@ class FreetypeConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -165,7 +165,7 @@ class FreetypeConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(f"""\

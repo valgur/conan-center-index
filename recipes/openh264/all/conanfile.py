@@ -32,7 +32,7 @@ class OpenH264Conan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     @property
     def _is_clang_cl(self):
@@ -100,7 +100,7 @@ class OpenH264Conan(ConanFile):
                     rename(self, os.path.join(self.package_folder, "lib", "openh264.lib"),
                            os.path.join(self.package_folder, "lib", "openh264_dll.lib"))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         suffix = "_dll" if self._preserve_dll_name else ""

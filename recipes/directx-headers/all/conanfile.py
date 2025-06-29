@@ -21,7 +21,7 @@ class DirectXHeadersConan(ConanFile):
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -53,7 +53,7 @@ class DirectXHeadersConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "DirectX-Headers")

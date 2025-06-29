@@ -1,4 +1,3 @@
-import math
 import os
 from pathlib import Path
 
@@ -29,6 +28,8 @@ class EigenPyConan(ConanFile):
         "boost/*:with_python": True,
         "boost/*:numpy": True,
     }
+
+    python_requires = "conan-utils/latest"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -75,12 +76,8 @@ class EigenPyConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.configure()
-        # The compilation is extremely memory hungry for some reason
-        compilation_mem_usage = 4  # GB, approx
-        max_jobs = max(math.floor(get_free_memory_gb() / compilation_mem_usage), 1)
-        if int(self.conf.get("tools.build:jobs", default=os.cpu_count())) > max_jobs:
-            self.output.warning(f"Limiting max jobs to {max_jobs} based on available memory")
-            self.conf.define("tools.build:jobs", max_jobs)
+        utils = self.python_requires["conan-utils"].module
+        utils.limit_build_jobs(self, gb_mem_per_job=4)
         cmake.build()
 
     def package(self):
@@ -107,17 +104,3 @@ class EigenPyConan(ConanFile):
         if self.options.with_cholmod:
             self.cpp_info.requires.append("suitesparse-cholmod::suitesparse-cholmod")
         self.runenv_info.prepend_path("PYTHONPATH", self._find_installed_site_packages())
-
-
-def get_free_memory_gb():
-    try:
-        for l in open("/proc/meminfo"):
-            if l.startswith("MemAvailable:"):
-                return int(l.split()[1]) / 1024**2
-    except:
-        pass
-    try:
-        import psutil
-        return psutil.virtual_memory().available / 1024**3
-    except:
-        return 0

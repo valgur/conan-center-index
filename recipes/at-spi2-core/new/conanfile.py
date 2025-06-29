@@ -41,7 +41,7 @@ class AtSpi2CoreConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,7 +119,7 @@ class AtSpi2CoreConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "etc"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         if self.settings.os in ["Linux", "FreeBSD"]:

@@ -63,7 +63,7 @@ class GtkConan(ConanFile):
     languages = ["C"]
     no_copy_source = True
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -288,7 +288,7 @@ class GtkConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.15.6/meson.build?ref_type=tags#L841-883

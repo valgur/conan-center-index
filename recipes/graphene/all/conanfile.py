@@ -36,7 +36,7 @@ class GrapheneConan(ConanFile):
         "with_introspection": False,
     }
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -127,7 +127,7 @@ class GrapheneConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def _get_simd_config(self):
         config = load(self, os.path.join(self.package_folder, "lib", "graphene-1.0", "include", "graphene-config.h"))

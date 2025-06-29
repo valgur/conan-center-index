@@ -31,7 +31,7 @@ class SerdConan(ConanFile):
         "fPIC": True,
     }
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def config_options(self):
         if self.settings.os == 'Windows':
@@ -74,7 +74,7 @@ class SerdConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "serd-0")

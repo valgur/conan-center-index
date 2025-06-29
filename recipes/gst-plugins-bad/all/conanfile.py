@@ -59,7 +59,7 @@ class GStPluginsBadConan(ConanFile):
         # Additionally, all supported plugins can be enabled/disabled using the same option names as in meson_options.txt
     }
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def export(self):
         copy(self, "plugins/*.yml", self.recipe_folder, self.export_folder)
@@ -494,7 +494,7 @@ class GStPluginsBadConan(ConanFile):
         copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = Meson(self)
         meson.install()
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)

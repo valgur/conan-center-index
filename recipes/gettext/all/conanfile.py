@@ -45,7 +45,7 @@ class GettextConan(ConanFile):
     }
     languages = ["C"]
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     @property
     def _is_clang_cl(self):
@@ -245,7 +245,7 @@ class GettextConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self, extensions=[".a", ".dll.lib"])
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self, extensions=[".a", ".dll.lib"])
 
     def package_info(self):
         if self.options.libintl:

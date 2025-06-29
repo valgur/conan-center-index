@@ -24,7 +24,7 @@ class GlibmmConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     @property
     def _abi_version(self):
@@ -108,7 +108,7 @@ class GlibmmConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         glibmm_component = f"glibmm-{self._abi_version}"

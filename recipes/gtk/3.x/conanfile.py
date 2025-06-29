@@ -56,7 +56,7 @@ class GtkConan(ConanFile):
     languages = ["C"]
     no_copy_source = True
 
-    python_requires = "conan-meson/latest"
+    python_requires = "conan-utils/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -242,7 +242,7 @@ class GtkConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["gdk-3.0"].set_property("pkg_config_name", "gdk-3.0")
