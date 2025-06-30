@@ -41,23 +41,25 @@ class LibnovaConan(ConanFile):
 
     @staticmethod
     def _generate_git_tag_archive_sourceforge(url, timeout=10, retry=2):
-        def try_post(retry_count):
+        for _ in range(retry):
             try:
-                requests.post(url, timeout=timeout)
-            except:
-                if retry_count < retry:
-                    try_post(retry_count + 1)
-                else:
-                    raise ConanException("All the attempt to generate archive url have failed.")
-        try_post(0)
+                response = requests.get(url, timeout=timeout)
+                response.raise_for_status()
+                return
+            except Exception:
+                pass
+        raise ConanException("All attempts to generate an archive url have failed.")
 
     def source(self):
         # Generate the archive download link
         self._generate_git_tag_archive_sourceforge(self.conan_data["sources"][self.version]["post"]["url"])
-
         # Download archive
         get(self, **self.conan_data["sources"][self.version]["archive"], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
