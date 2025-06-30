@@ -1,9 +1,9 @@
 sources:
   "6.3.0":
-    url: "https://sourceforge.net/projects/qwt/files/qwt/6.3.0/qwt-6.3.0.zip"
+    url: "https://downloads.sourceforge.net/qwt/qwt-6.3.0.zip"
     sha256: "268d8d41974d263014fea13168324452f41e02880db573794f559995a4e11331"
   "6.2.0":
-    url: "https://sourceforge.net/projects/qwt/files/qwt/6.2.0/qwt-6.2.0.zip"
+    url: "https://downloads.sourceforge.net/qwt/qwt-6.2.0.zip"
     sha256: "3e9632a9be6a883db5c496e42ce74cbbf8da02cc3328faa89e2c43e434a2eb76"
 patches:
   "6.3.0":

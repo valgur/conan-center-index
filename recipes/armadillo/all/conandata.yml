@@ -1,21 +1,21 @@
 sources:
   "10.7.3":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-10.7.3.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-10.7.3.tar.xz"
     sha256: "aac930d5fbc23dca9453ff3647d03f7d90d9584a4556719ad7bc7adab7db6ff5"
   "11.4.3":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-11.4.3.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-11.4.3.tar.xz"
     sha256: "87603263664988af41da2ca4f36205e36ea47a9281fa6cfd463115f3797a1da2"
   "12.2.0":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-12.2.0.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-12.2.0.tar.xz"
     sha256: "b0dce042297e865add3351dad77f78c2c7638d6632f58357b015e50edcbd2186"
   "12.6.4":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-12.6.4.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-12.6.4.tar.xz"
     sha256: "eb7f243ffc32f18324bc7fa978d0358637e7357ca7836bec55b4eb56e9749380"
   "12.6.7":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-12.6.7.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-12.6.7.tar.xz"
     sha256: "df32064bdf5c47153cf180b3c2012c8a194a07ee892654a6914b486fff2cfa69"
   "12.8.1":
-    url: "https://sourceforge.net/projects/arma/files/armadillo-12.8.1.tar.xz"
+    url: "https://downloads.sourceforge.net/arma/armadillo-12.8.1.tar.xz"
     sha256: "2781dd3a6cc5f9a49c91a4519dde2b1c24335a5bfe0cc1c9881b6363142452b4"
 
 patches:

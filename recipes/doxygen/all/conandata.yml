@@ -9,7 +9,7 @@ sources:
     url: "https://github.com/doxygen/doxygen/releases/download/Release_1_12_0/doxygen-1.12.0.src.tar.gz"
     sha256: "a3a3dba2018ef409d83d81a2fc42a0d19bdbe087252ef342bf214b51b8b01634"
   "1.9.4":
-    url: "https://sourceforge.net/projects/doxygen/files/doxygen-1.9.4.src.tar.gz"
+    url: "https://downloads.sourceforge.net/doxygen/doxygen-1.9.4.src.tar.gz"
     sha256: "a15e9cd8c0d02b7888bc8356eac200222ecff1defd32f3fe05257d81227b1f37"
 patches:
   "1.9.4":

@@ -1,6 +1,6 @@
 sources:
   "3.0.24":
-    url: "https://sourceforge.net/projects/gdcm/files/gdcm%203.x/GDCM%203.0.24/gdcm-3.0.24.tar.bz2"
+    url: "https://downloads.sourceforge.net/gdcm/gdcm-3.0.24.tar.bz2"
     sha256: "c672bb6caa83ac937e5e1595e0f809bc65cbc1d516ab6363156a49548f1e51f1"
 patches:
   "3.0.24":

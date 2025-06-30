@@ -1,6 +1,6 @@
 sources:
   "0.47":
-    url: "https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/pexports-0.47/pexports-0.47-mingw32-src.tar.xz/download"
+    url: "https://downloads.sourceforge.net/mingw/pexports-0.47-mingw32-src.tar.xz"
     sha256: "fe12853979bd7335aa771c934ddee913c987554f9dc11266262b7fd68e0aa884"
 patches:
   "0.47":
