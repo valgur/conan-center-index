@@ -86,7 +86,7 @@ class OsqpConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "osqp")
         self.cpp_info.set_property("cmake_target_name", "osqp::osqp")
         self.cpp_info.libs = ["osqp"]
+        self.cpp_info.includedirs.append("include/osqp")
         self.cpp_info.resdirs = ["share"]
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
