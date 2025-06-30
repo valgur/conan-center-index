@@ -16,6 +16,7 @@ class PinocchioConan(ConanFile):
     name = "pinocchio"
     description = "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
     license = "BSD 2-Clause"
+    homepage = "https://stack-of-tasks.github.io/pinocchio/"
     topics = ("robotics", "kinematics", "dynamics", "automatic-differentiation",
               "motion-planning", "rigid-body-dynamics", "analytical-derivatives")
     package_type = "library"
