@@ -1,13 +1,14 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.files.files import replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class QhullConan(ConanFile):
@@ -26,19 +27,39 @@ class QhullConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "reentrant": [True, False],
+        "qhullcpp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "reentrant": True,
+        "qhullcpp": True,
     }
-    implements = ["auto_shared_fpic"]
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if Version(self.version) < "8.1.alpha4":
+            del self.options.qhullcpp
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.get_safe("qhullcpp"):
+            del self.options.shared
+            self.package_type = "static-library"
+        else:
+            self.languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.options.get_safe("qhullcpp") and not self.options.reentrant:
+            raise ConanInvalidConfiguration("-o qhullcpp=True requires -o reentrant=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -53,8 +74,8 @@ class QhullConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.shared
-        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.get_safe("shared", False)
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.get_safe("shared", False)
         tc.cache_variables["QHULL_ENABLE_TESTING"] = False
         tc.generate()
 
@@ -87,7 +108,7 @@ class QhullConan(ConanFile):
         if is_msvc(self) and self.options.get_safe("shared"):
             component.defines.append("qh_dllimport")
 
-        if Version(self.version) >= "8.1.alpha4" and reentrant and not self.options.shared:
+        if Version(self.version) >= "8.1.alpha4" and reentrant and not self.options.get_safe("shared"):
             suffix = "_d" if self.settings.build_type == "Debug" else ""
             self.cpp_info.components["libqhullcpp"].set_property("cmake_target_name", "Qhull::qhullcpp")
             self.cpp_info.components["libqhullcpp"].set_property("pkg_config_name", "qhullcpp")
@@ -95,13 +116,13 @@ class QhullConan(ConanFile):
             self.cpp_info.components["libqhullcpp"].requires = ["libqhull_r"]
 
     def _qhull_cmake_name(self, reentrant):
-        if Version(self.version) < "8.1.alpha4" and not reentrant and self.options.shared:
+        if Version(self.version) < "8.1.alpha4" and not reentrant and self.options.get_safe("shared"):
             return "libqhull"
         return self._qhull_pkgconfig_name(reentrant)
 
     def _qhull_pkgconfig_name(self, reentrant):
         name = "qhull"
-        if not self.options.shared:
+        if not self.options.get_safe("shared"):
             name += "static"
         if reentrant:
             name += "_r"
@@ -109,7 +130,7 @@ class QhullConan(ConanFile):
 
     def _qhull_lib_name(self, reentrant):
         name = "qhull"
-        if not self.options.shared:
+        if not self.options.get_safe("shared"):
             name += "static"
         if self.settings.build_type == "Debug" or reentrant:
             name += "_"
