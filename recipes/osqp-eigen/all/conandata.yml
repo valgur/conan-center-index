@@ -1,0 +1,4 @@
+sources:
+  "0.10.1":
+    url: "https://github.com/robotology/osqp-eigen/archive/refs/tags/v0.10.1.tar.gz"
+    sha256: "b68b2b4840fc5580872076a8234ef8e34b482abd133b52b18064cb5b9f1dbc8b"
