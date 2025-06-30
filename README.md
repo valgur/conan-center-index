@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-29:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-30:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -74,13 +74,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-utils/2.11.11
 - colmap/3.10
 - conan-gnu-triplet/latest
-- conan-meson/latest
+- conan-utils/latest
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppad/20250000.2
 - cppadcodegen/2.5.0
 - cppserver/1.0.4.1
-- cpptrace/1.0.0
 - cpuinfo/cci.20250522
 - cpython/3.10.18
 - cpython/3.11.13
