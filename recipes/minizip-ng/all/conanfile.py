@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
@@ -107,16 +106,8 @@ class MinizipNgConan(ConanFile):
             replace_in_file(self, "CMakeLists.txt",
                             "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
                             "")
-        elif Version(self.version) == "4.0.0":
-            replace_in_file(self, "CMakeLists.txt",
-                            "set_target_properties(${MINIZIP_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
-                            "")
 
     def generate(self):
-        if self._needs_pkg_config:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
         tc = CMakeToolchain(self)
         tc.cache_variables["MZ_FETCH_LIBS"] = False
         tc.cache_variables["MZ_COMPAT"] = self.options.mz_compatibility
@@ -138,10 +129,6 @@ class MinizipNgConan(ConanFile):
         if self._needs_pkg_config:
             deps = PkgConfigDeps(self)
             deps.generate()
-            # TODO: to remove when properly handled by conan (see https://github.com/conan-io/conan/issues/11962)
-            env = Environment()
-            env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
-            env.vars(self).save_script("conanbuild_pkg_config_path")
 
     def build(self):
         cmake = CMake(self)
