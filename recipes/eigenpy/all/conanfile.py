@@ -23,13 +23,17 @@ class EigenPyConan(ConanFile):
         "with_cholmod": [True, False],
     }
     default_options = {
-        "generate_python_stubs": True,
+        "generate_python_stubs": False,
         "with_cholmod": False,
         "boost/*:with_python": True,
         "boost/*:numpy": True,
     }
 
     python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,6 +61,7 @@ class EigenPyConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.10)",
                         "cmake_minimum_required(VERSION 3.22)")
+        # get jrl-cmakemodules from Conan
         replace_in_file(self, "CMakeLists.txt", "set(JRL_CMAKE_MODULES ", " # set(JRL_CMAKE_MODULES ")
         # Disable tests
         save(self, "unittest/CMakeLists.txt", "")
@@ -79,11 +84,16 @@ class EigenPyConan(ConanFile):
         deps.set_property("suitesparse-cholmod", "cmake_target_name", "CHOLMOD::CHOLMOD")
         deps.generate()
 
+        if self.options.generate_python_stubs:
+            venv = self._utils.PythonVenv(self)
+            venv.generate()
+
     def build(self):
+        if self.options.generate_python_stubs:
+            self._utils.pip_install(self, ["scipy"])
         cmake = CMake(self)
         cmake.configure()
-        utils = self.python_requires["conan-utils"].module
-        utils.limit_build_jobs(self, gb_mem_per_job=4)
+        self._utils.limit_build_jobs(self, gb_mem_per_job=4)
         cmake.build()
 
     def package(self):
