@@ -220,6 +220,7 @@ class PinocchioConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "pinocchio")
+        self.cpp_info.set_property("cmake_config_version_compat", "AnyNewerVersion")
         self.cpp_info.set_property("pkg_config_name", "pinocchio")
 
         pinocchio = self.cpp_info.components["pinocchio_"]
