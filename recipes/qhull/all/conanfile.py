@@ -74,6 +74,7 @@ class QhullConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.get_safe("shared", False)
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.get_safe("shared", False)
         tc.cache_variables["QHULL_ENABLE_TESTING"] = False
