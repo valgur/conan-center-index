@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
-from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -54,6 +53,10 @@ class DpdkConan(ConanFile):
     }
 
     python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -142,10 +145,8 @@ class DpdkConan(ConanFile):
         PkgConfigDeps(self).generate()
 
         # To install pyelftools
-        env = Environment()
-        env.append_path("PYTHONPATH", self._site_packages_dir)
-        env.append_path("PATH", os.path.join(self._site_packages_dir, "bin"))
-        env.vars(self).save_script("pythonpath")
+        venv = self._utils.PythonVenv(self)
+        venv.generate()
 
     @property
     def _site_packages_dir(self):
@@ -155,7 +156,7 @@ class DpdkConan(ConanFile):
         self.run(f"python3 -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
 
     def build(self):
-        self._pip_install(["pyelftools"])
+        self._utils.pip_install(self, ["pyelftools"])
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -171,7 +172,7 @@ class DpdkConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
-        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
+        self._utils.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libdpdk")

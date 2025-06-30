@@ -1,12 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -29,16 +26,13 @@ class GnuradioVolkConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    python_requires = "conan-utils/latest"
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # To avoid ConanInvalidConfiguration on Windows
-        self.options["cpython"].shared = True
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -49,28 +43,13 @@ class GnuradioVolkConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
-    def build_requirements(self):
-        self.tool_requires("cpython/[^3.12]")
-        # To avoid a conflict with CMake installed via pip on the system Python
-        self.tool_requires("cmake/[>=3.15 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @property
-    def _site_packages_dir(self):
-        return os.path.join(self.build_folder, "site-packages")
+        # Disable apps
+        save(self, "apps/CMakeLists.txt", "")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_STATIC_LIBS"] = not self.options.shared
         tc.variables["ENABLE_TESTING"] = False
@@ -83,21 +62,11 @@ class GnuradioVolkConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-        env = Environment()
-        env.append_path("PYTHONPATH", self._site_packages_dir)
-        env.append_path("PATH", os.path.join(self._site_packages_dir, "bin"))
-        env.vars(self).save_script("pythonpath")
-
-    def _patch_sources(self):
-        # Disable apps
-        save(self, os.path.join(self.source_folder, "apps", "CMakeLists.txt"), "")
-
-    def _pip_install(self, packages):
-        self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
+        venv = self._utils.PythonVenv(self)
+        venv.generate(system_site_packages=True)
 
     def build(self):
-        self._patch_sources()
-        self._pip_install(["mako"])
+        self._utils.pip_install(self, ["mako"])
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

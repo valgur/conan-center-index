@@ -32,6 +32,12 @@ class NumpyConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     @cached_property
     def _python_executable(self):
         return self.conf.get("user.cpython:python", default=None, check_type=str)
@@ -99,24 +105,15 @@ class NumpyConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
 
+        venv = self._utils.PythonVenv(self)
+        venv.generate()
+
         env = Environment()
-        if self._python_executable:
-            env.define_path("PYTHON", self._python_executable)
-            env.prepend_path("PATH", os.path.dirname(self._python_executable))
-        env.prepend_path("PYTHONPATH", self._site_packages_dir)
-        env.prepend_path("PATH", os.path.join(self._site_packages_dir, "bin"))
         env.prepend_path("PATH", str(self._meson_root))
-        env.vars(self).save_script("pythonpath")
-
-    @property
-    def _site_packages_dir(self):
-        return os.path.join(self.build_folder, "site-packages")
-
-    def _pip_install(self, packages):
-        self.run(f"python3 -m pip install {' '.join(packages)} --target={self._site_packages_dir}")
+        env.vars(self).save_script("meson_root")
 
     def build(self):
-        self._pip_install(["cython"])
+        self._utils.pip_install(self, ["cython"])
         meson = Meson(self)
         meson.configure()
         meson.build()

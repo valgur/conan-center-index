@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
@@ -148,6 +148,12 @@ class LibtorchConan(ConanFile):
     }
     no_copy_source = True
     provides = ["miniz", "pocketfft", "kineto", "nnpack", "qnnpack"]
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     @property
     def _is_mobile_os(self):
@@ -348,11 +354,16 @@ class LibtorchConan(ConanFile):
                         "cmake_minimum_required(VERSION 3.5)")
 
         # Keep only a restricted set of vendored dependencies.
-        # Do it before build() to limit the amount of files to copy.
         allowed = ["pocketfft", "kineto", "miniz-2.1.0"]
-        for path in Path(self.source_folder, "third_party").iterdir():
+        for path in Path("third_party").iterdir():
             if path.is_dir() and path.name not in allowed:
                 rmdir(self, path)
+        # Recreate some for add_subdirectory() to work
+        for pkg in ["foxi", "fmt", "FXdiv", "psimd", "mimalloc"]:
+            save(self, os.path.join("third_party", pkg, "CMakeLists.txt"), "")
+
+        # Use FindOpenMP from Conan or CMake
+        rm(self, "FindOpenMP.cmake", "cmake/modules")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -456,25 +467,8 @@ class LibtorchConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
         # To install pyyaml
-        env = Environment()
-        env.append_path("PYTHONPATH", self._site_packages_dir)
-        env.append_path("PATH", os.path.join(self._site_packages_dir, "bin"))
-        env.vars(self).save_script("pythonpath")
-
-    @property
-    def _site_packages_dir(self):
-        return os.path.join(self.build_folder, "site-packages")
-
-    def _pip_install(self, packages):
-        self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
-
-    def _patch_sources(self):
-        # Recreate some for add_subdirectory() to work
-        for pkg in ["foxi", "fmt", "FXdiv", "psimd", "mimalloc"]:
-            save(self, os.path.join(self.source_folder, "third_party", pkg, "CMakeLists.txt"), "")
-        # Use FindOpenMP from Conan or CMake
-        modules_dir = os.path.join(self.source_folder, "cmake", "modules")
-        rm(self, "FindOpenMP.cmake", modules_dir)
+        venv = self._utils.PythonVenv(self)
+        venv.generate()
 
     def _regenerate_flatbuffers(self):
         # Re-generate mobile_bytecode_generated.h to allow any flatbuffers version to be used.
@@ -483,8 +477,7 @@ class LibtorchConan(ConanFile):
                  cwd=os.path.join(self.source_folder, "torch", "csrc", "jit", "serialization"))
 
     def build(self):
-        self._patch_sources()
-        self._pip_install(["pyyaml", "typing-extensions"])
+        self._utils.pip_install(self, ["pyyaml", "typing-extensions"])
         if self._depends_on_flatbuffers:
             self._regenerate_flatbuffers()
         cmake = CMake(self)
