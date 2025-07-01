@@ -1,17 +1,18 @@
-from conan import ConanFile
-from conan.tools.files import copy, chdir, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.layout import basic_layout
-from conan.tools.apple import fix_apple_shared_install_name
 import os
 
+from conan import ConanFile
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.files import *
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.4.0"
+required_conan_version = ">=2.4"
+
 
 class ODPIConan(ConanFile):
     name = "odpi"
     description = "Oracle Database Programming Interface for Drivers and Applications"
-    license = ("UPL-1.0", "Apache-2.0")
+    license = "UPL-1.0 OR Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/oracle/odpi"
     topics = ("oracle", "database", "oci")
@@ -33,7 +34,7 @@ class ODPIConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        if self.settings.os == "Linux":
+        if self.settings.os != "Windows":
             # INFO: Upstream CFLAGS and LDFLAGS are overridden by AutotoolsToolchain
             # INFO: AutotoolsToolchain does not pass -fPIC due package type shared-library
             # INFO: AutotoolsToolchain does not pass -shared by default
@@ -63,11 +64,8 @@ class ODPIConan(ConanFile):
                 autotools = Autotools(self)
                 autotools.install(args=[f"PREFIX={self.package_folder}"])
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["odpic"]
-        if self.settings.os in ["Linux"]:
-            self.cpp_info.system_libs.extend(["dl", "m", "pthread"])
