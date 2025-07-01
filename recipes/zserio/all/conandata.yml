@@ -1,13 +1,13 @@
 sources:
-  "2.16.0":
+  "2.16.1":
     runtime:
-      url: "https://github.com/ndsev/zserio/releases/download/v2.16.0/zserio-2.16.0-runtime-libs.zip"
-      sha256: "e9e136247a70a198da20c145f9bf18b618b20b451cd64eb703e2f48b20c87b8c"
+      url: "https://github.com/ndsev/zserio/releases/download/v2.16.1/zserio-2.16.1-runtime-libs.zip"
+      sha256: "36a162e97d5e1a6d6910dc5f7d034edee7f237ab7db8deff800f8dc858cc7caf"
     compiler:
-      url: "https://github.com/ndsev/zserio/releases/download/v2.16.0/zserio-2.16.0-bin.zip"
-      sha256: "b686ccb9bb7f7d786076a83b3f02cdaceedd9d1a509f975bed96ac283c6b4894"
+      url: "https://github.com/ndsev/zserio/releases/download/v2.16.1/zserio-2.16.1-bin.zip"
+      sha256: "72e94a503f563a7fa55be5db9baf100b46f3fc126be83f6bc7f58597fdd36661"
     license:
-      url: "https://raw.githubusercontent.com/ndsev/zserio/v2.16.0/LICENSE"
+      url: "https://raw.githubusercontent.com/ndsev/zserio/v2.16.1/LICENSE"
       sha256: "8fd7b040fc223bb07551dfed490df0d55d6af25e331e58bc7c7599163ed1bb5a"
   "2.15.0":
     runtime:
@@ -28,16 +28,6 @@ sources:
       sha256: "3280d620b2c23e01cc2e73bae9b60c93f94b23859c68edb1f105ba499b377049"
     license:
       url: "https://raw.githubusercontent.com/ndsev/zserio/v2.14.1/LICENSE"
-      sha256: "8fd7b040fc223bb07551dfed490df0d55d6af25e331e58bc7c7599163ed1bb5a"
-  "2.14.0":
-    runtime:
-      url: "https://github.com/ndsev/zserio/releases/download/v2.14.0/zserio-2.14.0-runtime-libs.zip"
-      sha256: "6002bfe179333435c84d3be2cfb612c008bd52837512aecea8a888e4a3139564"
-    compiler:
-      url: "https://github.com/ndsev/zserio/releases/download/v2.14.0/zserio-2.14.0-bin.zip"
-      sha256: "c1d4668371ad3543cb24f86b218640da7f720f31afe3f8af2d427114d7c7ae5c"
-    license:
-      url: "https://raw.githubusercontent.com/ndsev/zserio/v2.14.0/LICENSE"
       sha256: "8fd7b040fc223bb07551dfed490df0d55d6af25e331e58bc7c7599163ed1bb5a"
   "2.13.0":
     runtime:
