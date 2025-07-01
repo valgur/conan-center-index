@@ -1,10 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, VCVars, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc, VCVars
 
 required_conan_version = ">=2.1"
 
@@ -30,9 +29,6 @@ class PremakeConan(ConanFile):
         "lto": False,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os != "Windows" or is_msvc(self):
             self.options.rm_safe("lto")
@@ -46,37 +42,16 @@ class PremakeConan(ConanFile):
             self.info.settings.build_type = "Release"
 
     def requirements(self):
-        self.requires("libcurl/[>=7.78.0 <9]")
-        self.requires("libzip/[^1.10.1]")
-        self.requires("zlib-ng/[^2.0]")
         if self.settings.os == "Linux":
             self.requires("util-linux-libuuid/2.41")
-        # Lua sources are required during the build and cannot be unvendored
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-
-    @property
-    def _conan_deps_lua(self):
-        return os.path.join(self.generators_folder, "conan_paths.lua")
+        get(self, **self.conan_data["sources"][self.version], strip_root=False)
 
     def generate(self):
         if is_msvc(self):
             vcvars = VCVars(self)
             vcvars.generate()
-
-        deps = list(reversed(self.dependencies.host.topological_sort.values()))
-        deps = [dep.cpp_info.aggregated_components() for dep in deps]
-        includedirs = ', '.join(f'"{p}"'.replace("\\", "/") for dep in deps for p in dep.includedirs)
-        libdirs = ', '.join(f'"{p}"'.replace("\\", "/") for dep in deps for p in dep.libdirs)
-        libs = ', '.join([f'"{lib}"' for dep in deps for lib in dep.libs + dep.system_libs])
-        if is_apple_os(self):
-            libs += ''.join(f', "{lib}.framework"' for dep in deps for lib in dep.frameworks)
-        defines = ', '.join(f'"{d}"' for dep in deps for d in dep.defines)
-        save(self, self._conan_deps_lua,
-             "conan_includedirs = {%s}\nconan_libdirs = {%s}\nconan_libs = {%s}\nconan_defines = {%s}\n" %
-             (includedirs, libdirs, libs, defines))
 
     def _patch_sources(self):
         if self.options.get_safe("lto", None) is False:
@@ -87,24 +62,11 @@ class PremakeConan(ConanFile):
         if self.settings.os == "Linux":
             libuuid_info = self.dependencies["util-linux-libuuid"].cpp_info.aggregated_components()
             replace_in_file(self, os.path.join(self.source_folder, "Bootstrap.mak"),
-                            " -luuid", f" -luuid -I{libuuid_info.includedirs[0]} -L{libuuid_info.libdirs[0]}")
-
-        # Unvendor
-        for lib in ["curl", "libzip", "mbedtls", "zlib"]:
-            rmdir(self, os.path.join(self.source_folder, "contrib", lib))
-
-        # Inject Conan dependencies
-        replace_in_file(self, os.path.join(self.source_folder, "premake5.lua"),
-                        "@CONAN_DEPS_LUA@", self._conan_deps_lua.replace("\\", "/"))
+                            " -luuid",
+                            f" -luuid -I{libuuid_info.includedirs[0]} -L{libuuid_info.libdirs[0]}")
 
         # Fix mismatching win32 arch name
-        replace_in_file(self, os.path.join(self.source_folder, "Bootstrap.mak"),
-                        "$(PLATFORM:x86=win32)", "$(VS_ARCH)")
-
-        # Fix runtime library linkage
-        if not is_msvc_static_runtime(self):
-            replace_in_file(self, os.path.join(self.source_folder, "premake5.lua"),
-                            '"StaticRuntime", ', "")
+        replace_in_file(self, os.path.join(self.source_folder, "Bootstrap.mak"), "$(PLATFORM:x86=win32)", "$(VS_ARCH)")
 
     @property
     def _os_target(self):
