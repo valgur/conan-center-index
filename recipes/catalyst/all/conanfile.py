@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
@@ -19,12 +20,14 @@ class CatalystConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "python_bindings": [True, False],
         "tools": [True, False],
         "with_mpi": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "python_bindings": False,
         "tools": False,
         "with_mpi": False,
     }
@@ -37,9 +40,15 @@ class CatalystConan(ConanFile):
         if self.options.with_mpi:
             self.requires("openmpi/[^5.0]")
         # TODO: unvendor conduit
+        if self.options.python_bindings:
+            self.requires("cpython/[^3]")
+            self.requires("numpy/[^2]")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.26 <5]")
+        if self.options.python_bindings:
+            self.tool_requires("cpython/[^3]", visible=True)
+            self.tool_requires("numpy/[^2]", visible=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -51,6 +60,7 @@ class CatalystConan(ConanFile):
         tc.variables["CATALYST_BUILD_TOOLS"] = self.options.tools
         tc.variables["CATALYST_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["CATALYST_USE_MPI"] = self.options.with_mpi
+        tc.variables["CATALYST_WRAP_PYTHON"] = self.options.python_bindings
         # Catalyst adds by default catalyst_${VERSION} as suffix for static libs. Remove that
         if not self.options.shared:
             tc.variables["CATALYST_CUSTOM_LIBRARY_SUFFIX"] = ""
@@ -74,6 +84,9 @@ class CatalystConan(ConanFile):
         cmake.install()
         rm(self, "catalyst-config*.cmake", os.path.join(self.package_folder, self._cmake_dir))
         rm(self, "catalyst-targets*.cmake", os.path.join(self.package_folder, self._cmake_dir))
+
+    def _find_installed_site_packages(self):
+        return str(next(Path(self.package_folder).rglob("__init__.py")).parent.parent)
 
     @property
     def _lib_suffix(self):
@@ -101,3 +114,7 @@ class CatalystConan(ConanFile):
             self.cpp_info.components["catalyst_stub"].libdirs = [os.path.join("lib", "catalyst")]
         self.cpp_info.components["catalyst_stub"].libs = ["catalyst-stub" + self._lib_suffix]
         self.cpp_info.components["catalyst_stub"].requires = ["catalyst_"]
+
+        if self.options.python_bindings:
+            self.cpp_info.components["_python_bindings"].requires = ["cpython::cpython", "numpy::numpy"]
+            self.runenv_info.prepend_path("PYTHONPATH", self._find_installed_site_packages())
