@@ -1,16 +1,9 @@
 sources:
-  "3.0.7.0":
-    url: "https://github.com/AcademySoftwareFoundation/OpenImageIO/archive/refs/tags/v3.0.7.0.tar.gz"
-    sha256: "2798e398b6ffd836ba7810e8ea510902a4aabc4a373ca0523a3f0d830c5eb103"
-  "3.0.5.0":
-    url: "https://github.com/AcademySoftwareFoundation/OpenImageIO/archive/refs/tags/v3.0.5.0.tar.gz"
-    sha256: "340bb14a084d94918de8d46af14e361168215430f3dd6c336b2ffb895fe9d5cb"
+  "3.0.8.0":
+    url: "https://github.com/AcademySoftwareFoundation/OpenImageIO/archive/refs/tags/v3.0.8.0.tar.gz"
+    sha256: "2a7ed70a6baea11f5e85ef4d91338a005738e1d51c74fe966ab35c98347ff33d"
 patches:
-  "3.0.7.0":
-    - patch_file: "patches/3.0.5.0-cmake-targets.patch"
-      patch_description: "Fix some incompatibilities with Conan-generated CMake targets"
-      patch_type: "conan"
-  "3.0.5.0":
+  "3.0.8.0":
     - patch_file: "patches/3.0.5.0-cmake-targets.patch"
       patch_description: "Fix some incompatibilities with Conan-generated CMake targets"
       patch_type: "conan"
