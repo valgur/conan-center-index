@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-07-01:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -225,6 +225,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.5.1
 - ifcopenshell/0.8.0.cci.20250501
 - imagemagick/7.1.1.38
+- imgui/1.91.5
 - imgui/1.91.9
 - imgui/1.91.9b
 - imlib2/1.12.3
@@ -234,6 +235,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - iridescence/0.1.3
 - isl/0.27
 - ittapi/3.26.1
+- jrl-cmakemodules/cci.20250623
 - json-glib/1.10.6
 - jsonifier/0.9.98
 - kdsingleapplication/1.1.0
@@ -271,6 +273,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libmount/2.41
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
+- libpng/1.6.49
 - libpq/17.0
 - libpq/17.5
 - libprotobuf-mutator/1.5
@@ -280,7 +283,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - librsvg/2.40.21
 - librsvg/2.60.0
 - libsigcpp/2.12.1
-- libsigcpp/3.6.0
 - libsm/1.2.4
 - libsolv/0.7.29
 - libsoup/3.6.1
@@ -343,6 +345,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - meson/1.8.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
+- minizip-ng/4.0.10
 - mkfontscale/1.2.3
 - mlir/19.1.7
 - mlir/20.1.7
@@ -395,6 +398,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openxr/1.1.47
 - or-tools/9.10
 - osgearth/3.7
+- osqp-eigen/0.10.1
 - osqp/1.0.0
 - osrm/5.27.1
 - ozz-animation/0.14.3
@@ -411,6 +415,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pdfio/1.5.2
 - perf/6.11
 - piex/0.27
+- pinocchio/3.7.0
 - pipewire/1.4.2
 - pistache/0.4.26
 - pixman/0.46.0
@@ -523,6 +528,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tk/8.6.16
 - torch-mlir/cci.20250203
 - tpl/cci.20210302
+- tsid/1.8.0
 - tslib/1.23
 - tz/2024b
 - ufbx/0.18.2
