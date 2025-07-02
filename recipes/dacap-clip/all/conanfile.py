@@ -33,10 +33,6 @@ class DacapClipConan(ConanFile):
         "with_image": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -59,7 +55,7 @@ class DacapClipConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
         if is_msvc(self) and self.info.settings.build_type == "Debug" and self.info.options.shared == True:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC debug shared build (now).")
 
@@ -74,6 +70,8 @@ class DacapClipConan(ConanFile):
         toolchain.variables["CLIP_ENABLE_IMAGE"] = self.options.get_safe("with_image", False)
         if is_msvc(self):
             toolchain.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = bool(self.options.shared)
+        if Version(self.version) < "1.10":
+            toolchain.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
         toolchain.generate()
 
         deps = CMakeDeps(self)
@@ -86,31 +84,35 @@ class DacapClipConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "clip.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.so", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        if Version(self.version) >= "1.10":
+            cmake = CMake(self)
+            cmake.install()
+            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        else:
+            copy(self, "clip.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.so", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        # FIXME: Upstream does not support shared libraries on Windows, we should not have allowed this option
+        # but keep this as not to break existing consumers
         copy(self, "*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "clip")
+        self.cpp_info.set_property("cmake_target_name", "clip::clip")
+
         self.cpp_info.libs = ["clip"]
 
-        if self.options.get_safe("with_png", False):
+        if self.options.get_safe("with_png"):
             self.cpp_info.requires.append("libpng::libpng")
-        if self.options.get_safe("with_image", False):
+        if self.options.get_safe("with_image"):
             self.cpp_info.defines.append("CLIP_ENABLE_IMAGE=1")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.requires.append("xorg::xcb")
             self.cpp_info.system_libs.append("pthread")
         elif is_apple_os(self):
-            self.cpp_info.frameworks = ['Cocoa', 'Carbon', 'CoreFoundation', 'Foundation', 'AppKit']
+            self.cpp_info.frameworks = ["Cocoa", "Carbon", "CoreFoundation", "Foundation", "AppKit"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend([
-                "shlwapi",
-                "windowscodecs",
-            ])
-
-        self.cpp_info.set_property("cmake_file_name", "clip")
-        self.cpp_info.set_property("cmake_target_name", "clip::clip")
+            self.cpp_info.system_libs = ["shlwapi", "windowscodecs"]
