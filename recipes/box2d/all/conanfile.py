@@ -59,14 +59,12 @@ class Box2dConan(ConanFile):
             self.requires("simde/[>=0.8.2 <1]")
 
     def validate(self):
-        if Version(self.version) < "3.0.0":
-            return
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C17, which your compiler does not support."
-            )
+        if Version(self.version) >= "3.0.0":
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C17, which your compiler does not support."
+                )
 
     def build_requirements(self):
         if Version(self.version) >= "3.0.0":
@@ -106,7 +104,8 @@ class Box2dConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.libs = ["box2d"]
+        postfix = "d" if Version(self.version) >= "3.1.0" and self.settings.build_type == "Debug" else ""
+        self.cpp_info.libs = [f"box2d{postfix}"]
         if Version(self.version) >= "3.0.0" and is_msvc(self) and self.options.shared:
             self.cpp_info.defines.append("BOX2D_DLL")
         elif Version(self.version) >= "2.4.1" and self.options.shared:
