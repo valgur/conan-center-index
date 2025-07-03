@@ -84,6 +84,7 @@ class SociConan(ConanFile):
         tc.cache_variables["SOCI_STATIC"] = not self.options.shared
         tc.cache_variables["SOCI_TESTS"] = False
         tc.cache_variables["SOCI_EMPTY"] = self.options.empty
+        tc.cache_variables["SOCI_LTO"] = False
         tc.cache_variables[f"{backend_prefix}_SQLITE3"] = self.options.with_sqlite3
         tc.cache_variables[f"{backend_prefix}_DB2"] = False
         tc.cache_variables[f"{backend_prefix}_ODBC"] = self.options.with_odbc
