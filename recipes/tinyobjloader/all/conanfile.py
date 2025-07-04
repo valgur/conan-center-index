@@ -14,7 +14,7 @@ class TinyObjLoaderConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinyobjloader"
     topics = ("loader", "obj", "3d", "wavefront", "geometry")
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,20 +26,10 @@ class TinyObjLoaderConan(ConanFile):
         "fPIC": True,
         "double": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
 
     def layout(self):
         cmake_layout(self, src_folder="src")
