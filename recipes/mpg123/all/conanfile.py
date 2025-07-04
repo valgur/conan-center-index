@@ -10,6 +10,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -162,7 +163,7 @@ class Mpg123Conan(ConanFile):
             cmake.configure(build_script_folder=os.path.join(self.source_folder, "ports", "cmake"))
             cmake.build()
         else:
-            if self.settings.compiler == "apple-clang" and cross_building(self):
+            if Version(self.version) < "1.33.0" and self.settings.compiler == "apple-clang" and cross_building(self):
                 # when testing if the assembler supports avx - propagate cflags (CFLAGS) to the assembler
                 # (which should contain "-arch x86_64" when crossbuilding with appleclang)
                 replace_in_file(self, os.path.join(self.source_folder, "configure"),
