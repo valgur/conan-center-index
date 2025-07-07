@@ -130,6 +130,8 @@ if(MVK_BUILD_SHADERCONVERTER_TOOL)
 endif()
 
 # MoltenVK
+add_compile_definitions(MVK_FRAMEWORK_VERSION=${MVK_VERSION})
+
 file(GLOB_RECURSE MVK_SOURCES
     MoltenVK/MoltenVK/*.m
     MoltenVK/MoltenVK/*.mm
@@ -145,6 +147,7 @@ target_include_directories(MoltenVK PRIVATE
     MoltenVK/MoltenVK/OS
     MoltenVK/MoltenVK/Utility
     MoltenVK/MoltenVK/Vulkan
+    MoltenVK/include
 )
 target_link_libraries(MoltenVK
     PRIVATE
