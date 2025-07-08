@@ -122,7 +122,7 @@ class UTConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ut")
         self.cpp_info.set_property("cmake_target_name", f"{namespace}::ut")
 
-        if newer_than_1_1_8:
+        if newer_than_1_1_8 and Version(self.version) < "2.3.1":
             self.cpp_info.components["ut"].includedirs = [os.path.join("include", "ut-" + self.version, "include")]
 
         if self.options.get_safe("disable_module"):
