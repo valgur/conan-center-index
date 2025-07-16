@@ -93,9 +93,8 @@ class ThriftConan(ConanFile):
         if is_msvc(self):
             tc.variables["WITH_MT"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0074"] = "NEW"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
-        if Version(self.version) > "0.20.0":
-            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
+        if Version(self.version) < "0.22.0": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         cd = CMakeDeps(self)
@@ -143,7 +142,6 @@ class ThriftConan(ConanFile):
             self.cpp_info.components["libthrift_z"].set_property("pkg_config_name", "thrift-z")
             self.cpp_info.components["libthrift_z"].libs = [f"thriftz{libsuffix}"]
             self.cpp_info.components["libthrift_z"].requires = ["libthrift", "zlib-ng::zlib-ng"]
-
 
         if self.options.with_libevent:
             self.cpp_info.components["libthrift_nb"].set_property("cmake_target_name", "thriftnb::thriftnb")
