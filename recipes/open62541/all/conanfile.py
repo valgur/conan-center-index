@@ -111,6 +111,8 @@ class Open62541Conan(ConanFile):
         # UA_ENABLE_STATUSCODE_DESCRIPTIONS=readable_statuscodes
         "readable_statuscodes": [True, False],
         "parsing": [True, False],
+        # UA_ENABLE_NODESETLOADER=nodeset_loader
+        "nodeset_loader": [True, False],
     }
     default_options = {
         "fPIC": True,
@@ -140,6 +142,7 @@ class Open62541Conan(ConanFile):
         "cpp_compatible": False,
         "readable_statuscodes": True,
         "parsing": False,
+        "nodeset_loader": False,
     }
 
     exports = "submoduledata.yml"
@@ -150,7 +153,12 @@ class Open62541Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
         del self.options.embedded_profile
+
+        # NodesetLoader has only rudimentary Windows support --> disabling for now. This might change in the future.
+        if Version(self.version) < "1.4.11.1" or self.settings.os != "Linux":
+            del self.options.nodeset_loader
 
     def configure(self):
         if self.options.shared:
@@ -181,6 +189,8 @@ class Open62541Conan(ConanFile):
             self.requires("libwebsockets/4.3.2")
         if self.options.discovery == "With Multicast" or "multicast" in str(self.options.discovery):
             self.requires("pro-mdnsd/0.8.4")
+        if self.options.get_safe("nodeset_loader"):
+            self.requires("libxml2/[>=2.12.5 <3]")
 
     def validate(self):
         if not self.options.subscription:
@@ -215,6 +225,10 @@ class Open62541Conan(ConanFile):
                 raise ConanInvalidConfiguration(
                     "When web_socket is enabled, libwebsockets:with_ssl must have the value of open62541:encryption")
 
+        if self.options.get_safe("nodeset_loader") and not self.options.parsing:
+            # NodesetLoader requires parsing to be enabled
+            raise ConanInvalidConfiguration("When nodeset_loader is enabled, then parsing has to be enabled too.")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -229,6 +243,7 @@ class Open62541Conan(ConanFile):
                     destination=path,
                     filename=archive_name,
                     strip_root=True)
+        self._patch_sources()
 
         apply_conandata_patches(self)
         rm(self, "FindPython3.cmake", os.path.join(self.source_folder, "tools", "cmake"))
@@ -264,6 +279,9 @@ class Open62541Conan(ConanFile):
 
         if self.settings.os == "Neutrino":
             tc.cache_variables["UA_ARCHITECTURE"] = "posix"
+
+        if version >= "1.4.11.1":
+            tc.variables["UA_ENABLE_DEBUG_SANITIZER"] = False
 
         if self.options.subscription != False:
             if "events" in str(self.options.subscription):
@@ -330,6 +348,9 @@ class Open62541Conan(ConanFile):
 
         # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+
+        if version >= "1.4.11.1":
+            tc.cache_variables["UA_ENABLE_NODESETLOADER"] = self.options.nodeset_loader if self.settings.os == "Linux" else False
 
         tc.generate()
         tc = CMakeDeps(self)
