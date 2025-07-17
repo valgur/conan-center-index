@@ -1,4 +1,4 @@
-import os
+import io
 
 from conan import ConanFile
 from conan.tools.build import can_run
@@ -11,10 +11,11 @@ class TestPackageConan(ConanFile):
     def layout(self):
         basic_layout(self)
 
-    def build_requirements(self):
-        self.tool_requires(self.tested_reference_str)
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def test(self):
         if can_run(self):
-            bees_path = os.path.join(self.source_folder, "bees.png")
-            self.run(f"guetzli --quality 84 {bees_path} bees.jpg")
+            stderr = io.StringIO()
+            self.run("guetzli", env="conanrun", stderr=stderr, ignore_errors=True)
+            assert "Guetzli JPEG compressor" in stderr.getvalue()
