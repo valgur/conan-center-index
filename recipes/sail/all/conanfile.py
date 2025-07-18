@@ -46,6 +46,9 @@ class SAILConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def requirements(self):
         if self.options.with_highest_priority_codecs:
             self.requires("giflib/[^5.2.1]")
@@ -67,8 +70,8 @@ class SAILConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
+        apply_conandata_patches(self)
 
     def generate(self):
         only_codecs = []
