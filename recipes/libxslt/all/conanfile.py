@@ -10,7 +10,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeDeps, NMakeToolchain
 
-required_conan_version = ">=2.4"
+required_conan_version = ">=2.18"
 
 
 class LibxsltConan(ConanFile):
@@ -181,7 +181,8 @@ class LibxsltConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "LibXslt")
-        self.cpp_info.set_property("pkg_config_name", "libxslt_full_package") # unofficial, avoid conflicts in conan generators
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["LIBXSLT"])
+        self.cpp_info.set_property("pkg_config_name", "none") # see the two standalone ones instead
 
         prefix = "lib" if is_msvc(self) else ""
         suffix = "_a" if is_msvc(self) and not self.options.shared else ""
