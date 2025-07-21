@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, check_min_vs
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -46,6 +47,8 @@ class LibuvConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["LIBUV_BUILD_TESTS"] = False
         tc.variables["LIBUV_BUILD_SHARED"] = self.options.shared
+        if Version(self.version) < "1.47.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
         tc.generate()
 
     def build(self):
