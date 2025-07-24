@@ -1013,7 +1013,9 @@ class BoostConan(ConanFile):
 
     @property
     def _build_flags(self):
-        flags = self._build_cross_flags
+        flags = []
+        if self._build_cross_flags:
+            flags.append(f'compileflags="{" ".join(self._build_cross_flags)}"')
 
         # Stop at the first error. No need to continue building.
         flags.append("-q")
@@ -1355,8 +1357,10 @@ class BoostConan(ConanFile):
             contents += f'<cxxflags>"{cxxflags.strip()}" '
         if cflags.strip():
             contents += f'<cflags>"{cflags.strip()}" '
-        if cppflags.strip():
-            contents += f'<compileflags>"{cppflags.strip()}" '
+        if cppflags.strip() or self._build_cross_flags:
+            compiler_flags = cppflags.strip() + " "
+            compiler_flags += " ".join(self._build_cross_flags)
+            contents += f'<compileflags>"{compiler_flags}" '
         if ldflags.strip():
             contents += f'<linkflags>"{ldflags.strip()}" '
         if asflags.strip():
