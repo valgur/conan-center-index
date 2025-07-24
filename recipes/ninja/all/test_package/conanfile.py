@@ -9,7 +9,7 @@ class TestPackageConan(ConanFile):
         basic_layout(self)
 
     def build_requirements(self):
-        self.tool_requires(self.tested_reference_str)
+        self.requires(self.tested_reference_str)
 
     def test(self):
-        self.run("ninja --version")
+        self.run("ninja --version", env="conanrun")
