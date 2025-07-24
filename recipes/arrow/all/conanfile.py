@@ -135,7 +135,8 @@ class ArrowConan(ConanFile):
 
     @property
     def _requires_rapidjson(self):
-        return self.options.with_json or self.options.encryption
+        return (self.options.with_json or self.options.encryption or
+                (Version(self.version) >= "21.0.0" and self.options.parquet))
 
     @property
     def _requires_xsimd(self):
@@ -447,6 +448,15 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libacero"].set_property("cmake_target_name", f"Acero::arrow_acero_{cmake_suffix}")
             self.cpp_info.components["libacero"].libs = [f"arrow_acero{suffix}"]
             self.cpp_info.components["libacero"].requires = ["libarrow"]
+            if Version(self.version) >= "21.0.0" and self.options.compute:
+                # libacero depends on compute
+                self.cpp_info.components["libacero"].requires.append("libarrow_compute")
+
+        if Version(self.version) >= "21.0.0" and self.options.compute:
+            self.cpp_info.components["libarrow_compute"].set_property("pkg_config_name", "arrow_compute")
+            self.cpp_info.components["libarrow_compute"].set_property("cmake_target_name", f"ArrowCompute::arrow_compute_{cmake_suffix}")
+            self.cpp_info.components["libarrow_compute"].libs = [f"arrow_compute{suffix}"]
+            self.cpp_info.components["libarrow_compute"].requires = ["libarrow"]
 
         if self.options.gandiva:
             self.cpp_info.components["libgandiva"].set_property("pkg_config_name", "gandiva")
