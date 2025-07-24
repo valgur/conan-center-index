@@ -86,18 +86,6 @@ class LibffiConan(ConanFile):
 
         env = tc.environment()
         if self.settings_build.os == "Windows" and self.settings.get_safe("compiler.runtime"):
-            build = "{}-{}-{}".format(
-                "x86_64" if self.settings_build.arch == "x86_64" else "i686",
-                "pc" if self.settings_build.arch == "x86" else "win64",
-                "mingw64")
-            host = "{}-{}-{}".format(
-                "x86_64" if self.settings.arch == "x86_64" else "i686",
-                "pc" if self.settings.arch == "x86" else "win64",
-                "mingw64")
-            tc.update_configure_args({
-                "--build": build,
-                "--host": host
-                })
 
             if is_msvc_static_runtime(self):
                 tc.extra_defines.append("USE_STATIC_RTL")
@@ -110,6 +98,8 @@ class LibffiConan(ConanFile):
                     architecture_flag = "-m64"
                 elif self.settings.arch == "x86":
                     architecture_flag = "-m32"
+                elif self.settings.arch == "armv8":
+                    architecture_flag = "-marm64"
             elif self.settings.compiler == "clang":
                 architecture_flag = "-clang-cl"
 
