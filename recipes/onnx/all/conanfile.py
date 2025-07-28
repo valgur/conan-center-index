@@ -88,6 +88,7 @@ class OnnxConan(ConanFile):
                 )
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.18 <4]")
         self.tool_requires("protobuf/<host_version>")
 
     def source(self):
