@@ -196,6 +196,10 @@ class LibpqConan(ConanFile):
         replace_in_file(self, "meson.build",
                         "dependency('ldap', method: 'pkg-config', required: false)",
                         "dependency('ldap', method: 'pkg-config', required: true)")
+        # Preserve the environment vars to ensure m4 is found
+        replace_in_file(self, "src/tools/pgflex",
+                        "env = {'FLEX_TMP_DIR': args.privatedir}",
+                        "env = {**os.environ, 'FLEX_TMP_DIR': args.privatedir}")
 
     def generate(self):
         feature = lambda option: "enabled" if option else "disabled"
