@@ -1,12 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rm, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-import os
 
+required_conan_version = ">=2.1"
 
-required_conan_version = ">=2.0.9"
 
 class PackageConan(ConanFile):
     name = "cpp-datetime-library"
@@ -14,7 +15,7 @@ class PackageConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jeremydumais/CPP-DateTime-library"
-    topics = ("c", "cpp", "cpp-library", "macos", "windows", "linux", "date", "time")
+    topics = ("date", "time")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -54,20 +55,15 @@ class PackageConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.libdirs = [os.path.join("lib", "datetime")]
-        self.cpp_info.libs = ["datetime"]
-        self.cpp_info.set_property("cmake_module_file_name", "datetime")
-        self.cpp_info.set_property("cmake_module_target_name", "datetime::datetime")
         self.cpp_info.set_property("cmake_file_name", "datetime")
         self.cpp_info.set_property("cmake_target_name", "datetime::datetime")
+        self.cpp_info.libs = ["datetime"]
+        self.cpp_info.libdirs = [os.path.join("lib", "datetime")]
         if not self.options.shared:
             self.cpp_info.defines.append("DATETIME_STATIC")
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
