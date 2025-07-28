@@ -294,9 +294,6 @@ class BotanConan(ConanFile):
             "sun-cc": "sunstudio",
         }[str(self.settings.compiler)]
 
-        tc_vars = AutotoolsToolchain(self).vars()
-        cc_bin = tc_vars["CC"]
-
         botan_abi_flags = []
         botan_extra_cxx_flags = []
         build_flags = []
@@ -353,14 +350,19 @@ class BotanConan(ConanFile):
         if self.options.disable_modules:
             build_flags.append(f"--disable-modules={self.options.disable_modules}")
 
+        cxx = AutotoolsToolchain(self).vars().get("CXX")
+        if cxx:
+            build_flags.append(f'--cc-bin="{cxx}"')
+
         if self.options.amalgamation:
             build_flags.append("--amalgamation")
 
         if self.options.system_cert_bundle:
             build_flags.append(f"--system-cert-bundle={self.options.system_cert_bundle}")
 
-        if self.conf.get("tools.build:sysroot"):
-            build_flags.append(f"--with-sysroot-dir={self.conf.get("tools.build:sysroot")}")
+        sysroot = self.conf.get("tools.build:sysroot")
+        if sysroot:
+            build_flags.append(f'--with-sysroot-dir="{sysroot}"')
 
         if self.options.with_bzip2:
             build_flags.append("--with-bzip2")
@@ -460,7 +462,6 @@ class BotanConan(ConanFile):
                          f' --cc-abi-flags="{botan_abi}"'
                          f' --extra-cxxflags="{botan_cxx_extras}"'
                          f' --cc={botan_compiler}'
-                         f' --cc-bin="{cc_bin}"'
                          f' --cpu={self.settings.arch}'
                          f' --prefix="{prefix}"'
                          f' --os={self._botan_os}'
