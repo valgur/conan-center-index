@@ -5,8 +5,6 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import check_min_vs
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -33,9 +31,6 @@ class LcmsConan(ConanFile):
 
     python_requires = "conan-utils/latest"
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -51,21 +46,13 @@ class LcmsConan(ConanFile):
         tc.project_options["auto_features"] = "enabled"
         tc.generate()
 
-    def _patch_sources(self):
-        if check_min_vs(self, "190", raise_invalid=False):
-            # since VS2015 vsnprintf is built-in
-            path = os.path.join(self.source_folder, "src", "lcms2_internal.h")
-            replace_in_file(self, path, "#       define vsnprintf  _vsnprintf", "")
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
 
     def package(self):
-        license_file = "LICENSE" if Version(self.version) >= "2.16" else "COPYING"
-        copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
