@@ -4,12 +4,11 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeDeps, NMakeToolchain
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -42,21 +41,11 @@ class LibxsltConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        if Version(self.version) >= "1.1.42":
-            self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
-        elif Version(self.version) >= "1.1.39":
-            # see https://github.com/conan-io/conan-center-index/pull/16205#discussion_r1149570846
-            # Older versions use deprecated functions that were removed in libxml2 2.13
-            self.requires("libxml2/[~2.12.5]", transitive_headers=True, transitive_libs=True)
-        else:
-            self.requires("libxml2/[~2.11.6]", transitive_headers=True, transitive_libs=True)
+        self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.options.plugins and not self.options.shared:
@@ -70,7 +59,6 @@ class LibxsltConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -79,8 +67,6 @@ class LibxsltConan(ConanFile):
             deps = NMakeDeps(self)
             deps.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             if not cross_building(self):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")
