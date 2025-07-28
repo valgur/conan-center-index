@@ -1,4 +1,4 @@
-#include <libcmaes/cmaes.h>   
+#include <libcmaes/cmaes.h>
 #include <iostream>
 
 using namespace libcmaes;
@@ -31,5 +31,4 @@ int main()
 
   std::cout << "best solution: " << cmasols << std::endl;
   std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
-  return EXIT_SUCCESS;
 }
