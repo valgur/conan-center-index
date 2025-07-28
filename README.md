@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-07-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-07-28:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -30,7 +30,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
-- benchmark/1.9.4
 - binutils/2.44
 - blis/0.9.0
 - bluez/5.83
@@ -80,6 +79,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cppad/20250000.2
 - cppadcodegen/2.5.0
 - cppserver/1.0.4.1
+- cpptrace/1.0.1
 - cpuinfo/cci.20250522
 - cpython/3.10.18
 - cpython/3.11.13
@@ -91,6 +91,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - criterion/2.4.2
 - crow/1.1.0
 - crow/1.2.0
+- crow/1.2.1
 - cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
@@ -116,6 +117,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - emsdk/4.0.6
 - f2c/20240312
 - faiss/1.8.0
+- fast-dds/2.10.1
+- fast-dds/2.11.2
+- fast-dds/2.13.3
+- fast-dds/2.14.0
+- fast-dds/2.3.4
 - fbgemm/1.1.0
 - fenster/0.1.0
 - ffmpeg/4.4.5
@@ -193,6 +199,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gsettings-desktop-schemas/48.0
 - gsl-lite/0.43.0
 - gsl-lite/1.0.1
+- gsoap/2.8.129
+- gsoap/2.8.132
 - gst-libav/1.24.12
 - gst-libav/1.26.0
 - gst-orc/0.4.40
@@ -225,7 +233,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.5.1
 - ifcopenshell/0.8.0.cci.20250501
 - imagemagick/7.1.1.38
-- imgui/1.91.5
 - imgui/1.91.9
 - imgui/1.91.9b
 - imlib2/1.12.3
@@ -265,6 +272,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libiberty/15.1.0
 - libice/1.1.1
+- libiconv/1.15
+- libiconv/1.16
 - libjpeg-meta/latest
 - libjwt/3.2.1
 - liblas/1.8.1.cci.20240916
@@ -275,7 +284,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libosmium/2.20.0
 - libpng/1.6.49
 - libpq/17.0
-- libpq/17.5
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
 - libraw/0.22.0-devel202502
@@ -317,6 +325,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxrandr/1.5.4
 - libxrender/0.9.11
 - libxres/1.2.2
+- libxslt/1.1.34
+- libxslt/1.1.37
+- libxslt/1.1.39
+- libxslt/1.1.42
 - libxss/1.2.4
 - libxt/1.3.0
 - libxtst/1.2.5
@@ -352,6 +364,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mpdecimal/4.0.1
+- mpg123/1.26.4
 - mrcal/2.4.1
 - mysql-connector-cpp/9.3.0
 - nanobind/2.4.0
@@ -376,16 +389,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onemath/0.7
 - onemkl/2025.1.0
 - onetbb/2022.1.0
-- onnx/1.18.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
 - opencl-clhpp-headers/2024.10.24
 - opencl-headers/2024.10.24
 - opencl-icd-loader/2024.10.24
+- openexr/3.3.3
 - opengl-registry/20250604
 - openiap/0.0.33
-- openimageio/3.0.5.0
-- openimageio/3.0.7.0
+- openimageio/3.0.8.0
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
@@ -393,6 +405,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openpmix/5.0.6
 - openrng/25.04
 - openspecfun/0.5.7
+- openssl/3.0.16
+- openssl/3.2.4
+- openssl/3.3.3
+- openssl/3.4.1
+- openssl/3.5.0
 - openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
@@ -427,7 +444,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - portaudio/19.7.0
 - portfft/0.0.0.cci.20240816
-- premake/5.0.0-beta2
 - protobuf-c/1.5.2
 - protobuf/3.29.4
 - protobuf/4.25.7
@@ -438,7 +454,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
-- qt/6.8.3
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
 - rapidjson/cci.20250205
@@ -546,7 +561,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - volk/1.3.250.1
 - volk/1.3.290.0
 - volk/1.4.309.0
-- volk/1.4.313.0
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
@@ -557,7 +571,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-headers/1.3.250.1
 - vulkan-loader/1.3.250.1
 - vulkan-loader/1.3.296.0
-- vulkan-loader/1.4.313.0
 - vulkan-memory-allocator/3.1.0
 - vulkan-memory-allocator/3.2.1
 - vulkan-profiles/1.3.290.0
