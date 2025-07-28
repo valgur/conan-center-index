@@ -96,6 +96,20 @@ def update_conandata_yml(pkg_name, new_version, url, archive_hash):
     config_yml_path.write_text(content, "utf8")
 
 
+def update_url_only(pkg_name, version, url, archive_hash):
+    print(f"Updating URL for {pkg_name}...")
+    config_yml_path = recipes_root / pkg_name / "all" / "conandata.yml"
+    content = config_yml_path.read_text("utf8")
+    content, n = re.subn(
+        f'"{version}":\n    url: .+\n    sha256: .+\n',
+        f'"{version}":\n    url: "{url}"\n    sha256: "{archive_hash}"\n',
+        content,
+    )
+    if n != 1:
+        raise ValueError(f"Failed to update URL in {config_yml_path}")
+    config_yml_path.write_text(content, "utf8")
+
+
 def update_conanfile_py(pkg_name, versions):
     conanfile_py_path = recipes_root / pkg_name / "all" / "conanfile.py"
     content = conanfile_py_path.read_text("utf8")
@@ -122,6 +136,8 @@ def main(suitesparse_version):
                 update_conandata_yml(pkg_name, new_version, graphblas_url, graphblas_hash)
             else:
                 update_conandata_yml(pkg_name, new_version, suitesparse_url, suitesparse_hash)
+        elif pkg_name != "suitesparse-graphblas":
+            update_url_only(pkg_name, new_version, suitesparse_url, suitesparse_hash)
         # No longer needed as we are using version ranges instead
         # update_conanfile_py(pkg_name, versions)
 

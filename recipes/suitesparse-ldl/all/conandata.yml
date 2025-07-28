@@ -1,4 +1,7 @@
 sources:
+  "3.3.3":
+    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.11.0.tar.gz"
+    sha256: "93ed4c4e546a49fc75884c3a8b807d5af4a91e39d191fbbc60a07380b12a35d1"
   "3.3.2":
-    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.7.0.tar.gz"
-    sha256: "529b067f5d80981f45ddf6766627b8fc5af619822f068f342aab776e683df4f3"
+    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.10.3.tar.gz"
+    sha256: "09e7bcc8e5de0a5b55d2ae9fd6378d5f4dc1b85a933593339a0872b24e2cc102"
