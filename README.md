@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-07-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-07-29:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -27,6 +27,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - autoconf-archive/2024.10.16
+- avcpp/2.1.0
+- avcpp/2.3.0
+- avcpp/2.3.2
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
@@ -79,7 +82,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cppad/20250000.2
 - cppadcodegen/2.5.0
 - cppserver/1.0.4.1
-- cpptrace/1.0.1
 - cpuinfo/cci.20250522
 - cpython/3.10.18
 - cpython/3.11.13
@@ -117,11 +119,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - emsdk/4.0.6
 - f2c/20240312
 - faiss/1.8.0
-- fast-dds/2.10.1
-- fast-dds/2.11.2
-- fast-dds/2.13.3
-- fast-dds/2.14.0
-- fast-dds/2.3.4
 - fbgemm/1.1.0
 - fenster/0.1.0
 - ffmpeg/4.4.5
@@ -199,8 +196,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gsettings-desktop-schemas/48.0
 - gsl-lite/0.43.0
 - gsl-lite/1.0.1
-- gsoap/2.8.129
-- gsoap/2.8.132
 - gst-libav/1.24.12
 - gst-libav/1.26.0
 - gst-orc/0.4.40
@@ -272,8 +267,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libiberty/15.1.0
 - libice/1.1.1
-- libiconv/1.15
-- libiconv/1.16
 - libjpeg-meta/latest
 - libjwt/3.2.1
 - liblas/1.8.1.cci.20240916
@@ -325,10 +318,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxrandr/1.5.4
 - libxrender/0.9.11
 - libxres/1.2.2
-- libxslt/1.1.34
-- libxslt/1.1.37
-- libxslt/1.1.39
-- libxslt/1.1.42
 - libxss/1.2.4
 - libxt/1.3.0
 - libxtst/1.2.5
@@ -364,7 +353,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mpdecimal/4.0.1
-- mpg123/1.26.4
 - mrcal/2.4.1
 - mysql-connector-cpp/9.3.0
 - nanobind/2.4.0
@@ -388,13 +376,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onednn/3.9.0-pc
 - onemath/0.7
 - onemkl/2025.1.0
-- onetbb/2022.1.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
+- openblas/0.3.30
 - opencl-clhpp-headers/2024.10.24
 - opencl-headers/2024.10.24
 - opencl-icd-loader/2024.10.24
-- openexr/3.3.3
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.8.0
@@ -405,11 +392,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openpmix/5.0.6
 - openrng/25.04
 - openspecfun/0.5.7
-- openssl/3.0.16
-- openssl/3.2.4
-- openssl/3.3.3
-- openssl/3.4.1
-- openssl/3.5.0
 - openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
@@ -435,7 +417,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pinocchio/3.7.0
 - pipewire/1.4.2
 - pistache/0.4.26
-- pixman/0.46.0
 - pkgconf/2.4.3
 - plf_list/2.77
 - poco/1.14.1
@@ -510,29 +491,47 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - stella_vslam/0.5.0
 - stk/5.0.1
 - suitesparse-amd/3.3.3
+- suitesparse-amd/3.3.4
 - suitesparse-btf/2.3.2
+- suitesparse-btf/2.3.3
 - suitesparse-camd/3.3.3
 - suitesparse-camd/3.3.4
+- suitesparse-camd/3.3.5
 - suitesparse-ccolamd/3.3.4
+- suitesparse-ccolamd/3.3.5
 - suitesparse-cholmod/5.3.0
 - suitesparse-cholmod/5.3.3
+- suitesparse-cholmod/5.3.4
 - suitesparse-colamd/3.3.4
+- suitesparse-colamd/3.3.5
 - suitesparse-config/7.10.3
+- suitesparse-config/7.11.0
 - suitesparse-config/7.8.3
 - suitesparse-cxsparse/4.4.1
+- suitesparse-cxsparse/4.4.2
 - suitesparse-graphblas/10.0.5
+- suitesparse-graphblas/10.1.1
 - suitesparse-graphblas/9.3.1
 - suitesparse-klu/2.3.5
+- suitesparse-klu/2.3.6
 - suitesparse-lagraph/1.1.4
 - suitesparse-lagraph/1.1.5
+- suitesparse-lagraph/1.2.0
 - suitesparse-ldl/3.3.2
+- suitesparse-ldl/3.3.3
 - suitesparse-mongoose/3.3.4
+- suitesparse-mongoose/3.3.5
 - suitesparse-paru/1.0.0
+- suitesparse-paru/1.0.1
 - suitesparse-rbio/4.3.4
+- suitesparse-rbio/4.3.5
 - suitesparse-spex/3.2.1
 - suitesparse-spex/3.2.3
+- suitesparse-spex/3.2.4
 - suitesparse-spqr/4.3.4
+- suitesparse-spqr/4.3.5
 - suitesparse-umfpack/6.3.5
+- suitesparse-umfpack/6.3.6
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
