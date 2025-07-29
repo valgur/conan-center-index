@@ -31,20 +31,6 @@ class OpenEXRConan(ConanFile):
     implements = ["auto_shared_fpic"]
 
     @property
-    def _min_cppstd(self):
-        if Version(self.version) >= "3.3":
-            return 17
-        return 11
-
-    @property
-    def _minimum_compiler_version(self):
-        return {
-            "17": {
-                "gcc": "9"
-            }
-        }.get(str(self._min_cppstd), {})
-
-    @property
     def _with_libdeflate(self):
         return Version(self.version) >= "3.2"
 
@@ -62,11 +48,7 @@ class OpenEXRConan(ConanFile):
             self.requires("libdeflate/[^1.19]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._minimum_compiler_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires {self.settings.compiler} >= {minimum_version}")
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -110,7 +92,6 @@ class OpenEXRConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenEXR")
         self.cpp_info.set_property("pkg_config_name", "OpenEXR")
-
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":

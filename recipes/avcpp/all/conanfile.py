@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -29,19 +28,6 @@ class AvcppConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12.0",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -52,13 +38,7 @@ class AvcppConan(ConanFile):
         self.requires("ffmpeg/[>=6 <8]", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if Version(self.version) >= "2.2.0":
@@ -68,15 +48,22 @@ class AvcppConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+        # Fix issue with install targets
+        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                        "install(TARGETS ${AV_TARGETS} FFmpeg",
+                        'install(TARGETS ${AV_TARGETS}')
+
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        tc.variables["AV_ENABLE_SHARED"] = self.options.shared
-        tc.variables["AV_ENABLE_STATIC"] = not self.options.shared
-        tc.variables["AV_BUILD_EXAMPLES"] = False
+        tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.cache_variables["AV_ENABLE_SHARED"] = self.options.shared
+        tc.cache_variables["AV_ENABLE_STATIC"] = not self.options.shared
+        tc.cache_variables["AV_BUILD_EXAMPLES"] = False
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("ffmpeg", "cmake_file_name", "FFmpeg")
+        deps.set_property("ffmpeg", "cmake_target_name", "FFmpeg::FFmpeg")
         deps.generate()
 
     def build(self):
@@ -91,15 +78,14 @@ class AvcppConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        target_name = "avcpp" if self.options.shared else "avcpp-static"
-
         self.cpp_info.set_property("cmake_file_name", "avcpp")
-        self.cpp_info.set_property("cmake_target_name", f"avcpp::{target_name}")
-
-        self.cpp_info.components["AvCpp"].set_property("cmake_target_name", f"avcpp::{target_name}")
-        self.cpp_info.components["AvCpp"].libs = ["avcpp", ]
-        self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg", ]
+        self.cpp_info.set_property("cmake_target_name", "avcpp::avcpp")
+        if not self.options.shared:
+            # upstream CMakeLists.txt uses "avcpp-static" as target name only
+            # when both shared and static libraries are built, we keep this for compatibility
+            self.cpp_info.set_property("cmake_target_aliases", ["avcpp::avcpp-static"])
+        self.cpp_info.libs = ["avcpp"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["AvCpp"].system_libs = ["mvec"]
+            self.cpp_info.system_libs = ["mvec"]
         if self.settings.os == "Windows":
-            self.cpp_info.components["AvCpp"].system_libs = ["mfplat"]
+            self.cpp_info.system_libs = ["mfplat"]
