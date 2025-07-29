@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -30,10 +29,6 @@ class OpenEXRConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _with_libdeflate(self):
-        return Version(self.version) >= "3.2"
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -44,8 +39,7 @@ class OpenEXRConan(ConanFile):
         self.requires("zlib-ng/[^2.0]")
         # Note: OpenEXR and Imath are versioned independently.
         self.requires("imath/[^3.1.9]", transitive_headers=True)
-        if self._with_libdeflate:
-            self.requires("libdeflate/[^1.19]")
+        self.requires("libdeflate/[^1.19]")
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -53,9 +47,8 @@ class OpenEXRConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        if Version(self.version) >= "3.2":
-            # Even with BUILD_WEBSITE, Website target is compiled in 3.2
-            save(self, "website/src/CMakeLists.txt", "")
+        # Even with BUILD_WEBSITE, Website target is compiled in 3.2
+        save(self, "website/src/CMakeLists.txt", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -95,8 +88,8 @@ class OpenEXRConan(ConanFile):
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":
-            openexr_version = Version(self.version)
-            lib_suffix += f"-{openexr_version.major}_{openexr_version.minor}"
+            v = Version(self.version)
+            lib_suffix += f"-{v.major}_{v.minor}"
         if self.settings.build_type == "Debug":
             lib_suffix += "_d"
 
@@ -132,8 +125,7 @@ class OpenEXRConan(ConanFile):
         OpenEXRCore = self._add_component("OpenEXRCore")
         OpenEXRCore.libs = [f"OpenEXRCore{lib_suffix}"]
         OpenEXRCore.requires = [self._conan_comp("OpenEXRConfig"), "zlib-ng::zlib-ng"]
-        if self._with_libdeflate:
-            OpenEXRCore.requires.append("libdeflate::libdeflate")
+        OpenEXRCore.requires.append("libdeflate::libdeflate")
         if self.settings.os in ["Linux", "FreeBSD"]:
             OpenEXRCore.system_libs = ["m"]
 

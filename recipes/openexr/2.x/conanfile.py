@@ -1,8 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building, stdcpp_library
+from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -14,10 +13,10 @@ class OpenEXRConan(ConanFile):
     name = "openexr"
     description = "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & " \
                   "Magic for use in computer imaging applications."
-    topics = ("hdr", "image", "picture", "file format", "computer vision")
     license = "BSD-3-Clause"
-    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
+    topics = ("hdr", "image", "picture", "file format", "computer vision")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -30,34 +29,22 @@ class OpenEXRConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
-
-    def validate(self):
-        if Version(self.version) < "2.5.0" and cross_building(self):
-            # cross-build supported since https://github.com/AcademySoftwareFoundation/openexr/pull/606
-            raise ConanInvalidConfiguration("Cross-build not supported before openexr 2.5.0")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["OPENEXR_BUILD_BOTH_STATIC_SHARED"] = False
         tc.variables["ILMBASE_BUILD_BOTH_STATIC_SHARED"] = False
         tc.variables["PYILMBASE_ENABLE"] = False
-        if Version(self.version) < "2.5.0":
-            tc.variables["OPENEXR_VIEWERS_ENABLE"] = False
-        else:
-            tc.variables["INSTALL_OPENEXR_EXAMPLES"] = False
-            tc.variables["INSTALL_OPENEXR_DOCS"] = False
+        tc.variables["INSTALL_OPENEXR_EXAMPLES"] = False
+        tc.variables["INSTALL_OPENEXR_DOCS"] = False
         tc.variables["OPENEXR_BUILD_UTILS"] = False
         tc.variables["BUILD_TESTING"] = False
         tc.variables["CMAKE_SKIP_INSTALL_RPATH"] = True
@@ -65,29 +52,7 @@ class OpenEXRConan(ConanFile):
         cd = CMakeDeps(self)
         cd.generate()
 
-    def _patch_sources(self):
-        pkg_version = Version(self.version)
-        if pkg_version < "2.5.2" and self.settings.os == "Windows":
-            # This fixes symlink creation on Windows.
-            # OpenEXR's build system no longer creates symlinks on windows, starting with commit
-            # 7f9e1b410de92de244329b614cf551b30bc30421 (included in 2.5.2).
-            for lib in ("OpenEXR", "IlmBase"):
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_LIBDIR}",
-                                      "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_BINDIR}")
-
-        # Add  "_d" suffix to lib file names.
-        if pkg_version < "2.5.7" and self.settings.build_type == "Debug":
-            for lib in ("OpenEXR", "IlmBase"):
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})".replace("@LIB@", lib.upper()),
-                                      "set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}_d${CMAKE_SHARED_LIBRARY_SUFFIX})".replace("@LIB@", lib.upper()))
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_SHARED_LIBRARY_SUFFIX})",
-                                      "set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}_d${CMAKE_SHARED_LIBRARY_SUFFIX})")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -110,8 +75,8 @@ class OpenEXRConan(ConanFile):
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":
-            openexr_version = Version(self.version)
-            lib_suffix += f"-{openexr_version.major}_{openexr_version.minor}"
+            v = Version(self.version)
+            lib_suffix += f"-{v.major}_{v.minor}"
         if self.settings.build_type == "Debug":
             lib_suffix += "_d"
 
