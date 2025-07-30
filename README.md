@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-07-29:
+Package versions that are available here but not yet on the main CCI repo as of 2025-07-30:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -27,9 +27,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - autoconf-archive/2024.10.16
-- avcpp/2.1.0
-- avcpp/2.3.0
-- avcpp/2.3.2
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
@@ -265,6 +262,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfontenc/1.1.8
 - libgudev/238
 - libhdfs3/cci.20191105
+- libheif/1.11.0
+- libheif/1.12.0
+- libheif/1.13.0
+- libheif/1.18.1
+- libheif/1.18.2
+- libheif/1.19.0
+- libheif/1.19.5
+- libheif/1.9.1
 - libiberty/15.1.0
 - libice/1.1.1
 - libjpeg-meta/latest
@@ -382,6 +387,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opencl-clhpp-headers/2024.10.24
 - opencl-headers/2024.10.24
 - opencl-icd-loader/2024.10.24
+- openexr/2.5.10
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.8.0
