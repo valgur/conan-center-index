@@ -9,6 +9,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
+
 class OpenJPH(ConanFile):
     name = "openjph"
     description = "Open-source implementation of JPEG2000 Part-15 (or JPH or HTJ2K)"
@@ -36,9 +37,6 @@ class OpenJPH(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -51,7 +49,8 @@ class OpenJPH(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 14)", "")
+        replace_in_file(self, "src/apps/ojph_stream_expand/CMakeLists.txt", "set(CMAKE_CXX_STANDARD 14)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
