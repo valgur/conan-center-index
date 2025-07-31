@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
@@ -97,10 +96,16 @@ class Libx265Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "source/CMakeLists.txt",
+                        "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",
+                        "if(FALSE)")
+        # The finite-math-only optimization has no effect and can cause linking errors
+        # when linked against glibc >= 2.31
+        replace_in_file(self, "source/CMakeLists.txt",
+                        "add_definitions(-ffast-math)",
+                        "add_definitions(-ffast-math -fno-finite-math-only)")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["ENABLE_SHARED"] = self.options.shared
@@ -125,17 +130,9 @@ class Libx265Conan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "source", "CMakeLists.txt")
-        replace_in_file(self, cmakelists,
-                                "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",
-                                "if(FALSE)")
         if self.settings.os == "Android":
             replace_in_file(self, cmakelists, "list(APPEND PLATFORM_LIBS pthread)", "")
             replace_in_file(self, cmakelists, "list(APPEND PLATFORM_LIBS rt)", "")
-        # The finite-math-only optimization has no effect and can cause linking errors
-        # when linked against glibc >= 2.31
-        replace_in_file(self, cmakelists,
-                        "add_definitions(-ffast-math)",
-                        "add_definitions(-ffast-math -fno-finite-math-only)")
 
     def build(self):
         self._patch_sources()
@@ -161,7 +158,7 @@ class Libx265Conan(ConanFile):
                          os.path.join(self.package_folder, "lib", "x265.lib"))
 
         if self.settings.os == "Windows" and self.options.shared:
-            rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
+            rm(self, "*", os.path.join(self.package_folder, "bin"), excludes=["*.dll"])
         else:
             rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

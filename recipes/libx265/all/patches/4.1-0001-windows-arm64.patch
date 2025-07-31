@@ -1,0 +1,21 @@
+--- a/source/CMakeLists.txt
++++ b/source/CMakeLists.txt
+@@ -47,7 +47,7 @@
+ endif()
+ set(X86_ALIASES x86 i386 i686 x86_64 amd64)
+ set(ARM_ALIASES armv6l armv7l)
+-set(ARM64_ALIASES arm64 arm64e aarch64)
++set(ARM64_ALIASES arm64 arm64e aarch64 arm64 ARM64)
+ list(FIND X86_ALIASES "${SYSPROC}" X86MATCH)
+ list(FIND ARM_ALIASES "${SYSPROC}" ARMMATCH)
+ list(FIND ARM64_ALIASES "${SYSPROC}" ARM64MATCH)
+@@ -234,6 +234,9 @@
+     if(CMAKE_VERSION VERSION_LESS 3.7)
+         message(FATAL_ERROR "cmake version not compatible for VS 2017. Update the cmake to versions 3.7 or above")
+     endif()
++endif()
++if(MSVC AND ARM64)
++    add_definitions("-DHAVE_NEON")
+ endif()
+ if(GCC)
+     add_definitions(-Wall -Wextra -Wshadow)
