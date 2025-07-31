@@ -6,6 +6,7 @@ targets:
     - abseil::absl_base
     - abseil::absl_core_headers
     - abseil::absl_log_severity
+    - abseil::absl_cleanup
     - abseil::absl_flags
     - abseil::absl_flags_marshalling
     - abseil::absl_any_invocable
@@ -22,7 +23,6 @@ targets:
     - abseil::absl_synchronization
     - abseil::absl_time
     - abseil::absl_optional
-    - abseil::absl_variant
   grpc:
     deps:
     - upb_json_lib
@@ -32,7 +32,7 @@ targets:
     - abseil::absl_algorithm_container
     - abseil::absl_config
     - abseil::absl_no_destructor
-    - abseil::absl_cleanup
+    - abseil::absl_btree
     - abseil::absl_flat_hash_map
     - abseil::absl_flat_hash_set
     - abseil::absl_inlined_vector
@@ -43,6 +43,7 @@ targets:
     - abseil::absl_random_bit_gen_ref
     - abseil::absl_random_distributions
     - abseil::absl_statusor
+    - abseil::absl_string_view
     - abseil::absl_span
     - abseil::absl_utility
     - c-ares::cares
@@ -53,13 +54,12 @@ targets:
     generate_plugin_registry: true
   grpc_unsecure:
     deps:
-    - upb_mini_descriptor_lib
-    - upb_wire_lib
+    - upb_textformat_lib
     - zlib-ng::zlib-ng
     - abseil::absl_algorithm_container
     - abseil::absl_config
     - abseil::absl_no_destructor
-    - abseil::absl_cleanup
+    - abseil::absl_btree
     - abseil::absl_flat_hash_map
     - abseil::absl_flat_hash_set
     - abseil::absl_inlined_vector
@@ -70,6 +70,7 @@ targets:
     - abseil::absl_random_bit_gen_ref
     - abseil::absl_random_distributions
     - abseil::absl_statusor
+    - abseil::absl_string_view
     - abseil::absl_span
     - abseil::absl_utility
     - c-ares::cares
@@ -79,24 +80,35 @@ targets:
     generate_plugin_registry: true
   upb_base_lib:
     deps: []
+  upb_hash_lib:
+    deps:
+    - upb_base_lib
+    - upb_mem_lib
   upb_json_lib:
     deps:
-    - upb_mini_descriptor_lib
-    - upb_wire_lib
+    - upb_lex_lib
+    - upb_reflection_lib
+  upb_lex_lib:
+    deps: []
   upb_mem_lib:
     deps: []
   upb_message_lib:
     deps:
-    - upb_base_lib
-    - upb_mem_lib
+    - upb_mini_table_lib
   upb_mini_descriptor_lib:
     deps:
-    - upb_base_lib
-    - upb_mem_lib
-  upb_textformat_lib:
+    - upb_mini_table_lib
+  upb_mini_table_lib:
+    deps:
+    - upb_hash_lib
+  upb_reflection_lib:
     deps:
     - upb_mini_descriptor_lib
     - upb_wire_lib
+  upb_textformat_lib:
+    deps:
+    - upb_lex_lib
+    - upb_reflection_lib
   upb_wire_lib:
     deps:
     - utf8_range_lib
@@ -129,13 +141,12 @@ targets:
     baselib: true
   grpc_authorization_provider:
     deps:
-    - upb_mini_descriptor_lib
-    - upb_wire_lib
+    - upb_textformat_lib
     - re2::re2
     - zlib-ng::zlib-ng
     - abseil::absl_config
     - abseil::absl_no_destructor
-    - abseil::absl_cleanup
+    - abseil::absl_btree
     - abseil::absl_flat_hash_map
     - abseil::absl_flat_hash_set
     - abseil::absl_inlined_vector
@@ -143,6 +154,7 @@ targets:
     - abseil::absl_hash
     - abseil::absl_type_traits
     - abseil::absl_statusor
+    - abseil::absl_string_view
     - abseil::absl_span
     - abseil::absl_utility
     - c-ares::cares
@@ -150,6 +162,7 @@ targets:
     - address_sorting
   grpc_plugin_support:
     deps:
+    - abseil::absl_status
     - protobuf::libprotobuf
     - protobuf::libprotoc
   grpcpp_channelz:

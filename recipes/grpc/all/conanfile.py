@@ -111,9 +111,6 @@ class GrpcConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
 
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
-            raise ConanInvalidConfiguration("GCC older than 6 is not supported")
-
         check_min_cppstd(self, 17 if Version(self.version) >= "1.70" else 14)
 
         if self.options.shared and not self.dependencies.host["protobuf"].options.shared:

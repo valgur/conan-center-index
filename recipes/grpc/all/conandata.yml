@@ -1,28 +1,10 @@
 sources:
-  "1.72.0":
-    url: "https://github.com/grpc/grpc/archive/v1.72.0.tar.gz"
-    sha256: "4a8aa99d5e24f80ea6b7ec95463e16af5bd91aa805e26c661ef6491ae3d2d23c"
+  "1.74.0":
+    url: "https://github.com/grpc/grpc/archive/v1.74.0.tar.gz"
+    sha256: "dd6a2fa311ba8441bbefd2764c55b99136ff10f7ea42954be96006a2723d33fc"
+  "1.72.1":
+    url: "https://github.com/grpc/grpc/archive/v1.72.1.tar.gz"
+    sha256: "8caafd69b78c514410962abd32b17981cc97cf72f09ae763395bb57b8fa0a320"
   "1.69.0":
     url: "https://github.com/grpc/grpc/archive/v1.69.0.tar.gz"
     sha256: "cd256d91781911d46a57506978b3979bfee45d5086a1b6668a3ae19c5e77f8dc"
-  "1.67.1":
-    url: "https://github.com/grpc/grpc/archive/v1.67.1.tar.gz"
-    sha256: "d74f8e99a433982a12d7899f6773e285c9824e1d9a173ea1d1fb26c9bd089299"
-  "1.65.5":
-    url: "https://github.com/grpc/grpc/archive/v1.65.5.tar.gz"
-    sha256: "bdab9cb52e3ee703d6c09d15716bcc10a150b2e9e414182e5b375d32050dba84"
-patches:
-  "1.67.1":
-    - patch_file: "patches/1.67.1/003-protobuf-v30-support.patch"
-      patch_description: "Add support for Protobuf x.30 and newer versions"
-      patch_type: "backport"
-      patch_source:
-        - "https://github.com/grpc/grpc/commit/852ecf7176c904374c2d80d035bad00ff4c28d67"
-        - "https://github.com/grpc/grpc/commit/dfdda9eb9d308640ea6947f3ad16c86d7b89d7fd"
-  "1.65.5":
-    - patch_file: "patches/1.65.5/003-protobuf-v30-support.patch"
-      patch_description: "Add support for Protobuf x.30 and newer versions"
-      patch_type: "backport"
-      patch_source:
-        - "https://github.com/grpc/grpc/commit/852ecf7176c904374c2d80d035bad00ff4c28d67"
-        - "https://github.com/grpc/grpc/commit/dfdda9eb9d308640ea6947f3ad16c86d7b89d7fd"
