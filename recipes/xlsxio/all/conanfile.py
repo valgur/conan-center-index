@@ -6,16 +6,16 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class XlsxioConan(ConanFile):
     name = "xlsxio"
+    description = "Cross-platform C library for reading values from and writing values to .xlsx files."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/brechtsanders/xlsxio"
-    description = "Cross-platform C library for reading values from and writing values to .xlsx files."
     topics = ("xlsx",)
-    license = "MIT"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -33,19 +33,15 @@ class XlsxioConan(ConanFile):
         "with_minizip_ng": False,
         "with_wide": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
+
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
         if self.options.with_wide:
             self.options["expat"].char_type = "ushort"
         if self.options.get_safe("with_minizip_ng"):
@@ -57,16 +53,15 @@ class XlsxioConan(ConanFile):
     def requirements(self):
         if self.options.with_libzip:
             self.requires("libzip/[^1.10.1]")
-        elif Version(self.version) >= "0.2.34" and self.options.with_minizip_ng :
+        elif self.options.with_minizip_ng :
             self.requires("minizip-ng/[^4.0.1]")
         else:
             self.requires("minizip/[^1.2.13]")
         self.requires("expat/[>=2.6.2 <3]")
 
     def validate(self):
-        if Version(self.version) >= "0.2.34":
-            if self.options.with_libzip and self.options.with_minizip_ng:
-                raise ConanInvalidConfiguration("with_libzip and with_minizip_ng are mutually exclusive")
+        if self.options.with_libzip and self.options.with_minizip_ng:
+            raise ConanInvalidConfiguration("with_libzip and with_minizip_ng are mutually exclusive")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
