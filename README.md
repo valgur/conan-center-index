@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-07-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-07-31:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -46,6 +46,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - catalyst/2.0.0
 - cgns/4.4.0
 - cilantro/cci.20230816
+- cimg/2.9.9
+- cimg/3.2.6
+- cimg/3.3.0
 - cimg/3.3.5
 - clang/19.1.7
 - clang/20.1.7
@@ -95,6 +98,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cuda-samples/12.5
 - daggy/2.1.3
 - daggy/2.2.3
+- dav1d/1.2.1
+- dav1d/1.3.0
+- dav1d/1.4.1
+- dav1d/1.4.3
 - dawn/cci.20240726
 - debugbreak/1.0
 - diligent-engine/2.5.6.8
@@ -119,6 +126,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fbgemm/1.1.0
 - fenster/0.1.0
 - ffmpeg/4.4.5
+- ffmpeg/5.1.3
 - ffmpeg/6.1.2
 - filament/1.5.3
 - firebird/5.0.0
@@ -228,6 +236,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imgui/1.91.9
 - imgui/1.91.9b
 - imlib2/1.12.3
+- influxdb-cxx/0.7.2
 - influxdb-cxx/0.7.3
 - intel-oneapi-dpcpp-cpp/2025.1.1
 - ios-cmake/4.4.1
@@ -244,6 +253,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lapack/3.12.0
 - laszip/2.0.2
 - level-zero/1.22.4
+- libavif/0.11.1
+- libavif/0.9.3
+- libavif/1.0.1
+- libavif/1.0.2
+- libavif/1.0.3
+- libavif/1.1.0
 - libbasisu/1.16.4
 - libbpf/1.4.6
 - libbsd/0.12.2
@@ -256,6 +271,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcups/2.2.12
 - libcups/3.0-rc4
 - libdecor/0.2.2
+- libdwarf/0.10.1
+- libdwarf/0.11.0
 - libecwj2/3.3
 - libelas/cci.20150630
 - libell/0.76
@@ -296,6 +313,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsysfs/2.1.1
 - libsystemd/255.18
 - libtasn1/4.19.0
+- libtiff/4.3.0
+- libtiff/4.4.0
+- libtiff/4.5.0
+- libtiff/4.5.1
 - libtomcrypt/1.18.2
 - libtommath/1.3.0
 - libtorch/2.4.0
@@ -303,8 +324,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libudev/255.18
 - libv4l/1.28.1
 - libva/2.22.0
+- libvpx/1.10.0
+- libvpx/1.11.0
+- libvpx/1.13.1
+- libvpx/1.14.0
+- libvpx/1.14.1
 - libwacom/2.15.0
 - libx11/1.8.10
+- libx265/3.2.1
 - libxau/1.0.11
 - libxaw/1.0.16
 - libxcb/1.17.0
@@ -351,6 +378,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - meson/1.8.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
+- minizip-ng/3.0.10
 - minizip-ng/4.0.10
 - mkfontscale/1.2.3
 - mlir/19.1.7
@@ -384,13 +412,25 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onnxruntime/1.21.1
 - openblas/0.3.28
 - openblas/0.3.30
+- opencascade/7.5.0
+- opencascade/7.6.0
+- opencascade/7.6.2
 - opencl-clhpp-headers/2024.10.24
 - opencl-headers/2024.10.24
 - opencl-icd-loader/2024.10.24
+- opencolorio/1.1.1
+- opencolorio/2.2.1
+- opencolorio/2.3.2
+- opencolorio/2.4.1
 - openexr/2.5.10
 - opengl-registry/20250604
+- openh264/2.1.1
+- openh264/2.3.1
+- openh264/2.4.1
 - openiap/0.0.33
 - openimageio/3.0.8.0
+- openjph/0.16.0
+- openjph/0.18.0
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
@@ -594,6 +634,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.3.296.0
 - vulkan-validationlayers/1.4.309.0
 - vulkan-validationlayers/1.4.313.0
+- wavelet_buffer/0.4.0
+- wavelet_buffer/0.5.0
 - wuffs/0.3.4
 - x86simdsortcpp/7.0
 - xbyak/7.26
@@ -613,6 +655,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xkbcommon/1.10.0
 - xkeyboard-config/2.43
 - xkeyboard-config/2.45
+- xlsxio/0.2.33
 - xorg-macros/1.20.2
 - xorg/1.8.10
 - xpack/1.0.6
