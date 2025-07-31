@@ -1,12 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibAVIFConan(ConanFile):
@@ -36,37 +34,17 @@ class LibAVIFConan(ConanFile):
         "with_metav1": False,
         "with_sample_transform": False,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-        if Version(self.version) < "1.1.0":
-            del self.options.with_gain_map
-            del self.options.with_metav1
-            del self.options.with_sample_transform
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    @property
-    def _has_dav1d(self):
-        return self.options.with_decoder == "dav1d"
 
     def requirements(self):
         self.requires("libaom-av1/[^3.6.1]")
         self.requires("libyuv/[>=1854]")
         self.requires("libwebp/[^1.3.2]")
-        if self._has_dav1d:
+        if self.options.with_decoder == "dav1d":
             self.requires("dav1d/[^1.2.1]")
 
     def build_requirements(self):
@@ -74,7 +52,6 @@ class LibAVIFConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -83,33 +60,17 @@ class LibAVIFConan(ConanFile):
         tc.variables["AVIF_CODEC_DAV1D"] = self.options.with_decoder == "dav1d"
         tc.variables["AVIF_CODEC_AOM_DECODE"] = self.options.with_decoder == "aom"
         tc.variables["LIBYUV_VERSION"] = self.dependencies["libyuv"].ref.version
-        if "with_ycgco_r" in self.options:
-            tc.variables["AVIF_ENABLE_EXPERIMENTAL_YCGCO_R"] = self.options.with_ycgco_r
-        if "with_gain_map" in self.options:
-            tc.variables["AVIF_ENABLE_EXPERIMENTAL_GAIN_MAP"] = self.options.with_gain_map
-        if "with_metav1" in self.options:
-            tc.variables["AVIF_ENABLE_EXPERIMENTAL_METAV1"] = self.options.with_metav1
-        if "with_sample_transform" in self.options:
-            tc.variables["AVIF_ENABLE_EXPERIMENTAL_SAMPLE_TRANSFORM"] = self.options.with_sample_transform
+        tc.variables["AVIF_ENABLE_EXPERIMENTAL_YCGCO_R"] = self.options.with_ycgco_r
+        tc.variables["AVIF_ENABLE_EXPERIMENTAL_GAIN_MAP"] = self.options.with_gain_map
+        tc.variables["AVIF_ENABLE_EXPERIMENTAL_METAV1"] = self.options.with_metav1
+        tc.variables["AVIF_ENABLE_EXPERIMENTAL_SAMPLE_TRANSFORM"] = self.options.with_sample_transform
         tc.generate()
+
         deps = CMakeDeps(self)
-        if Version(self.version) >= "1.1.0":
-            deps.set_property("libyuv", "cmake_target_name", "yuv::yuv")
+        deps.set_property("libyuv", "cmake_target_name", "yuv::yuv")
         deps.generate()
 
-
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        if Version(self.version) < "1.1.0":
-            replace_in_file(self, cmakelists, "find_package(libyuv QUIET)", "find_package(libyuv REQUIRED CONFIG)")
-            replace_in_file(self, cmakelists, "${LIBYUV_LIBRARY}", "libyuv::libyuv")
-            replace_in_file(self, cmakelists, "find_package(dav1d REQUIRED)", "find_package(dav1d REQUIRED CONFIG)")
-            replace_in_file(self, cmakelists, "${DAV1D_LIBRARY}", "dav1d::dav1d")
-            replace_in_file(self, cmakelists, "find_package(aom REQUIRED)", "find_package(libaom-av1 REQUIRED CONFIG)")
-            replace_in_file(self, cmakelists, "${AOM_LIBRARIES}", "libaom-av1::libaom-av1")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -122,20 +83,18 @@ class LibAVIFConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "libavif")
+        self.cpp_info.set_property("cmake_target_name", "avif")
+        self.cpp_info.set_property("pkg_config_name", "libavif")
         self.cpp_info.libs = ["avif"]
         if self.options.shared:
             self.cpp_info.defines = ["AVIF_DLL"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["pthread", "m"])
-            if self._has_dav1d:
+            self.cpp_info.system_libs = ["pthread", "m"]
+            if self.options.with_decoder == "dav1d":
                 self.cpp_info.system_libs.append("dl")
-
         self.cpp_info.requires = ["libyuv::libyuv", "libaom-av1::libaom-av1"]
-        if self._has_dav1d:
+        if self.options.with_decoder == "dav1d":
             self.cpp_info.requires.append("dav1d::dav1d")
-
         self.cpp_info.requires.append("libwebp::sharpyuv")
 
-        self.cpp_info.set_property("cmake_file_name", "libavif")
-        self.cpp_info.set_property("cmake_target_name", "avif")
-        self.cpp_info.set_property("pkg_config_name", "libavif")
