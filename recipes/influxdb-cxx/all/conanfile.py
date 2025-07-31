@@ -50,6 +50,7 @@ class InfluxdbCxxConan(ConanFile):
         tc.cache_variables["INFLUXCXX_WITH_BOOST"] = self.options.with_boost
         if self.options.shared:
             # See https://github.com/offa/influxdb-cxx/issues/194
+            # Feedback pending: https://github.com/offa/influxdb-cxx/pull/245
             tc.preprocessor_definitions["InfluxDB_EXPORTS"] = 1
         tc.generate()
         deps = CMakeDeps(self)
@@ -64,11 +65,9 @@ class InfluxdbCxxConan(ConanFile):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = ["InfluxDB"]
-
         self.cpp_info.set_property("cmake_file_name", "InfluxDB")
         self.cpp_info.set_property("cmake_target_name", "InfluxData::InfluxDB")
+        self.cpp_info.libs = ["InfluxDB"]

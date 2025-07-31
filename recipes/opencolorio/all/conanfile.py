@@ -68,7 +68,7 @@ class OpenColorIOConan(ConanFile):
             self.requires("minizip-ng/[^3.0.9]")
 
         # for tools only
-        self.requires("lcms/2.16")
+        self.requires("lcms/[>=2.16 <3]")
         # TODO: add GLUT (needed for ociodisplay tool)
 
     def validate(self):
@@ -142,6 +142,7 @@ class OpenColorIOConan(ConanFile):
 
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
+
         tc.generate()
 
         deps = CMakeDeps(self)

@@ -266,6 +266,8 @@ class FFMpegConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+            if is_msvc(self) and self.settings.arch == "armv8":
+                self.options.with_libsvtav1 = False
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_vaapi
             del self.options.with_vdpau
@@ -368,7 +370,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_libaom:
             self.requires("libaom-av1/[^3.6.1]")
         if self.options.get_safe("with_libdav1d"):
-            self.requires("dav1d/[^1.4.3]")
+            self.requires("dav1d/[^1.4]")
         if self.options.get_safe("with_libdrm"):
             self.requires("libdrm/[~2.4.119]")
 
@@ -405,6 +407,8 @@ class FFMpegConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+            if self.settings.arch == "armv8" and is_msvc(self):
+                self.tool_requires("gas-preprocessor/[*]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -4,7 +4,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=2.1"
@@ -29,19 +28,6 @@ class WaveletBufferConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 20
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "gcc": "8",
-            "clang": "12",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -53,18 +39,11 @@ class WaveletBufferConan(ConanFile):
         self.requires("cimg/[^3.3.0]")
         self.requires("libjpeg-meta/latest")
         # FIXME: unvendor SfCompressor which is currently downloaded at build time :s
-        if Version(self.version) >= "0.6.0":
-            self.requires("streamvbyte/1.0.0")
-            self.requires("fpzip/1.3.0")
+        self.requires("streamvbyte/1.0.0")
+        self.requires("fpzip/1.3.0")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 20)
 
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared with Visual Studio.")
@@ -80,7 +59,6 @@ class WaveletBufferConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CONAN_EXPORTED"] = True
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -99,10 +77,4 @@ class WaveletBufferConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "wavelet_buffer")
         self.cpp_info.set_property("cmake_target_name", "wavelet_buffer::wavelet_buffer")
-        self.cpp_info.requires = ["blaze::blaze", "cimg::cimg"]
-        if Version(self.version) >= "0.6.0":
-            self.cpp_info.libs = ["wavelet_buffer"]
-            self.cpp_info.requires.extend(["streamvbyte::streamvbyte", "fpzip::fpzip"])
-        else:
-            self.cpp_info.libs = ["wavelet_buffer", "sf_compressor"]
-        self.cpp_info.requires.append("libjpeg-meta::jpeg")
+        self.cpp_info.libs = ["wavelet_buffer"]

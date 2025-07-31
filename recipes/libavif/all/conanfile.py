@@ -37,18 +37,13 @@ class LibAVIFConan(ConanFile):
         "with_sample_transform": False,
     }
 
-    @property
-    def _depends_on_sharpyuv(self):
-        return Version(self.version) >= "0.11.0"
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) < "1.0.0":
-            del self.options.with_ycgco_r
+
         if Version(self.version) < "1.1.0":
             del self.options.with_gain_map
             del self.options.with_metav1
@@ -70,14 +65,9 @@ class LibAVIFConan(ConanFile):
     def requirements(self):
         self.requires("libaom-av1/[^3.6.1]")
         self.requires("libyuv/[>=1854]")
+        self.requires("libwebp/[^1.3.2]")
         if self._has_dav1d:
             self.requires("dav1d/[^1.2.1]")
-        if self._depends_on_sharpyuv:
-            self.requires("libwebp/[^1.3.2]")
-
-    def validate(self):
-        if self._depends_on_sharpyuv and Version(self.dependencies["libwebp"].ref.version) < "1.3.0":
-            raise ConanInvalidConfiguration(f"{self.ref} requires libwebp >= 1.3.0 in order to get libsharpyuv")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.19 <5]")
@@ -143,8 +133,8 @@ class LibAVIFConan(ConanFile):
         self.cpp_info.requires = ["libyuv::libyuv", "libaom-av1::libaom-av1"]
         if self._has_dav1d:
             self.cpp_info.requires.append("dav1d::dav1d")
-        if self._depends_on_sharpyuv:
-            self.cpp_info.requires.append("libwebp::sharpyuv")
+
+        self.cpp_info.requires.append("libwebp::sharpyuv")
 
         self.cpp_info.set_property("cmake_file_name", "libavif")
         self.cpp_info.set_property("cmake_target_name", "avif")

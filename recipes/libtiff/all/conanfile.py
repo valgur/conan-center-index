@@ -41,10 +41,10 @@ class LibtiffConan(ConanFile):
         "jpeg": True,
         "zlib": True,
         "lerc": False,
-        "libdeflate": True,
+        "libdeflate": False,
         "zstd": True,
-        "jbig": True,
-        "webp": True,
+        "jbig": False,
+        "webp": False,
         "cxx":  True,
     }
 
@@ -54,9 +54,6 @@ class LibtiffConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) <= "4.5.0":
-            # test_package.cpp segfaults with older libtiff versions
-            self.options.cxx = False
 
     def configure(self):
         if self.options.shared:
@@ -91,9 +88,8 @@ class LibtiffConan(ConanFile):
             raise ConanInvalidConfiguration("libtiff:libdeflate=True requires libtiff:zlib=True")
 
     def build_requirements(self):
-        if Version(self.version) >= "4.5.1":
-            # https://github.com/conan-io/conan/issues/3482#issuecomment-662284561
-            self.tool_requires("cmake/[>=3.18 <5]")
+        # https://github.com/conan-io/conan/issues/3482#issuecomment-662284561
+        self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -109,11 +105,6 @@ class LibtiffConan(ConanFile):
                         "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
                         "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)")
 
-        # Disable tools, test, contrib, man & html generation
-        if Version(self.version) < "4.5.0":
-            for subdir in ["tools", "test", "contrib", "build", "man", "html"]:
-                save(self, os.path.join(subdir, "CMakeLists.txt"), "")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["lzma"] = self.options.lzma
@@ -125,26 +116,25 @@ class LibtiffConan(ConanFile):
         tc.variables["zstd"] = self.options.zstd
         tc.variables["webp"] = self.options.webp
         tc.variables["lerc"] = self.options.lerc
-        if Version(self.version) >= "4.5.0":
-            # Disable tools, test, contrib, man & html generation
-            tc.variables["tiff-tools"] = False
-            tc.variables["tiff-tests"] = False
-            tc.variables["tiff-contrib"] = False
-            tc.variables["tiff-docs"] = False
+        # Disable tools, test, contrib, man & html generation
+        tc.variables["tiff-tools"] = False
+        tc.variables["tiff-tests"] = False
+        tc.variables["tiff-contrib"] = False
+        tc.variables["tiff-docs"] = False
         tc.variables["cxx"] = self.options.cxx
         # BUILD_SHARED_LIBS must be set in command line because defined upstream before project()
         tc.cache_variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True
         tc.generate()
+
         deps = CMakeDeps(self)
-        if Version(self.version) >= "4.5.1":
-            deps.set_property("jbig", "cmake_file_name", "JBIG")
-            deps.set_property("jbig", "cmake_target_name", "JBIG::JBIG")
-            deps.set_property("xz_utils", "cmake_file_name", "liblzma")
-            deps.set_property("xz_utils", "cmake_target_name", "liblzma::liblzma")
-            deps.set_property("libdeflate", "cmake_file_name", "Deflate")
-            deps.set_property("libdeflate", "cmake_target_name", "Deflate::Deflate")
-            deps.set_property("zstd", "cmake_file_name", "ZSTD")
+        deps.set_property("jbig", "cmake_file_name", "JBIG")
+        deps.set_property("jbig", "cmake_target_name", "JBIG::JBIG")
+        deps.set_property("xz_utils", "cmake_file_name", "liblzma")
+        deps.set_property("xz_utils", "cmake_target_name", "liblzma::liblzma")
+        deps.set_property("libdeflate", "cmake_file_name", "Deflate")
+        deps.set_property("libdeflate", "cmake_target_name", "Deflate::Deflate")
+        deps.set_property("zstd", "cmake_file_name", "ZSTD")
         deps.set_property("lerc", "cmake_target_name", "LERC::LERC")
         deps.generate()
 
@@ -154,7 +144,7 @@ class LibtiffConan(ConanFile):
         cmake.build()
 
     def package(self):
-        license_file = "COPYRIGHT" if Version(self.version) < "4.5.0" else "LICENSE.md"
+        license_file = "LICENSE.md"
         copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
         cmake = CMake(self)
         cmake.install()

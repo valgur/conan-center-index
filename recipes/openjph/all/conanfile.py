@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -48,14 +47,7 @@ class OpenJPH(ConanFile):
             self.requires("libtiff/[>=4.5 <5]")
 
     def validate(self):
-        if self.options.with_stream_expand_tool:
-            check_min_cppstd(self, 14)
-        else:
-            check_min_cppstd(self, 11)
-
-        if self.settings.compiler == "gcc" and \
-            Version(self.settings.compiler.version) < "6.0":
-            raise ConanInvalidConfiguration(f"{self.ref} requires gcc >= 6.0")
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -63,10 +55,10 @@ class OpenJPH(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["OJPH_BUILD_EXECUTABLES"] = self.options.with_executables
-        tc.variables["OJPH_ENABLE_TIFF_SUPPORT"] = self.options.with_tiff
-        tc.variables["OJPH_BUILD_STREAM_EXPAND"] = self.options.with_stream_expand_tool
-        tc.variables["OJPH_DISABLE_SIMD"] = self.options.disable_simd
+        tc.cache_variables["OJPH_BUILD_EXECUTABLES"] = self.options.with_executables
+        tc.cache_variables["OJPH_ENABLE_TIFF_SUPPORT"] = self.options.with_tiff
+        tc.cache_variables["OJPH_BUILD_STREAM_EXPAND"] = self.options.with_stream_expand_tool
+        tc.cache_variables["OJPH_DISABLE_SIMD"] = self.options.disable_simd
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -78,17 +70,9 @@ class OpenJPH(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-
         cm = CMake(self)
         cm.install()
-
-        if Version(self.version) >= "0.21.2":
-            # Introduced with version 0.21.*, there is now cmake exports added upstream.
-            rm(self, "*.cmake", os.path.join(self.package_folder, "lib", "cmake"), recursive=True)
-            rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "openjph"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-        # Cleanup package own pkgconfig
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):

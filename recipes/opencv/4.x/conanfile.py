@@ -1425,6 +1425,10 @@ class OpenCVConan(ConanFile):
         # Find libva from Conan
         save(self, "cmake/OpenCVFindVA.cmake", "find_package(libva ${VA_REQUIRED})\n")
 
+        save(self, "cmake/OpenCVFindWebP.cmake",
+             "find_package(WebP CONFIG)\n"
+             "set(WEBP_FOUND ${WebP_FOUND})\n")
+
         save(self, "modules/videoio/cmake/detect_openni2.cmake",
              "find_package(OPENNI2 ${OPENNI2_REQUIRED})\n"
              "set(HAVE_OPENNI2 ${OPENNI2_FOUND})\n"
@@ -1453,7 +1457,8 @@ class OpenCVConan(ConanFile):
         replace_in_file(self, "cmake/OpenCVInstallLayout.cmake", "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
         # Respect cppstd from Conan
-        replace_in_file(self, "cmake/OpenCVDetectCXXCompiler.cmake", 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")', "")
+        if Version(self.version) < "4.12":
+            replace_in_file(self, "cmake/OpenCVDetectCXXCompiler.cmake", 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")', "")
         for path, min_ver in [
             ("cmake/OpenCVPluginStandalone.cmake", "4.5.2"),
             ("modules/dnn/cmake/plugin.cmake", "4.7.0"),
