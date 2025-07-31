@@ -38,21 +38,6 @@ class CprConan(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        return "11" if Version(self.version) < "1.10.0" else "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                "gcc": "7",
-                "clang": "7",
-                "apple-clang": "10",
-                "msvc": "191",
-            },
-        }.get(self._min_cppstd, {})
-
-    @property
     def _uses_valid_abi_and_compiler(self):
         # https://github.com/conan-io/conan-center-index/pull/5194#issuecomment-821908385
         return not (
@@ -88,12 +73,7 @@ class CprConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, "11" if Version(self.version) < "1.10.0" else "17")
 
         if not self._uses_valid_abi_and_compiler:
             raise ConanInvalidConfiguration(f"Cannot compile {self.ref} with libstdc++ on clang < 9")
@@ -111,7 +91,7 @@ class CprConan(ConanFile):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
 
-        if Version(self.version) >= "1.9.0" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < 6")
 
     def source(self):
