@@ -6,12 +6,13 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
+
 
 class LibdwarfConan(ConanFile):
     name = "libdwarf"
     description = "A library and a set of command-line tools for reading and writing DWARF2"
-    license = ("LGPL-2.1-only", "BSD-2-Clause-Views", "GPL-2.0-only")
+    license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.prevanders.net/dwarf.html"
     topics = ("debug", "dwarf", "dwarf2", "elf")
@@ -30,32 +31,27 @@ class LibdwarfConan(ConanFile):
         "with_dwarfgen": False,
         "with_dwarfdump": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
-        if not self.options.with_dwarfgen:
-            self.license = (l for l in self.license if l != "BSD-2-Clause-Views")
-        if not self.options.with_dwarfdump:
-            self.license = (l for l in self.license if l != "GPL-2.0-only")
+        self.license = ["LGPL-2.1-only"]
+        if self.options.with_dwarfgen:
+            self.license.append("BSD-2-Clause-Views")
+        if self.options.with_dwarfdump:
+            self.license.append("GPL-2.0-only")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
-        if  Version(self.version) >= Version("0.9.0"):
-            self.requires("zstd/[~1.5]")
+        self.requires("zstd/[~1.5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -72,18 +68,12 @@ class LibdwarfConan(ConanFile):
         if cross_building(self):
             tc.variables["HAVE_UNUSED_ATTRIBUTE_EXITCODE"] = "0"
             tc.variables["HAVE_UNUSED_ATTRIBUTE_EXITCODE__TRYRUN_OUTPUT"] = ""
-        if Version(self.version) < "0.9.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         dpes = CMakeDeps(self)
         dpes.generate()
 
     def build(self):
-        # Headers patches only makes sense for Windows, and CMake ones
-        # were solved since https://github.com/davea42/libdwarf-code/commit/6ffd41d39ba8e5db8651a35ac4f975baf786de4c (v0.9.2)
-        if Version(self.version) < "0.9.2" or self.settings.os == "Windows":
-            apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
