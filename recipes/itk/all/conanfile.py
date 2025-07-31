@@ -2,8 +2,6 @@ import glob
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -62,18 +60,10 @@ class ITKConan(ConanFile):
             self.requires("opencv/[^4.5]")
 
     def build_requirements(self):
-        if Version(self.version) >= "5.3.0":
-            self.tool_requires("cmake/[>=3.16.3 <5]")
+        self.tool_requires("cmake/[>=3.16.3 <5]")
 
     def validate(self):
         check_min_cppstd(self, 11)
-        if Version(self.version) < "5.2":
-            if is_apple_os(self) and self.settings.arch == "armv8":
-                # https://discourse.itk.org/t/error-building-v5-1-1-for-mac-big-sur-11-2-3/3959
-                raise ConanInvalidConfiguration(f"{self.ref} is not supported on on Apple armv8 architecture.")
-            if self.settings.os == "Macos":
-                raise ConanInvalidConfiguration(f"{self.ref} fails to compile in {self.settings.os}, fixed in 5.2.0")
-
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -481,8 +471,7 @@ class ITKConan(ConanFile):
     @property
     def _itk_modules_files(self):
         cmake_files = []
-        if Version(self.version) >= "5.3":
-            cmake_files.extend(["ITKFactoryRegistration.cmake", "ITKInitializeCXXStandard.cmake"])
+        cmake_files.extend(["ITKFactoryRegistration.cmake", "ITKInitializeCXXStandard.cmake"])
         cmake_files.append("UseITK.cmake")
         return cmake_files
 

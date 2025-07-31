@@ -1,6 +1,7 @@
 import os.path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -30,12 +31,8 @@ class HictkConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def config_options(self):
-        if Version(self.version) < "1.0.0":
-            del self.options.with_arrow
-
     def requirements(self):
-        if self.options.get_safe("with_arrow"):
+        if self.options.with_arrow:
             self.requires("arrow/16.1.0")
         if Version(self.version) < "2.0.0":
             self.requires("bshoshany-thread-pool/4.1.0")
@@ -61,7 +58,7 @@ class HictkConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 17)
 
-        if self.info.options.get_safe("with_arrow"):
+        if self.info.options.with_arrow:
             arrow = self.dependencies["arrow"]
             if not arrow.options.compute:
                 raise ConanInvalidConfiguration(f"{self.ref} requires the dependency option arrow/*:compute=True")
@@ -74,14 +71,14 @@ class HictkConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["HICTK_BUILD_BENCHMARKS"] = "OFF"
-        tc.variables["HICTK_BUILD_EXAMPLES"] = "OFF"
-        tc.variables["HICTK_BUILD_TOOLS"] = "OFF"
-        tc.variables["HICTK_ENABLE_GIT_VERSION_TRACKING"] = "OFF"
-        tc.variables["HICTK_ENABLE_TESTING"] = "OFF"
-        tc.variables["HICTK_ENABLE_FUZZY_TESTING"] = "OFF"
-        tc.variables["HICTK_WITH_ARROW"] = self.options.get_safe("with_arrow", False)
-        tc.variables["HICTK_WITH_EIGEN"] = self.options.with_eigen
+        tc.cache_variables["HICTK_BUILD_BENCHMARKS"] = "OFF"
+        tc.cache_variables["HICTK_BUILD_EXAMPLES"] = "OFF"
+        tc.cache_variables["HICTK_BUILD_TOOLS"] = "OFF"
+        tc.cache_variables["HICTK_ENABLE_GIT_VERSION_TRACKING"] = "OFF"
+        tc.cache_variables["HICTK_ENABLE_TESTING"] = "OFF"
+        tc.cache_variables["HICTK_ENABLE_FUZZY_TESTING"] = "OFF"
+        tc.cache_variables["HICTK_WITH_ARROW"] = self.options.get_safe("with_arrow", False)
+        tc.cache_variables["HICTK_WITH_EIGEN"] = self.options.with_eigen
         tc.generate()
 
         cmakedeps = CMakeDeps(self)

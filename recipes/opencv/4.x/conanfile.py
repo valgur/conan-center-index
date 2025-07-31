@@ -10,7 +10,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -106,10 +106,10 @@ class OpenCVConan(ConanFile):
         "fPIC": [True, False],
         # global options
         "parallel": [False, "tbb", "openmp"],
+        "neon": [True, False],
         "with_ipp": [False, "intel-ipp", "opencv-icv"],
         "with_eigen": [True, False],
         "with_lapack": [True, False],
-        "neon": [True, False],
         "with_opencl": [True, False],
         "with_cuda": [True, False],
         "with_cublas": [True, False],
@@ -179,10 +179,10 @@ class OpenCVConan(ConanFile):
         "fPIC": True,
         # global options
         "parallel": "openmp",
+        "neon": True,
         "with_ipp": False,
         "with_eigen": True,
         "with_lapack": False,
-        "neon": True,
         "with_opencl": False,
         "with_cuda": False,
         "with_cublas": False,
@@ -462,6 +462,12 @@ class OpenCVConan(ConanFile):
             # in a big dependency graph
             if not self._has_with_wayland_option:
                 self.options.with_gtk = True
+
+        if is_msvc(self) and self.settings.arch == "armv8":
+            # See https://github.com/opencv/opencv/issues/25052
+            #     https://github.com/opencv/opencv/pull/24698#issuecomment-1858023908
+            self.options.cpu_baseline = "NEON"
+            self.options.cpu_dispatch = ""
 
     @property
     def _opencv_modules(self):

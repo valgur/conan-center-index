@@ -54,4 +54,3 @@ class CvPlotConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
 
         self.cpp_info.defines.append("CVPLOT_HEADER_ONLY")
-

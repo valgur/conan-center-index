@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -29,19 +27,6 @@ class ImutilsCppConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "msvc": "19.14",
-            "clang": "12",
-            "apple-clang": "10.14",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -53,12 +38,7 @@ class ImutilsCppConan(ConanFile):
         self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,10 +46,7 @@ class ImutilsCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.cache_variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 

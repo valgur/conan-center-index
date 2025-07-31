@@ -22,14 +22,12 @@ class HighFiveConan(ConanFile):
         "with_eigen": [True, False],
         "with_xtensor": [True, False],
         "with_opencv": [True, False],
-        "with_static_hdf5": ["deprecated", True, False],
     }
     default_options = {
         "with_boost": True,
         "with_eigen": True,
         "with_xtensor": True,
         "with_opencv": False,
-        "with_static_hdf5": "deprecated",
     }
 
     def layout(self):
@@ -52,8 +50,6 @@ class HighFiveConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
-        if self.options.with_static_hdf5 != "deprecated":
-            self.output.warning("The option 'with_static_hdf5' is deprecated. Use '-o hdf5/*:shared=True/False' instead.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -68,30 +64,18 @@ class HighFiveConan(ConanFile):
         tc.cache_variables["USE_EIGEN"] = self.options.with_eigen
         tc.cache_variables["USE_XTENSOR"] = self.options.with_xtensor
         tc.cache_variables["USE_OPENCV"] = self.options.with_opencv
-        tc.variables["HIGHFIVE_UNIT_TESTS"] = False
-        tc.variables["HIGHFIVE_EXAMPLES"] = False
-        tc.variables["HIGHFIVE_BUILD_DOCS"] = False
-        tc.variables["HIGHFIVE_USE_INSTALL_DEPS"] = False
+        tc.cache_variables["HIGHFIVE_UNIT_TESTS"] = False
+        tc.cache_variables["HIGHFIVE_EXAMPLES"] = False
+        tc.cache_variables["HIGHFIVE_BUILD_DOCS"] = False
+        tc.cache_variables["HIGHFIVE_USE_INSTALL_DEPS"] = False
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
         deps = CMakeDeps(self)
+        deps.set_property("eigen", "cmake_file_name", "Eigen3")
+        deps.set_property("eigen", "cmake_additional_variables_prefixes", ["EIGEN3"])
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMake", "HighFiveTargetDeps.cmake"),
-            "find_package(Eigen3 NO_MODULE)",
-            "find_package(Eigen3 REQUIRED)",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMake", "HighFiveTargetDeps.cmake"),
-            "EIGEN3_INCLUDE_DIRS",
-            "Eigen3_INCLUDE_DIRS",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
