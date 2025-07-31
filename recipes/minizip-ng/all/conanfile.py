@@ -4,9 +4,6 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -90,11 +87,6 @@ class MinizipNgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-        if Version(self.version) < "4.0.0":
-            replace_in_file(self, "CMakeLists.txt",
-                            "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
-                            "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -109,8 +101,7 @@ class MinizipNgConan(ConanFile):
         if self.settings.os != "Windows":
             tc.cache_variables["MZ_ICONV"] = self.options.with_iconv
             tc.cache_variables["MZ_LIBBSD"] = self.options.with_libbsd
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-
+        tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_PkgConfig"] = True
         tc.generate()
 
@@ -146,6 +137,7 @@ class MinizipNgConan(ConanFile):
 
         minizip_dir = "minizip" if self.options.mz_compatibility else "minizip-ng"
         self.cpp_info.includedirs.append(os.path.join(self.package_folder, "include", minizip_dir))
+
         if not self.options.with_openssl:
             if is_apple_os(self):
                 self.cpp_info.frameworks.extend(["CoreFoundation", "Security"])
