@@ -85,15 +85,6 @@ class ProtobufConan(ConanFile):
         elif self._protobuf_release >= "22.0":
             self.requires("abseil/[>=20230802.1]", transitive_headers=True, transitive_libs=True)
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "6",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def validate(self):
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Protobuf can't be built with shared + MT(d) runtimes")

@@ -1,25 +1,19 @@
 sources:
-  "6.31.0":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.0.tar.gz"
-    sha256: "d5e4709afe2f4c1a3d749e021e6ad76bbc94876178c64bfd7d3b27f849631a96"
-  "5.29.4":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.29.4.tar.gz"
-    sha256: "28c3ce693fd69206d0b3601eb53a86d12541a011388f88be0afe5f1d8032fb68"
-  "5.28.3":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.28.3.tar.gz"
-    sha256: "7fce939b9b7181bd0bd157360e0cc88a8cabf01ac4efe4662494f56dd955d4c1"
-  "5.27.3":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.27.3.tar.gz"
-    sha256: "3ce6ff6d51d0cd21ac017b2e60ae231a5058388c0377d638d87f29dea20f7981"
-  "4.31.0":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.31.0.tar.gz"
-    sha256: "32398bad874de66138448ba02fb97fe79f6ac095ab2c6b214e754c9bd1ac6764"
-  "4.25.7":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.25.7.tar.gz"
-    sha256: "62459a4add29056c18e467697d07741df10d23b398aa01ed890495fab624b663"
-  "3.29.4":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.29.4.tar.gz"
-    sha256: "abfbd1e4999517ad3ef14f350a4aae202f1fd9712a09a1004aa4d1d8bfb8d98b"
+  "6.31.1":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.tar.gz"
+    sha256: "597071a340acc5346494c119ba3a541825c3f81071fc783521b24e29a485d60f"
+  "5.29.5":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.29.5.tar.gz"
+    sha256: "2e70ae9292e4ddfdeff911e034bc953287fc74381fc1cb36ee39cd6ccf142990"
+  "4.31.1":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.31.1.tar.gz"
+    sha256: "bb2a16efabdc943efd9240575295d9a6011a6ba4b59d0c381915fd6e4ab1f47f"
+  "4.25.8":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.25.8.tar.gz"
+    sha256: "fae145cac12c7c8f2b770d925038e12b32a59e26428f3d8858df86e41a9e60dd"
+  "3.29.5":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.29.5.tar.gz"
+    sha256: "ccff8964efdc4052f0b3579ad503dba28729c28fb0cf4245c060ec17667666aa"
   "3.21.12":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz"
     sha256: "930c2c3b5ecc6c9c12615cf5ad93f1cd6e12d0aba862b572e076259970ac3a53"

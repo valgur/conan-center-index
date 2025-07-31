@@ -1,17 +1,13 @@
 versions:
-  "6.31.0":
+  "6.31.1":
     folder: all
-  "5.29.4":
+  "5.29.5":
     folder: all
-  "5.28.3":
+  "4.31.1":
     folder: all
-  "5.27.3":
+  "4.25.8":
     folder: all
-  "4.31.0":
-    folder: all
-  "4.25.7":
-    folder: all
-  "3.29.4":
+  "3.29.5":
     folder: all
   "3.21.12":
     folder: all
