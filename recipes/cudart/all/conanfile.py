@@ -19,14 +19,12 @@ class CudartConan(ConanFile):
     topics = ("cuda", "runtime")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
-    options = {
-        "shared": [True, False],
-        "cmake_alias": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "cmake_alias": True,
-    }
+
+    def config_options(self):
+        if self.settings.cuda.runtime == "shared":
+            self.package_type = "shared-library"
+        else:
+            self.package_type = "static-library"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -77,20 +75,24 @@ class CudartConan(ConanFile):
         else:
             copy(self, "*", os.path.join(self.build_folder, "lib"), os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "lib", "stubs"))
+        if self.settings.cuda.runtime == "shared":
+            rm(self, "*cudart_static.*", os.path.join(self.package_folder, "lib"))
+        else:
+            rm(self, "*cudart.*", os.path.join(self.package_folder, "lib"))
+            rm(self, "*cudart.*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         # TODO: create a complete wrapper for CUDAToolkit.cmake
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "CUDAToolkit")
 
-        lib = "cudart" if self.options.shared else "cudart_static"
+        lib = "cudart" if self.settings.cuda.runtime == "shared" else "cudart_static"
         self.cpp_info.components["cudart"].set_property("cmake_target_name", f"CUDA::{lib}")
         v = Version(self.version)
         self.cpp_info.components["cudart"].set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
         self.cpp_info.components["cudart"].set_property("component_version", f"{v.major}.{v.minor}")
-        if self.options.cmake_alias:
-            alias = "cudart_static" if self.options.shared else "cudart"
-            self.cpp_info.components["cudart"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
+        alias = "cudart_static" if self.settings.cuda.runtime == "shared" else "cudart"
+        self.cpp_info.components["cudart"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.components["cudart"].libs = [lib]
         if self.settings.os == "Linux":
             self.cpp_info.components["cudart"].bindirs = []

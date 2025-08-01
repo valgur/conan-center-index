@@ -28,22 +28,37 @@ class NvccConan(ConanFile):
         del self.info.settings.build_type
 
     @property
-    def _platform_id(self):
-        if self.settings.get_safe("cuda.platform") == "sbsa":
-            if self.settings.os != "Linux" or self.settings.arch != "armv8":
-                raise ConanInvalidConfiguration(f"Invalid OS/arch combination for cuda.platform=sbsa: {self.settings.os}/{self.settings.arch}")
+    def _cross_toolchain(self):
+        return self.settings_target and self.settings.arch != self.settings_target.arch
+
+    @staticmethod
+    def _platform_id(settings):
+        if settings.get_safe("cuda.platform") == "sbsa":
+            if settings.os != "Linux" or settings.arch != "armv8":
+                raise ConanInvalidConfiguration(f"Invalid OS/arch combination for cuda.platform=sbsa: {settings.os}/{settings.arch}")
             return "linux-sbsa"
         return {
             ("Windows", "x86_64"): "windows-x86_64",
             ("Linux", "x86_64"): "linux-x86_64",
             ("Linux", "armv8"): "linux-aarch64",
-        }.get((str(self.settings.os), str(self.settings.arch)))
+        }.get((str(settings.os), str(settings.arch)))
+
+    @property
+    def _host_platform_id(self):
+        return self._platform_id(self.settings)
+
+    @property
+    def _target_platform_id(self):
+        return self._platform_id(self.settings_target)
 
     def validate(self):
-        if self._platform_id is None:
+        if self._host_platform_id is None:
             raise ConanInvalidConfiguration(f"Unsupported platform: {self.settings.os}/{self.settings.arch}")
-        if self.settings_target is not None and self.settings.arch != self.settings_target.arch:
-            raise ConanInvalidConfiguration("nvcc cross-compilation toolchains are not yet supported")
+        if self._cross_toolchain:
+            if self.settings.os != self.settings_target.os:
+                raise ConanInvalidConfiguration("Host and target OS-s must match")
+            if self._target_platform_id is None:
+                raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
         if not self.settings.get_safe("cuda.architectures"):
             raise ConanInvalidConfiguration("cuda.architectures setting must be defined")
         if not self._arch_flags:
@@ -58,11 +73,23 @@ class NvccConan(ConanFile):
         return redist_info
 
     def package(self):
-        package_info = self._redist_info[self._platform_id]
+        package_info = self._redist_info[self._host_platform_id]
         url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
-        get(self, url, sha256=package_info["sha256"], strip_root=True, destination=self.package_folder)
-        mkdir(self, os.path.join(self.package_folder, "licenses"))
-        os.rename(os.path.join(self.package_folder, "LICENSE"), os.path.join(self.package_folder, "licenses", "LICENSE"))
+        host_folder = os.path.join(self.package_folder, "host")
+        get(self, url, sha256=package_info["sha256"], strip_root=True, destination=host_folder)
+        if self._cross_toolchain:
+            package_info = self._redist_info[self._target_platform_id]
+            url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
+            target_folder = os.path.join(self.build_folder, "target")
+            get(self, url, sha256=package_info["sha256"], strip_root=True, destination=target_folder)
+        else:
+            target_folder = host_folder
+        copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", os.path.join(host_folder, "bin"), os.path.join(self.package_folder, "bin"))
+        # nvptxcompiler_static is packaged separately, don't copy lib/
+        copy(self, "*", os.path.join(target_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(self, "*", os.path.join(target_folder, "nvvm"), os.path.join(self.package_folder, "nvvm"))
+        copy(self, "cicc*", os.path.join(host_folder, "nvvm", "bin"), os.path.join(self.package_folder, "nvvm", "bin"))
 
     @cached_property
     def _arch_flags(self):
@@ -89,7 +116,17 @@ class NvccConan(ConanFile):
         return " ".join(flags)
 
     def package_info(self):
-        cudaflags = (self.conf.get("user.tools.build:cudaflags", "") + " " + self._arch_flags).strip()
+        cudaflags = self.conf.get("user.tools.build:cudaflags", "")
+        cudaflags += f" --cudart={self.settings.cuda.runtime}"
+        cudaflags += f" {self._arch_flags}"
+        cudaflags = cudaflags.strip()
+
+        cc = AutotoolsToolchain(self).vars().get("CC", None)
+        if not self._cross_toolchain and cc:
+            self.runenv_info.define_path("CUDAHOSTCXX", cc)
+        # Conan currently does not provide a way to get the target compiler executable
+        # cudaflags += f' -ccbin "{cc}'
+
         self.runenv_info.define("CUDAFLAGS", cudaflags)
         self.conf_info.define("user.nvcc:arch_flags", self._arch_flags)
 
@@ -97,7 +134,3 @@ class NvccConan(ConanFile):
         nvcc = os.path.join(self.package_folder, "bin", "nvcc" + ext)
         self.conf_info.update("tools.build:compiler_executables", {"cuda": nvcc})
         self.runenv_info.define_path("CUDACXX", nvcc + " " + cudaflags)
-
-        cc = AutotoolsToolchain(self).vars().get("CC", None)
-        if cc:
-            self.runenv_info.define_path("CUDAHOSTCXX", cc)
