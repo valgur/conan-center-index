@@ -15,7 +15,7 @@ class NvccConan(ConanFile):
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "nvcc")
     package_type = "application"
-    settings = "os", "arch", "compiler", "build_type", "cuda"
+    settings = "os", "arch", "compiler", "build_type"
 
     python_requires = "conan-utils/latest"
 
@@ -50,7 +50,6 @@ class NvccConan(ConanFile):
                 raise ConanInvalidConfiguration("Host and target OS-s must match")
             if self._target_platform_id is None:
                 raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
-        self._utils.validate_cuda(self)
 
     def package(self):
         host_folder = os.path.join(self.package_folder, "host")

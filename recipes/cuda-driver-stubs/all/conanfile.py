@@ -15,7 +15,7 @@ class CudaDriverStubsConan(ConanFile):
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "driver")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type", "cuda"
+    settings = "os", "arch", "compiler", "build_type"
 
     python_requires = "conan-utils/latest"
 

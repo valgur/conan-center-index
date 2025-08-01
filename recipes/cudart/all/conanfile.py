@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -16,6 +17,14 @@ class CudartConan(ConanFile):
     topics = ("cuda", "runtime")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
+    options = {
+        "shared": [True, False],
+        "cmake_alias": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "cmake_alias": True,
+    }
 
     python_requires = "conan-utils/latest"
 
@@ -24,7 +33,7 @@ class CudartConan(ConanFile):
         return self.python_requires["conan-utils"].module
 
     def config_options(self):
-        if self.settings.cuda.runtime == "shared":
+        if self.options.shared:
             self.package_type = "shared-library"
         else:
             self.package_type = "static-library"
@@ -35,11 +44,18 @@ class CudartConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
+        del self.info.options.cmake_alias
 
     def requirements(self):
         v = Version(self.version)
         self.requires(f"nvcc-headers/[~{v.major}.{v.minor}]", transitive_headers=True)
         self.requires(f"cuda-driver-stubs/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
+        self.requires("libcudacxx/[^2]", transitive_headers=True)
+
+    def validate(self):
+        if not Version(self.version).in_range(f"~{self.settings.cuda.version}"):
+            raise ConanInvalidConfiguration(f"Version {self.version} is not compatible with the cuda.version {self.settings.cuda.version} setting")
 
     def build(self):
         self._utils.download_cuda_package(self, "cuda_cudart")
@@ -54,7 +70,7 @@ class CudartConan(ConanFile):
         else:
             copy(self, "*", os.path.join(self.build_folder, "lib"), os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "lib", "stubs"))
-        if self.settings.cuda.runtime == "shared":
+        if self.options.shared:
             rm(self, "*cudart_static.*", os.path.join(self.package_folder, "lib"))
         else:
             rm(self, "*cudart.*", os.path.join(self.package_folder, "lib"))
@@ -65,18 +81,23 @@ class CudartConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "CUDAToolkit")
 
-        lib = "cudart" if self.settings.cuda.runtime == "shared" else "cudart_static"
-        self.cpp_info.components["cudart"].set_property("cmake_target_name", f"CUDA::{lib}")
+        lib = "cudart" if self.options.shared else "cudart_static"
+        self.cpp_info.components["cudart_"].set_property("cmake_target_name", f"CUDA::{lib}")
         v = Version(self.version)
-        self.cpp_info.components["cudart"].set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
-        self.cpp_info.components["cudart"].set_property("component_version", f"{v.major}.{v.minor}")
-        alias = "cudart_static" if self.settings.cuda.runtime == "shared" else "cudart"
-        self.cpp_info.components["cudart"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
-        self.cpp_info.components["cudart"].libs = [lib]
+        self.cpp_info.components["cudart_"].set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
+        self.cpp_info.components["cudart_"].set_property("component_version", f"{v.major}.{v.minor}")
+        if self.options.cmake_alias:
+            alias = "cudart_static" if self.options.shared else "cudart"
+            self.cpp_info.components["cudart_"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
+        self.cpp_info.components["cudart_"].libs = [lib]
         if self.settings.os == "Linux":
-            self.cpp_info.components["cudart"].bindirs = []
-            self.cpp_info.components["cudart"].system_libs = ["rt", "pthread", "dl"]
-        self.cpp_info.components["cudart"].requires = ["nvcc-headers::nvcc-headers", "cuda-driver-stubs::cuda-driver-stubs"]
+            self.cpp_info.components["cudart_"].bindirs = []
+            self.cpp_info.components["cudart_"].system_libs = ["rt", "pthread", "dl"]
+        self.cpp_info.components["cudart_"].requires = [
+            "nvcc-headers::nvcc-headers",
+            "cuda-driver-stubs::cuda-driver-stubs",
+            "libcudacxx::libcudacxx",
+        ]
 
         self.cpp_info.components["cudadevrt"].set_property("cmake_target_name", "CUDA::cudadevrt")
         self.cpp_info.components["cudadevrt"].libs = ["cudadevrt"]

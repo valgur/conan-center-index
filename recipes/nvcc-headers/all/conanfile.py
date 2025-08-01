@@ -14,7 +14,7 @@ class NvccHeadersConan(ConanFile):
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "nvcc")
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type", "cuda"
+    settings = "os", "arch", "compiler", "build_type"
 
     python_requires = "conan-utils/latest"
 

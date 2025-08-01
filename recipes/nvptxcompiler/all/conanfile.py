@@ -14,7 +14,7 @@ class NvptxcompilerLibsConan(ConanFile):
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "ptx")
     package_type = "static-library"
-    settings = "os", "arch", "compiler", "build_type", "cuda"
+    settings = "os", "arch", "compiler", "build_type"
 
     python_requires = "conan-utils/latest"
 

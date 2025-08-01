@@ -16,17 +16,16 @@ class NvccToolchain:
 
         if not self.conanfile.settings.get_safe("cuda.version"):
             raise ConanInvalidConfiguration("'cuda.version' setting must be defined, e.g. 'cuda.version=12.1'.")
-        if not self.conanfile.settings.get_safe("cuda.runtime"):
-            raise ConanInvalidConfiguration("'cuda.runtime' setting must be defined, e.g. 'cuda.runtime=shared'.")
         if not self.arch_flags:
             raise ConanInvalidConfiguration("No valid CUDA architectures found in 'cuda.architectures' setting. "
                                  "Please specify at least one architecture, e.g. 'cuda.architectures=70,75'.")
 
         self.cudaflags = []
-        self.cudaflags.append(f"--cudart={self.conanfile.settings.cuda.runtime}")
         self.cudaflags.extend(self.arch_flags)
         if "cudart" in self.conanfile.dependencies.host:
             cudart_info = self.conanfile.dependencies.host["cudart"].cpp_info
+            runtime_type = "shared" if self.conanfile.dependencies.host["cudart"].options.shared else "static"
+            self.cudaflags.append(f"--cudart={runtime_type}")
             self.cudaflags.append(f"-L{cudart_info.libdir}")
             self.cudaflags.append(f"-I{cudart_info.includedir}")
         self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", "").split())
@@ -79,9 +78,9 @@ def validate_cuda(conanfile: ConanFile):
 
 
 def cuda_platform_id(settings):
-    if settings.get_safe("cuda.platform") == "sbsa":
-        if settings.os != "Linux" or settings.arch != "armv8":
-            raise ConanInvalidConfiguration(f"Invalid OS/arch combination for cuda.platform=sbsa: {settings.os}/{settings.arch}")
+    if settings.arch == "armv8" and settings.get_safe("arch.cuda_platform") == "sbsa":
+        if settings.os != "Linux":
+            raise ConanInvalidConfiguration(f"Invalid OS for cuda.platform=sbsa: {settings.os}")
         return "linux-sbsa"
     return {
         ("Windows", "x86_64"): "windows-x86_64",
