@@ -7,8 +7,17 @@ from conan.tools.scm import Version
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     generators = "CMakeToolchain", "CMakeDeps"
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    def validate(self):
+        self._utils.validate_cuda(self)
 
     def layout(self):
         cmake_layout(self)
@@ -21,6 +30,10 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
         self.tool_requires("cmake/[>=3.18 <5]")
 
+    def generate(self):
+        tc = self._utils.NvccToolchain(self)
+        tc.generate()
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -28,7 +41,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         self.run("nvcc --version")
+        bin_path = os.path.join(self.cpp.build.bindir, "test_package")
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
-            self.run(f'cuobjdump "{bin_path}"')
+        self.run(f'cuobjdump "{bin_path}"')

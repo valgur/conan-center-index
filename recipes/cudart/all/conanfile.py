@@ -107,7 +107,3 @@ class CudartConan(ConanFile):
             self.cpp_info.components["culibos"].set_property("cmake_target_name", "CUDA::culibos")
             self.cpp_info.components["culibos"].libs = ["culibos"]
             self.cpp_info.components["culibos"].requires = ["nvcc-headers::nvcc-headers", "cuda-driver-stubs::cuda-driver-stubs"]
-
-        # Ensure CMake can automatically find the runtime libraries to build a test CUDA application
-        self.buildenv_info.append_path("CPATH", os.path.join(self.package_folder, "include"))
-        self.buildenv_info.append_path("LIBRARY_PATH", os.path.join(self.package_folder, "lib"))
