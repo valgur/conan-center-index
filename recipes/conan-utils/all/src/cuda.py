@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from functools import cached_property
 
 from conan import ConanFile
@@ -13,8 +14,8 @@ class NvccToolchain:
     def __init__(self, conanfile: ConanFile):
         self.conanfile = conanfile
 
-        if not self.conanfile.settings.get_safe("cuda"):
-            raise ConanInvalidConfiguration("'cuda' setting must be defined, e.g. 'cuda=12.1'.")
+        if not self.conanfile.settings.get_safe("cuda.version"):
+            raise ConanInvalidConfiguration("'cuda.version' setting must be defined, e.g. 'cuda.version=12.1'.")
         if not self.conanfile.settings.get_safe("cuda.runtime"):
             raise ConanInvalidConfiguration("'cuda.runtime' setting must be defined, e.g. 'cuda.runtime=shared'.")
         if not self.arch_flags:
@@ -53,6 +54,7 @@ class NvccToolchain:
                     virtual = False
                 else:
                     raise ConanInvalidConfiguration(f"Unknown CUDA architecture suffix: {suffix}")
+            assert re.match(r"\d\d\d?[a-z]?", arch), f"Invalid CUDA architecture value: {arch}"
             if real:
                 flags.append(f"-gencode=arch=compute_{arch},code=sm_{arch}")
             if virtual:
