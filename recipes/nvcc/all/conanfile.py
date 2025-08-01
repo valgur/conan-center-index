@@ -1,6 +1,4 @@
-import json
 import os
-from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -54,24 +52,12 @@ class NvccConan(ConanFile):
                 raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
         self._utils.validate_cuda(self)
 
-    @cached_property
-    def _redist_info(self):
-        package_name = "cuda_nvcc"
-        download(self, **self.conan_data["sources"][self.version], filename=os.path.join(self.build_folder, "redistrib.json"))
-        redist_info = json.loads(load(self, "redistrib.json"))[package_name]
-        assert redist_info["version"] == self.version
-        return redist_info
-
     def package(self):
-        package_info = self._redist_info[self._host_platform_id]
-        url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
         host_folder = os.path.join(self.package_folder, "host")
-        get(self, url, sha256=package_info["sha256"], strip_root=True, destination=host_folder)
+        self._utils.download_cuda_package(self, "cuda_nvcc", scope="host", destination=host_folder)
         if self._cross_toolchain:
-            package_info = self._redist_info[self._target_platform_id]
-            url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
             target_folder = os.path.join(self.build_folder, "target")
-            get(self, url, sha256=package_info["sha256"], strip_root=True, destination=target_folder)
+            self._utils.download_cuda_package(self, "cuda_nvcc", scope="target", destination=target_folder)
         else:
             target_folder = host_folder
         copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))

@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).resolve().parent))
 
 from conan import ConanFile
 
-from src.cuda import NvccToolchain, validate_cuda, cuda_platform_id  # NOQA
+from src.cuda import NvccToolchain, validate_cuda, cuda_platform_id, download_cuda_package  # NOQA
 from src.limit_jobs import limit_build_jobs  # NOQA
 from src.meson_msvc import fix_msvc_libnames, _fix_libnames  # NOQA
 from src.python_venv import PythonVenv, pip_install  # NOQA

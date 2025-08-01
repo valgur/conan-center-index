@@ -1,8 +1,11 @@
+import json
+import os
 from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
+from conan.tools.files import download, load, get
 from conan.tools.gnu import AutotoolsToolchain
 
 
@@ -83,3 +86,20 @@ def cuda_platform_id(settings):
         ("Linux", "x86_64"): "linux-x86_64",
         ("Linux", "armv8"): "linux-aarch64",
     }.get((str(settings.os), str(settings.arch)))
+
+
+def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, **kwargs):
+    download(conanfile, **conanfile.conan_data["sources"][conanfile.version],
+             filename=os.path.join(conanfile.build_folder, "redistrib.json"))
+    redist_info = json.loads(load(conanfile, "redistrib.json"))[package_name]
+    assert redist_info["version"] == conanfile.version
+    settings = conanfile.settings
+    if scope == "build":
+        settings = conanfile.settings_build
+    if scope == "target":
+        settings = conanfile.settings_target
+    package_info = redist_info[cuda_platform_id(settings)]
+    url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
+    sha256 = package_info["sha256"]
+    destination = destination or conanfile.build_folder
+    get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
