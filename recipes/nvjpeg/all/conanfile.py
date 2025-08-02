@@ -81,7 +81,7 @@ class NvJpegConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "nvjpeg.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+            copy(self, "nvjpeg*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "nvjpeg.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):

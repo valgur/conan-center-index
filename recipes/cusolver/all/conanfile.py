@@ -88,10 +88,10 @@ class CuSolverConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cusolver.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+            copy(self, "cusolver*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "cusolver.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
             if self.options.cusolverMg:
-                copy(self, "cusolverMg.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+                copy(self, "cusolverMg*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
                 copy(self, "cusolverMg.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):

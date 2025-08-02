@@ -79,7 +79,7 @@ class NvJitLinkConan(ConanFile):
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
             if self.options.shared:
-                copy(self, "nvJitLink.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+                copy(self, "nvJitLink*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
                 copy(self, "nvJitLink.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
             else:
                 copy(self, "nvJitLink_static.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
