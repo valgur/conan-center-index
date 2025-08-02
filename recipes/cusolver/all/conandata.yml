@@ -1,0 +1,4 @@
+sources:
+  "11.7.5.82":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.1.json"
+    sha256: "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630"
