@@ -127,7 +127,7 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
 
 
-def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, **kwargs):
+def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, platform_id=None, **kwargs):
     destination = destination or conanfile.source_folder
     if scope == "host":
         settings = conanfile.settings
@@ -138,7 +138,8 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     else:
         raise ConanInvalidConfiguration(f"Unknown scope: {scope}")
     package_info = get_cuda_package_info(conanfile, package_name)
-    archive_info = package_info[cuda_platform_id(settings)]
+    platform_id = platform_id or cuda_platform_id(settings)
+    archive_info = package_info[platform_id]
     url = "https://developer.download.nvidia.com/compute/cuda/redist/" + archive_info["relative_path"]
     sha256 = archive_info["sha256"]
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
