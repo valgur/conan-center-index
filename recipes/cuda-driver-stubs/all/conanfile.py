@@ -30,6 +30,9 @@ class CudaDriverStubsConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
+    def validate(self):
+        self._utils.validate_cuda_package(self, "cuda_cudart")
+
     def build(self):
         self._utils.download_cuda_package(self, "cuda_cudart")
 

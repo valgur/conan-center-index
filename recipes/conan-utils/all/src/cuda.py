@@ -1,12 +1,13 @@
 import json
-import os
 import re
 from functools import cached_property
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
-from conan.tools.files import download, load, get
+from conan.tools.files import download, get
 from conan.tools.gnu import AutotoolsToolchain
 
 
@@ -73,7 +74,7 @@ class NvccToolchain:
         env.vars(self.conanfile, scope).save_script("nvcc_toolchain")
 
 
-def validate_cuda(conanfile: ConanFile):
+def validate_cuda_settings(conanfile: ConanFile):
     NvccToolchain(conanfile)
 
 
@@ -89,18 +90,59 @@ def cuda_platform_id(settings):
     }.get((str(settings.os), str(settings.arch)))
 
 
+_redistrib_info_cache = {}
+
+
+def _fetch_redistrib_info(conanfile):
+    url = conanfile.conan_data["sources"][conanfile.version]["url"]
+    redistrib_info = _redistrib_info_cache.get(url)
+    if not redistrib_info:
+        with TemporaryDirectory() as td:
+            temp_path = Path(td, "conan_cuda_redist.json")
+            download(conanfile, **conanfile.conan_data["sources"][conanfile.version], filename=temp_path)
+            redistrib_info = json.loads(temp_path.read_text(encoding="utf8"))
+        _redistrib_info_cache[url] = redistrib_info
+    return redistrib_info
+
+
+def get_cuda_package_info(conanfile: ConanFile, package_name: str):
+    redistrib_info = _fetch_redistrib_info(conanfile)
+    package_info = redistrib_info[package_name]
+    assert package_info["version"] == conanfile.version
+    return package_info
+
+
+def validate_cuda_package(conanfile: ConanFile, package_name: str):
+    platform_id = cuda_platform_id(conanfile.settings)
+    if platform_id is None:
+        raise ConanInvalidConfiguration(f"Unsupported platform: {conanfile.settings.os}/{conanfile.settings.arch}")
+    package_info = get_cuda_package_info(conanfile, package_name)
+    if platform_id not in package_info:
+        raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
+
+
 def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, **kwargs):
     destination = destination or conanfile.source_folder
-    download(conanfile, **conanfile.conan_data["sources"][conanfile.version],
-             filename=os.path.join(conanfile.build_folder, "redistrib.json"))
-    redist_info = json.loads(load(conanfile, "redistrib.json"))[package_name]
-    assert redist_info["version"] == conanfile.version
-    settings = conanfile.settings
-    if scope == "build":
+    if scope == "host":
+        settings = conanfile.settings
+    elif scope == "build":
         settings = conanfile.settings_build
-    if scope == "target":
+    elif scope == "target":
         settings = conanfile.settings_target
-    package_info = redist_info[cuda_platform_id(settings)]
-    url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
-    sha256 = package_info["sha256"]
+    else:
+        raise ConanInvalidConfiguration(f"Unknown scope: {scope}")
+    package_info = get_cuda_package_info(conanfile, package_name)
+    archive_info = package_info[cuda_platform_id(settings)]
+    url = "https://developer.download.nvidia.com/compute/cuda/redist/" + archive_info["relative_path"]
+    sha256 = archive_info["sha256"]
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
+
+
+__all__ = [
+    "NvccToolchain",
+    "validate_cuda_settings",
+    "cuda_platform_id",
+    "get_cuda_package_info",
+    "validate_cuda_package",
+    "download_cuda_package",
+]

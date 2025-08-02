@@ -54,6 +54,7 @@ class CudartConan(ConanFile):
         self.requires("libcudacxx/[^2]", transitive_headers=True)
 
     def validate(self):
+        self._utils.validate_cuda_package(self, "cuda_cudart")
         if not Version(self.version).in_range(f"~{self.settings.cuda.version}"):
             raise ConanInvalidConfiguration(f"Version {self.version} is not compatible with the cuda.version {self.settings.cuda.version} setting")
 

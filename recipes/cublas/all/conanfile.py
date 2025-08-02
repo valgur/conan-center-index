@@ -56,6 +56,7 @@ class CublasConan(ConanFile):
         self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True)
 
     def validate(self):
+        self._utils.validate_cuda_package(self, "libcublas")
         if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration("cublas requires libstdc++11 on Linux")
 

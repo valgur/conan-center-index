@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
         return self.python_requires["conan-utils"].module
 
     def validate(self):
-        self._utils.validate_cuda(self)
+        self._utils.validate_cuda_settings(self)
 
     def layout(self):
         cmake_layout(self)
