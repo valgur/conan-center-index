@@ -42,8 +42,8 @@ class NvptxcompilerLibsConan(ConanFile):
         copy(self, "*", libdir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.components["nvptxcompiler"].set_property("cmake_target_name", "CUDA::nvptxcompiler_static")
-        self.cpp_info.components["nvptxcompiler"].libs = ["nvptxcompiler_static"]
-        self.cpp_info.components["nvptxcompiler"].bindirs = []
+        self.cpp_info.set_property("cmake_target_name", "CUDA::nvptxcompiler_static")
+        self.cpp_info.libs = ["nvptxcompiler_static"]
+        self.cpp_info.bindirs = []
         if self.settings.os == "Linux":
-            self.cpp_info.components["nvptxcompiler"].system_libs = ["m"]
+            self.cpp_info.system_libs = ["m"]
