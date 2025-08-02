@@ -9,6 +9,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
 from conan.tools.files import download, get
 from conan.tools.gnu import AutotoolsToolchain
+from conan.tools.scm import Version
 
 
 class NvccToolchain:
@@ -93,7 +94,7 @@ def cuda_platform_id(settings):
 _redistrib_info_cache = {}
 
 
-def _fetch_redistrib_info(conanfile):
+def get_cuda_redistrib_info(conanfile):
     url = conanfile.conan_data["sources"][conanfile.version]["url"]
     redistrib_info = _redistrib_info_cache.get(url)
     if not redistrib_info:
@@ -106,11 +107,16 @@ def _fetch_redistrib_info(conanfile):
 
 
 def get_cuda_package_info(conanfile: ConanFile, package_name: str):
-    redistrib_info = _fetch_redistrib_info(conanfile)
+    redistrib_info = get_cuda_redistrib_info(conanfile)
     package_info = redistrib_info[package_name]
     assert package_info["version"] == conanfile.version
     return package_info
 
+def get_cuda_package_versions(conanfile: ConanFile):
+    redistrib_info = get_cuda_redistrib_info(conanfile)
+    versions = {pkg: Version(info["version"]) for pkg, info in redistrib_info.items() if isinstance(info, dict)}
+    versions["cuda"] = redistrib_info["release_label"]
+    return versions
 
 def validate_cuda_package(conanfile: ConanFile, package_name: str):
     platform_id = cuda_platform_id(conanfile.settings)
@@ -142,6 +148,8 @@ __all__ = [
     "NvccToolchain",
     "validate_cuda_settings",
     "cuda_platform_id",
+    "get_cuda_redistrib_info",
+    "get_cuda_package_versions",
     "get_cuda_package_info",
     "validate_cuda_package",
     "download_cuda_package",

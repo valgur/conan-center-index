@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
-from conan.tools.scm import Version
 
 
 class TestPackageConan(ConanFile):
@@ -23,8 +22,8 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        v = Version(self.tested_reference_str.split("/")[1])
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
+        versions = self._utils.get_cuda_package_versions(self)
+        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

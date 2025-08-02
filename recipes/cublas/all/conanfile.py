@@ -52,8 +52,8 @@ class CublasConan(ConanFile):
         del self.info.options.cmake_alias
 
     def requirements(self):
-        v = Version(self.version)
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
+        versions = self._utils.get_cuda_package_versions(self)
+        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcublas")

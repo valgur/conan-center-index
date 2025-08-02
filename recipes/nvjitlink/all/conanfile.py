@@ -57,9 +57,9 @@ class NvJitLinkConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        v = self._cuda_version
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvptxcompiler/[~{v.major}.{v.minor}]", transitive_headers=True)
+        versions = self._utils.get_cuda_package_versions(self)
+        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"nvptxcompiler/[~{versions['cuda_nvcc']}]", transitive_headers=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libnvjitlink")

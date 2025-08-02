@@ -63,8 +63,8 @@ class CuFFTConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        v = self._cuda_version
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
+        versions = self._utils.get_cuda_package_versions(self)
+        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcufft")
