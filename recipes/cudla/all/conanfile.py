@@ -21,7 +21,7 @@ class CudlaConan(ConanFile):
         "use_stubs": [True, False],
     }
     default_options = {
-        "use_stubs": True,
+        "use_stubs": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -57,4 +57,4 @@ class CudlaConan(ConanFile):
         self.cpp_info.set_property("system_package_version", f"{v.major}.{v.minor}")
         self.cpp_info.libs = ["cudla"]
         if self.options.use_stubs:
-            self.cpp_info.libdirs = ["lib/stubs"]
+            self.cpp_info.libdirs = ["lib/stubs", "lib"]

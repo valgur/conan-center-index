@@ -26,7 +26,7 @@ class CuRandConan(ConanFile):
     default_options = {
         "shared": False,
         "cmake_alias": True,
-        "use_stubs": True,
+        "use_stubs": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -96,7 +96,7 @@ class CuRandConan(ConanFile):
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.libs = [f"curand{suffix}"]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.libdirs = ["lib/stubs"]
+            self.cpp_info.libdirs = ["lib/stubs", "lib"]
         self.cpp_info.requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]

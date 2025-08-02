@@ -25,7 +25,7 @@ class CublasConan(ConanFile):
     default_options = {
         "shared": False,
         "cmake_alias": True,
-        "use_stubs": True,
+        "use_stubs": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -90,7 +90,7 @@ class CublasConan(ConanFile):
         self.cpp_info.components["cublas_"].libs = [lib]
         self.cpp_info.components["cublas_"].srcdirs = ["share/cublas/src"]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.components["cublas_"].libdirs = ["lib/stubs"]
+            self.cpp_info.components["cublas_"].libdirs = ["lib/stubs", "lib"]
         if self.settings.os == "Linux":
             self.cpp_info.components["cublas_"].system_libs = ["dl", "m", "pthread", "rt"]
             self.cpp_info.components["cublas_"].requires = ["cublasLt"]
@@ -102,7 +102,7 @@ class CublasConan(ConanFile):
             self.cpp_info.components["cublasLt"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.components["cublasLt"].libs = [lib]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.components["cublasLt"].libdirs = ["lib/stubs"]
+            self.cpp_info.components["cublasLt"].libdirs = ["lib/stubs", "lib"]
         if self.settings.os == "Linux":
             self.cpp_info.components["cublasLt"].system_libs = ["dl", "m", "pthread", "rt", "stdc++"]
         self.cpp_info.components["cublasLt"].requires = ["cudart::cudart_"]

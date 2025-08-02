@@ -27,7 +27,7 @@ class CuFFTConan(ConanFile):
     default_options = {
         "shared": False,
         "cmake_alias": True,
-        "use_stubs": True,
+        "use_stubs": False,
         "nocallback": True,
     }
 
@@ -111,7 +111,7 @@ class CuFFTConan(ConanFile):
             self.cpp_info.components["cufft_"].set_property("cmake_target_aliases", aliases)
         self.cpp_info.components["cufft_"].libs = [f"cufft{suffix}"]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.components["cufft_"].libdirs = ["lib/stubs"]
+            self.cpp_info.components["cufft_"].libdirs = ["lib/stubs", "lib"]
         self.cpp_info.components["cufft_"].requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["cufft_"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
@@ -126,5 +126,5 @@ class CuFFTConan(ConanFile):
             self.cpp_info.components["cufftw"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.components["cufftw"].libs = [f"cufftw{suffix}"]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.components["cufftw"].libdirs = ["lib/stubs"]
+            self.cpp_info.components["cufftw"].libdirs = ["lib/stubs", "lib"]
         self.cpp_info.components["cufftw"].requires = ["cufft_"]

@@ -25,7 +25,7 @@ class NvJitLinkConan(ConanFile):
     default_options = {
         "shared": False,
         "cmake_alias": True,
-        "use_stubs": True,
+        "use_stubs": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -97,7 +97,7 @@ class NvJitLinkConan(ConanFile):
         self.cpp_info.libs = [f"nvJitLink{suffix}"]
         self.cpp_info.srcdirs = ["share/nvjitlink/src"]
         if self.options.get_safe("use_stubs"):
-            self.cpp_info.libdirs = ["lib/stubs"]
+            self.cpp_info.libdirs = ["lib/stubs", "lib"]
         self.cpp_info.requires = ["cudart::cudart_", "nvptxcompiler::nvptxcompiler"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl"]
