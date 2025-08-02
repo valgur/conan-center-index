@@ -34,12 +34,12 @@ class CudaDriverStubsConan(ConanFile):
         self._utils.download_cuda_package(self, "cuda_cudart")
 
     def package(self):
-        copy(self, "LICENSE", self.build_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "cuda.h", os.path.join(self.build_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "cuda.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
         if self.settings.os == "Linux":
-            copy(self, "libcuda.so", os.path.join(self.build_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib"))
+            copy(self, "libcuda.so", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cuda.lib", os.path.join(self.build_folder, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "cuda.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "CUDA::cuda_driver")

@@ -33,9 +33,9 @@ class NvptxcompilerLibsConan(ConanFile):
         self._utils.download_cuda_package(self, "cuda_nvcc")
 
     def package(self):
-        copy(self, "LICENSE", self.build_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "nvPTXCompiler.h", os.path.join(self.build_folder, "include"), os.path.join(self.package_folder, "include"))
-        libdir = os.path.join(self.build_folder, "lib") if self.settings.os == "Linux" else os.path.join(self.build_folder, "lib", "x64")
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "nvPTXCompiler.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        libdir = os.path.join(self.source_folder, "lib") if self.settings.os == "Linux" else os.path.join(self.source_folder, "lib", "x64")
         copy(self, "*", libdir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):

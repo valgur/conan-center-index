@@ -52,10 +52,10 @@ class NvccConan(ConanFile):
                 raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
 
     def package(self):
-        host_folder = os.path.join(self.package_folder, "host")
+        host_folder = os.path.join(self.source_folder, "host")
         self._utils.download_cuda_package(self, "cuda_nvcc", scope="host", destination=host_folder)
         if self._cross_toolchain:
-            target_folder = os.path.join(self.build_folder, "target")
+            target_folder = os.path.join(self.source_folder, "target")
             self._utils.download_cuda_package(self, "cuda_nvcc", scope="target", destination=target_folder)
         else:
             target_folder = host_folder

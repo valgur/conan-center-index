@@ -90,6 +90,7 @@ def cuda_platform_id(settings):
 
 
 def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, **kwargs):
+    destination = destination or conanfile.source_folder
     download(conanfile, **conanfile.conan_data["sources"][conanfile.version],
              filename=os.path.join(conanfile.build_folder, "redistrib.json"))
     redist_info = json.loads(load(conanfile, "redistrib.json"))[package_name]
@@ -102,5 +103,4 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     package_info = redist_info[cuda_platform_id(settings)]
     url = "https://developer.download.nvidia.com/compute/cuda/redist/" + package_info["relative_path"]
     sha256 = package_info["sha256"]
-    destination = destination or conanfile.build_folder
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)

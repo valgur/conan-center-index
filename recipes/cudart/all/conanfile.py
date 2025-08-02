@@ -61,14 +61,14 @@ class CudartConan(ConanFile):
         self._utils.download_cuda_package(self, "cuda_cudart")
 
     def package(self):
-        copy(self, "LICENSE", self.build_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", os.path.join(self.build_folder, "include"), os.path.join(self.package_folder, "include"))
-        copy(self, "*", os.path.join(self.build_folder, "bin"), os.path.join(self.package_folder, "bin"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(self, "*", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
         if self.settings.os == "Windows":
-            copy(self, "*.lib", os.path.join(self.build_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            copy(self, "*.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
             rm(self, "cuda.lib", os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "*", os.path.join(self.build_folder, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "lib", "stubs"))
         if self.options.shared:
             rm(self, "*cudart_static.*", os.path.join(self.package_folder, "lib"))

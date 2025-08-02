@@ -33,8 +33,8 @@ class NvccHeadersConan(ConanFile):
         self._utils.download_cuda_package(self, "cuda_nvcc")
 
     def package(self):
-        copy(self, "LICENSE", self.build_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", os.path.join(self.build_folder, "include"), os.path.join(self.package_folder, "include"), excludes="nvPTXCompiler.h")
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"), excludes="nvPTXCompiler.h")
 
     def package_info(self):
         self.cpp_info.libdirs = []
