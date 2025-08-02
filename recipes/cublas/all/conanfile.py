@@ -53,7 +53,7 @@ class CublasConan(ConanFile):
 
     def requirements(self):
         v = Version(self.version)
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True)
+        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcublas")

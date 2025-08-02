@@ -58,7 +58,7 @@ class NvJitLinkConan(ConanFile):
 
     def requirements(self):
         v = self._cuda_version
-        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True)
+        self.requires(f"cudart/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"nvptxcompiler/[~{v.major}.{v.minor}]", transitive_headers=True)
 
     def validate(self):
