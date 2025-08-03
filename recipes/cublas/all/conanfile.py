@@ -104,7 +104,7 @@ class CublasConan(ConanFile):
         if self.options.get_safe("use_stubs"):
             self.cpp_info.components["cublasLt"].libdirs = ["lib/stubs", "lib"]
         if self.settings.os == "Linux":
-            self.cpp_info.components["cublasLt"].system_libs = ["dl", "m", "pthread", "rt", "stdc++"]
+            self.cpp_info.components["cublasLt"].system_libs = ["dl", "m", "pthread", "rt", "gcc_s", "stdc++"]
         self.cpp_info.components["cublasLt"].requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["cublasLt"].requires.append("cudart::culibos")
