@@ -1,0 +1,4 @@
+sources:
+  "4.2.0.11":
+    url: "https://developer.download.nvidia.com/compute/nvcomp/redist/redistrib_4.2.0.11.json"
+    sha256: "c45ca3f4077eca12da86db2c46799943d5522faddc06688829a6fd29450a0bf5"
