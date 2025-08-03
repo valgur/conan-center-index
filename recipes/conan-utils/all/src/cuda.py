@@ -126,6 +126,10 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
     if platform_id is None:
         raise ConanInvalidConfiguration(f"Unsupported platform: {conanfile.settings.os}/{conanfile.settings.arch}")
     package_info = get_cuda_package_info(conanfile, package_name)
+    if "cuda_variant" in package_info:
+        cuda_major = conanfile.settings.cuda.version.value.split(".")[0]
+        if cuda_major not in package_info["cuda_variant"]:
+            raise ConanInvalidConfiguration(f"cuda.version {conanfile.settings.cuda.version} is not supported by package '{package_name}'")
     if platform_id not in package_info:
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
 
@@ -143,6 +147,9 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     package_info = get_cuda_package_info(conanfile, package_name)
     platform_id = platform_id or cuda_platform_id(settings)
     archive_info = package_info[platform_id]
+    if "cuda_variant" in package_info:
+        cuda_major = conanfile.settings.cuda.version.value.split(".")[0]
+        archive_info = archive_info[f"cuda{cuda_major}"]
     url = package_info["base_url"] + archive_info["relative_path"]
     sha256 = archive_info["sha256"]
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)

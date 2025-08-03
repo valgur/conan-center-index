@@ -1,0 +1,4 @@
+sources:
+  "0.5.0.67":
+    url: "https://developer.download.nvidia.com/compute/nvtiff/redist/redistrib_0.5.0.json"
+    sha256: "c4829eb91e00e5aec0fffda4dd304d09bc8b74e5f5ac530d5925173ea85b0add"
