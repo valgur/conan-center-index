@@ -57,6 +57,9 @@ class CudartConan(ConanFile):
         self._utils.validate_cuda_package(self, "cuda_cudart")
         if not Version(self.version).in_range(f"~{self.settings.cuda.version}"):
             raise ConanInvalidConfiguration(f"Version {self.version} is not compatible with the cuda.version {self.settings.cuda.version} setting")
+        # libstdc++11 is required by the C++ API but not the C API
+        # if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
+        #     raise ConanInvalidConfiguration("cudart requires libstdc++11")
 
     def build(self):
         self._utils.download_cuda_package(self, "cuda_cudart")
@@ -93,7 +96,7 @@ class CudartConan(ConanFile):
         self.cpp_info.components["cudart_"].libs = [lib]
         if self.settings.os == "Linux":
             self.cpp_info.components["cudart_"].bindirs = []
-            self.cpp_info.components["cudart_"].system_libs = ["rt", "pthread", "dl"]
+            self.cpp_info.components["cudart_"].system_libs = ["rt", "pthread", "dl", "m", "gcc_s", "stdc++"]
         self.cpp_info.components["cudart_"].requires = [
             "nvcc-headers::nvcc-headers",
             "cuda-driver-stubs::cuda-driver-stubs",

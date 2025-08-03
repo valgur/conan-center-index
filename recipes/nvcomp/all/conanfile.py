@@ -52,8 +52,11 @@ class NvCompConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "nvcomp")
-        if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("nvcomp requires libstdc++11")
+        # libstdc++11 requirement applies to just the C++ API, so skipping the check
+        # if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
+        #     raise ConanInvalidConfiguration("nvcomp requires libstdc++11")
+        if self.settings.os == "Windows" and not is_msvc(self):
+            raise ConanInvalidConfiguration("nvcomp only supports MSVC on Windows")
         if is_msvc(self):
             if not is_msvc_static_runtime(self):
                 # The bundled .cmake config files force linking against libcmt.lib

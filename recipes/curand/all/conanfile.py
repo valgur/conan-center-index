@@ -2,7 +2,6 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -65,8 +64,6 @@ class CuRandConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcurand")
-        if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("curand requires libstdc++11")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcurand")

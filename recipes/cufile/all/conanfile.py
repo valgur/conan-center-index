@@ -59,8 +59,6 @@ class CuFileConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuFile is only available on Linux")
         self._utils.validate_cuda_package(self, "libcufile")
-        if self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("cufile requires libstdc++11")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcufile")

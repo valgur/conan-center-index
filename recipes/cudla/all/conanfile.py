@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -39,8 +38,9 @@ class CudlaConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcudla")
-        if self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("cudla requires libstdc++11")
+        # libstdc++11 requirement applies to just the C++ API, so skipping the check
+        # if self.settings.compiler.libcxx != "libstdc++11":
+        #     raise ConanInvalidConfiguration("cudla requires libstdc++11")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcudla")
