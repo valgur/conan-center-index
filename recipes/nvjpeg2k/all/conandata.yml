@@ -1,0 +1,4 @@
+sources:
+  "0.8.1.40":
+    url: "https://developer.download.nvidia.com/compute/nvjpeg2000/redist/redistrib_0.8.1.json"
+    sha256: "5d4a75c2adc1e209feebaf809572babe4bedb2ad5a766bafda324bcb4c227875"

@@ -102,6 +102,7 @@ def get_cuda_redistrib_info(conanfile):
             temp_path = Path(td, "conan_cuda_redist.json")
             download(conanfile, **conanfile.conan_data["sources"][conanfile.version], filename=temp_path)
             redistrib_info = json.loads(temp_path.read_text(encoding="utf8"))
+        redistrib_info["base_url"] = conanfile.conan_data["sources"][conanfile.version]["url"].rsplit("/", 1)[0] + "/"
         _redistrib_info_cache[url] = redistrib_info
     return redistrib_info
 
@@ -109,13 +110,15 @@ def get_cuda_redistrib_info(conanfile):
 def get_cuda_package_info(conanfile: ConanFile, package_name: str):
     redistrib_info = get_cuda_redistrib_info(conanfile)
     package_info = redistrib_info[package_name]
+    package_info["base_url"] = redistrib_info["base_url"]
     assert package_info["version"] == conanfile.version
     return package_info
 
 def get_cuda_package_versions(conanfile: ConanFile):
     redistrib_info = get_cuda_redistrib_info(conanfile)
     versions = {pkg: Version(info["version"]) for pkg, info in redistrib_info.items() if isinstance(info, dict)}
-    versions["cuda"] = redistrib_info["release_label"]
+    if redistrib_info["release_product"] not in versions:
+        versions[redistrib_info["release_product"]] = redistrib_info["release_label"]
     return versions
 
 def validate_cuda_package(conanfile: ConanFile, package_name: str):
@@ -140,7 +143,7 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     package_info = get_cuda_package_info(conanfile, package_name)
     platform_id = platform_id or cuda_platform_id(settings)
     archive_info = package_info[platform_id]
-    url = "https://developer.download.nvidia.com/compute/cuda/redist/" + archive_info["relative_path"]
+    url = package_info["base_url"] + archive_info["relative_path"]
     sha256 = archive_info["sha256"]
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
 
