@@ -1,4 +1,7 @@
 sources:
+  "1.19.0-rc2":
+    url: "https://github.com/openucx/ucx/archive/refs/tags/v1.19.0-rc2.tar.gz"
+    sha256: "db91f22ea39f0b1ece42593c211c2bd53e6b395b7341886264ed2e52e87eec83"
   "1.18.1":
     url: "https://github.com/openucx/ucx/releases/download/v1.18.1/ucx-1.18.1.tar.gz"
     sha256: "8018dd75f11b5e8d6e57dcdb5b798d2c1f000982c353efde1f3170025c6c3b4c"

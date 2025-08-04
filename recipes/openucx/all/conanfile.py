@@ -130,6 +130,7 @@ class OpenUCXConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -185,11 +186,12 @@ class OpenUCXConan(ConanFile):
 
     def _patch_sources(self):
         if self.options.cuda and not self.dependencies["cudart"].options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "configure"), "-lcudart", "-lcudart_static")
+            replace_in_file(self, os.path.join(self.source_folder, "config/m4/cuda.m4"), "-lcudart", "-lcudart_static")
 
     def build(self):
         self._patch_sources()
         autotools = Autotools(self)
+        autotools.autoreconf()
         autotools.configure()
         autotools.make()
 
