@@ -1,0 +1,4 @@
+sources:
+  "8.9.7.29":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_8.9.7.json"
+    sha256: "5283f8646775f98186e27d804b19e009f058966960c430a84b344215f6828986"

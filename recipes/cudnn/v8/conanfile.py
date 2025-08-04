@@ -19,22 +19,19 @@ class CuDnnConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
-        "legacy_api": [True, False],
-        "precompiled": [True, False],
+        "train": [True, False],
+        "infer": [True, False],
         "cmake_alias": [True, False],
     }
     default_options = {
         "shared": False,
-        "legacy_api": False,
-        "precompiled": False,
+        "train": False,
+        "infer": True,
         "cmake_alias": True,
     }
     options_description = {
-        "legacy_api": "Install the cuDNN Legacy API libraries in addition to the Graph API.",
-        "precompiled": (
-            "If False, rely on JIT compilation of the kernels instead of installing precompiled ones. "
-            "The precompiled libraries are significantly larger at 800 MB vs 25 MB for the JIT version."
-        ),
+        "train": "Install the cuDNN training API libraries.",
+        "infer": "Install the cuDNN inference API libraries.",
         "cmake_alias": "Always create both shared and static CMake targets regardless of shared=True/False.",
     }
 
@@ -47,13 +44,6 @@ class CuDnnConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.shared
-            self.package_type = "shared-library"
-
-    def configure(self):
-        if self.options.legacy_api:
-            self.options.precompiled.value = True
-        if not self.options.precompiled:
-            self.options.rm_safe("shared")
             self.package_type = "shared-library"
 
     def layout(self):
@@ -73,14 +63,12 @@ class CuDnnConan(ConanFile):
             self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
-        pkg = "cudnn" if self.options.precompiled else "cudnn_jit"
-        self._utils.validate_cuda_package(self, pkg)
-        if self.options.legacy_api and not self.options.precompiled:
-            raise ConanInvalidConfiguration("legacy_api=True requires precompiled=True")
+        self._utils.validate_cuda_package(self, "cudnn")
+        if not self.options.train and not self.options.infer:
+            raise ConanInvalidConfiguration("At least one of 'train' or 'infer' options must be enabled.")
 
     def build(self):
-        pkg = "cudnn" if self.options.precompiled else "cudnn_jit"
-        self._utils.download_cuda_package(self, pkg)
+        self._utils.download_cuda_package(self, "cudnn")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -100,21 +88,14 @@ class CuDnnConan(ConanFile):
                 copy(self, f"{name}64_{major}.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
 
         copy_lib("cudnn")
-        copy_lib("cudnn_graph")
-        copy_lib("cudnn_engines_runtime_compiled")
-
-        if self.options.precompiled:
-            copy_lib("cudnn_heuristic")
-            copy_lib("cudnn_engines_precompiled")
-
-        if self.options.legacy_api:
-            copy_lib("cudnn_adv")
-            copy_lib("cudnn_cnn")
-            copy_lib("cudnn_ops")
+        for lib in ["cudnn_adv", "cudnn_cnn", "cudnn_ops"]:
+            if self.options.train:
+                copy_lib(f"{lib}_train")
+            if self.options.infer:
+                copy_lib(f"{lib}_infer")
 
     def package_info(self):
-        # https://docs.nvidia.com/deeplearning/cudnn/installation/latest/build-run-cudnn.html
-        # https://docs.nvidia.com/deeplearning/cudnn/backend/latest/api/overview.html
+        # https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-897/install-guide/index.html#add-lib-dep-pro
 
         # The CMake file and target names are not official, nor are the pkg-config names.
         self.cpp_info.set_property("cmake_file_name", "cuDNN")
@@ -122,20 +103,32 @@ class CuDnnConan(ConanFile):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
         alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
 
-        def add_component(name, requires=None):
-            component = self.cpp_info.components[name]
-            component.set_property("cmake_target_name", f"cuDNN::{name}{suffix}")
+        def add_component(base_name, requires=None):
+            combined = self.cpp_info.components[base_name]
+            combined.set_property("cmake_target_name", f"cuDNN::{base_name}{suffix}")
             if self.options.get_safe("cmake_alias"):
-                component.set_property("cmake_target_aliases", [f"cuDNN::{name}{alias_suffix}"])
-            component.set_property("pkg_config_name", name)
-            component.libs = [f"{name}{suffix}"]
-            component.requires = requires or []
-            if self.settings.os == "Linux":
-                component.requires.append("zlib-ng::zlib-ng")
-                if not self.options.get_safe("shared", True):
-                    component.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
+                combined.set_property("cmake_target_aliases", [f"cuDNN::{base_name}{alias_suffix}"])
+            combined.set_property("pkg_config_name", base_name)
+            names = []
+            if self.options.train:
+                names.append(f"{base_name}_train")
+            if self.options.infer:
+                names.append(f"{base_name}_infer")
+            for name in names:
+                component = self.cpp_info.components[name]
+                component.set_property("cmake_target_name", f"cuDNN::{name}{suffix}")
+                if self.options.get_safe("cmake_alias"):
+                    component.set_property("cmake_target_aliases", [f"cuDNN::{name}{alias_suffix}"])
+                component.set_property("pkg_config_name", name)
+                component.libs = [f"{name}{suffix}"]
+                component.requires = requires or []
+                if self.settings.os == "Linux":
+                    component.requires.append("zlib-ng::zlib-ng")
+                    if not self.options.get_safe("shared", True):
+                        component.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
+                combined.requires.append(name)
 
-        # cudnn shim library - prefer cudnn_graph instead for non-legacy applications
+        # cudnn shim library
         self.cpp_info.components["cudnn_shim"].set_property("pkg_config_name", "cudnn")
         self.cpp_info.components["cudnn_shim"].set_property("cmake_target_name", f"cuDNN::cudnn{suffix}")
         self.cpp_info.set_property("pkg_config_name", "cuDNN")
@@ -148,35 +141,20 @@ class CuDnnConan(ConanFile):
         if self.options.get_safe("shared", True):
             self.cpp_info.components["cudnn_shim"].libs = ["cudnn"]
         else:
-            self.cpp_info.components["cudnn_shim"].requires = ["cudnn_graph"]
-            if self.options.legacy_api:
-                self.cpp_info.components["cudnn_shim"].requires.extend(["cudnn_adv", "cudnn_cnn", "cudnn_ops"])
+            self.cpp_info.components["cudnn_shim"].requires.extend(["cudnn_adv", "cudnn_cnn", "cudnn_ops"])
 
         ext_requires = [
+            "cublas::cublas_",
             "cublas::cublasLt",
             "nvrtc::nvrtc_",
             "nvptxcompiler::nvptxcompiler",
             "cudart::cudart_",
         ]
+        if self.settings.os == "Linux" and not self.options.shared:
+            ext_requires.append("cudart::culibos")
         if self.options.get_safe("shared", True):
             self.cpp_info.components["cudnn_shim"].requires.extend(ext_requires)
 
-        add_component("cudnn_graph", requires=ext_requires)
-        if self.options.legacy_api:
-            add_component("cudnn_adv", requires=["cudnn_ops"])
-            add_component("cudnn_cnn", requires=["cudnn_ops"])
-            add_component("cudnn_ops", requires=["cudnn_graph"])
-
-        # These should only be used for static linking.
-        # They are loaded dynamically at runtime by cudnn_graph when shared=True.
-        if not self.options.get_safe("shared", True):
-            add_component("cudnn_heuristic")
-            add_component("cudnn_engines_runtime_compiled", requires=["cudnn_heuristic", "nvrtc::nvrtc_"])
-            add_component("cudnn_engines_precompiled", requires=["cudnn_heuristic", "nvrtc::nvrtc_"])
-            self.cpp_info.components["cudnn_graph"].requires.extend(["cudnn_engines_runtime_compiled", "cudnn_engines_precompiled"])
-
-            # A dirty hack to resolve circular dependencies on Linux
-            if self.settings.os == "Linux":
-                self.cpp_info.components["cudnn_graph"].sharedlinkflags = ["-Wl,--start-group"]
-                self.cpp_info.components["cudnn_graph"].exelinkflags = ["-Wl,--start-group"]
-                self.cpp_info.components["cudnn_heuristic"].system_libs.append("-Wl,--end-group")
+        add_component("cudnn_adv", requires=["cudnn_ops"])
+        add_component("cudnn_cnn", requires=["cudnn_ops"])
+        add_component("cudnn_ops", requires=ext_requires)
