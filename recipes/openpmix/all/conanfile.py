@@ -8,6 +8,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -19,6 +20,7 @@ class OpenPMIxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://openpmix.github.io/"
     topics = ("process-management", "mpi", "openmpi")
+    provides = ["pmix"]
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,6 +38,11 @@ class OpenPMIxConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    def config_options(self):
+        if Version(self.version) >= "5.0":
+            del self.options.with_curl
+            del self.options.with_jansson
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -47,8 +54,8 @@ class OpenPMIxConan(ConanFile):
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):
-            # v2.14 is not compatible as of v5.0.3
-            self.requires("jansson/[^2.13.1]")
+            # v2.14 is not compatible as of v4.2.9
+            self.requires("jansson/[~2.13.1]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -64,28 +71,28 @@ class OpenPMIxConan(ConanFile):
             return unix_path(self, self.dependencies[pkg].package_folder)
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args += [
+        tc.configure_args.extend([
             "--with-pic" if self.options.get_safe("fPIC", True) else "--without-pic",
             "--exec-prefix=/",
             f"--with-hwloc={root('hwloc')}",
             f"--with-libevent={root('libevent')}",
             f"--with-zlib={root('zlib-ng')}",
-            f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
-            f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
             "--disable-sphinx",
-            "--with-alps=no",
-            "--with-cxi=no",
-            "--with-lustre=no",
             "--with-munge=no",
-        ]
+        ])
+        if Version(self.version) < "5.0":
+            tc.configure_args.extend([
+                f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
+                f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
+                "--with-alps=no",
+            ])
         if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
             tc.configure_args.append("--enable-debug-symbols")
         else:
             tc.configure_args.append("--disable-debug-symbols")
-        if is_apple_os(self):
-            if self.settings.arch == "armv8":
-                tc.configure_args.append("--host=aarch64-apple-darwin")
-                tc.extra_ldflags.append("-arch arm64")
+        if is_apple_os(self) and self.settings.arch == "armv8":
+            tc.configure_args.append("--host=aarch64-apple-darwin")
+            tc.extra_ldflags.append("-arch arm64")
         # libtool's libltdl is not really needed, OpenMPI provides its own equivalent.
         # Not adding it as it fails to be detected by ./configure in some cases.
         # https://github.com/open-mpi/ompi/blob/v4.1.6/opal/mca/dl/dl.h#L20-L25
