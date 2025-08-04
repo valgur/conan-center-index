@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 from conan.tools.scm import Version
@@ -19,7 +19,7 @@ class OpenPMIxConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://openpmix.github.io/"
-    topics = ("process-management", "mpi", "openmpi")
+    topics = ("process-management", "mpi", "openmpi", "pmix", "hpc")
     provides = ["pmix"]
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,14 +32,14 @@ class OpenPMIxConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_curl": False,
-        "with_jansson": False,
+        "with_curl": True,
+        "with_jansson": True,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
     def config_options(self):
-        if Version(self.version) >= "5.0":
+        if Version(self.version).major == 5:
             del self.options.with_curl
             del self.options.with_jansson
 
@@ -50,11 +50,12 @@ class OpenPMIxConan(ConanFile):
         # Used in a pmix/src/hwloc/pmix_hwloc.h public header
         self.requires("hwloc/[^2.11.1]", transitive_headers=True)
         self.requires("zlib-ng/[^2.0]")
-        self.requires("libevent/[^2.1.12]")
+        # Used in pmix/src/include/pmix_types.h public header
+        self.requires("libevent/[^2.1.12]", transitive_headers=True)
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):
-            # v2.14 is not compatible as of v4.2.9
+            # v2.14 is not compatible as of v6.0.0
             self.requires("jansson/[~2.13.1]")
 
     def validate(self):
@@ -62,7 +63,7 @@ class OpenPMIxConan(ConanFile):
             raise ConanInvalidConfiguration("OpenPMIx doesn't support Windows")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         VirtualRunEnv(self).generate(scope="build")
@@ -80,11 +81,10 @@ class OpenPMIxConan(ConanFile):
             "--disable-sphinx",
             "--with-munge=no",
         ])
-        if Version(self.version) < "5.0":
+        if Version(self.version).major != 5:
             tc.configure_args.extend([
                 f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
                 f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
-                "--with-alps=no",
             ])
         if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
             tc.configure_args.append("--enable-debug-symbols")
@@ -99,17 +99,16 @@ class OpenPMIxConan(ConanFile):
         tc.configure_args.append("--with-libltdl=no")
         tc.generate()
 
-    @property
-    def _source_subdir(self):
-        return os.path.join(self.source_folder, f"pmix-{self.version}")
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         autotools = Autotools(self)
-        autotools.configure(build_script_folder=self._source_subdir)
+        autotools.configure()
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self._source_subdir, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
