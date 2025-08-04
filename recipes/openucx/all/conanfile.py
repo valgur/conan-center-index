@@ -101,7 +101,7 @@ class OpenUCXConan(ConanFile):
 
     def requirements(self):
         if any(self.options.get_safe(opt) for opt in ["mad", "mlx5", "rdmacm", "verbs"]):
-            self.requires("rdma-core/[>=49.0]")
+            self.requires("rdma-core/[*]")
         if self.options.fuse3:
             self.requires("libfuse/[^3.10.5]")
         if self.options.gdrcopy:

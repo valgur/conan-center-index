@@ -100,7 +100,7 @@ class OpenMPIConan(ConanFile):
         if self.options.get_safe("with_libfabric"):
             self.requires("libfabric/1.21.0")
         if self.options.get_safe("with_verbs"):
-            self.requires("rdma-core/52.0")
+            self.requires("rdma-core/[*]")
         if self.options.with_ucx:
             self.requires("openucx/[^1.19.0-rc2, include_prerelease]")
         if self.options.with_cuda:

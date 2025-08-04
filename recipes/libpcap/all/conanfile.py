@@ -76,7 +76,7 @@ class LibPcapConan(ConanFile):
         if self.options.get_safe("enable_libnl"):
             self.requires("libnl/[^3.8.0]")
         if self.options.get_safe("enable_rdma"):
-            self.requires("rdma-core/52.0")
+            self.requires("rdma-core/[*]")
         if self.options.get_safe("enable_dbus"):
             self.requires("dbus/[^1.15]")
         if self.options.enable_remote:

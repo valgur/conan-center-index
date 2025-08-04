@@ -90,7 +90,7 @@ class DpdkConan(ConanFile):
         if self.options.with_libbsd:
             self.requires("libbsd/0.10.0")
         if self.options.with_libibverbs:
-            self.requires("rdma-core/52.0")
+            self.requires("rdma-core/[*]")
         if self.options.with_libpcap:
             self.requires("libpcap/[^1.10.4]", options={"enable_dpdk": False})
         if self.options.with_openssl:
