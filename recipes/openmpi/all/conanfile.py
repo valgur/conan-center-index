@@ -22,11 +22,12 @@ class OpenMPIConan(ConanFile):
     topics = ("mpi", "openmpi")
     provides = "mpi"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"],
+        "with_cuda": [True, False],
         "with_libfabric": [True, False],
         "with_ucx": [True, False],
         # Added in v5.0
@@ -41,6 +42,7 @@ class OpenMPIConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "fortran": "no",
+        "with_cuda": False,
         "with_libfabric": False,
         "with_ucx": False,
         # Added in v5.0
@@ -76,6 +78,8 @@ class OpenMPIConan(ConanFile):
         if is_apple_os(self):
             # Unavailable due to dependency on libnl
             self.options.rm_safe("with_verbs")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -99,6 +103,8 @@ class OpenMPIConan(ConanFile):
             self.requires("rdma-core/52.0")
         if self.options.with_ucx:
             self.requires("openucx/[^1.19.0-rc2, include_prerelease]")
+        if self.options.with_cuda:
+            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -122,6 +128,7 @@ class OpenMPIConan(ConanFile):
         tc = GnuToolchain(self)
         tc.configure_args["--with-pic"] = self.options.get_safe("fPIC")
         tc.configure_args["--enable-mpi-fortran"] = self.options.fortran
+        tc.configure_args["--with-cuda"] = root("cuda-driver-stubs") if self.options.with_cuda else "no"
         tc.configure_args["--with-hwloc"] = root("hwloc")
         tc.configure_args["--with-libevent"] = root("libevent")
         tc.configure_args["--with-libnl"] = root("libnl") if not is_apple_os(self) else "no"
@@ -134,7 +141,6 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--exec-prefix"] = "/"
         # Disable other external libraries explicitly
         tc.configure_args["--with-alps"] = "no"  # ALPS
-        tc.configure_args["--with-cuda"] = "no"  # CUDA
         tc.configure_args["--with-gpfs"] = "no"  # Gpfs
         tc.configure_args["--with-hcoll"] = "no"  # hcoll
         tc.configure_args["--with-ime"] = "no"  # IME
@@ -242,6 +248,8 @@ class OpenMPIConan(ConanFile):
             requires.extend(["rdma-core::libibverbs", "rdma-core::librdmacm"])
         if self.options.with_ucx:
             requires.append("openucx::openucx")
+        if self.options.with_cuda:
+            requires.append("cuda-driver-stubs::cuda-driver-stubs")
 
         # The components are modelled based on OpenMPI's pkg-config files
         self.cpp_info.components["ompi"].set_property("pkg_config_name", "ompi")
