@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.18"
 
 
 class OpenMPIConan(ConanFile):
@@ -124,6 +124,7 @@ class OpenMPIConan(ConanFile):
         tc = GnuToolchain(self)
         tc.configure_args["--with-pic"] = self.options.get_safe("fPIC")
         tc.configure_args["--enable-mpi-fortran"] = self.options.fortran
+        tc.configure_args["--enable-oshmem"] = yes_no(self.options.with_ucx)
         tc.configure_args["--with-cuda"] = root("cuda-driver-stubs") if self.options.with_cuda else "no"
         tc.configure_args["--with-hwloc"] = root("hwloc")
         tc.configure_args["--with-libevent"] = root("libevent")
@@ -132,6 +133,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-ucx"] = root("openucx") if self.options.with_ucx else "no"
         tc.configure_args["--with-zlib"] = root("zlib-ng")
         tc.configure_args["--with-pmix"] = "internal"
+        tc.configure_args["--with-treematch"] = "yes"  # internal
         tc.configure_args["--enable-wrapper-rpath"] = "no"
         tc.configure_args["--enable-wrapper-runpath"] = "no"
         tc.configure_args["--exec-prefix"] = "/"
@@ -146,7 +148,6 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-portals4"] = "no"  # Portals4
         tc.configure_args["--with-psm2"] = "no"  # PSM2
         tc.configure_args["--with-pvfs2"] = "no"  # Pvfs2
-        tc.configure_args["--with-treematch"] = "no"  # TreeMatch
         tc.configure_args["--with-valgrind"] = "no"  # Valgrind
         if Version(self.version) >= "5.0":
             tc.configure_args["--with-curl"] = root("libcurl") if self.options.with_curl else "no"
@@ -212,10 +213,10 @@ class OpenMPIConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # rmdir(self, os.path.join(self.package_folder, "etc"))
+        # rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        # rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -223,8 +224,7 @@ class OpenMPIConan(ConanFile):
         # Based on https://cmake.org/cmake/help/latest/module/FindMPI.html#variables-for-using-mpi
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "MPI")
-        # TODO: Use None when available as Conan feature.
-        self.cpp_info.set_property("pkg_config_name", "_ompi-do-not-use")
+        self.cpp_info.set_property("pkg_config_name", "none")
         # TODO: export a .cmake module to correctly set all variables set by CMake's FindMPI.cmake
 
         requires = [
@@ -265,12 +265,14 @@ class OpenMPIConan(ConanFile):
             self.cpp_info.components["ompi"].requires = ["orte"]
             main_component = self.cpp_info.components["orte"]
 
-        main_component.libs.append("open-pal")
         main_component.includedirs.append(os.path.join("include", "openmpi"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             main_component.system_libs = ["m", "dl", "pthread", "rt", "util"]
         main_component.cflags = ["-pthread"]
         main_component.requires += requires
+
+        self.cpp_info.components["open-pal"].libs = ["open-pal"]
+        main_component.requires.append("open-pal")
 
         if Version(self.version) < "5.0":
             self.cpp_info.components["ompitrace"].set_property("pkg_config_name", "ompitrace")
@@ -299,6 +301,12 @@ class OpenMPIConan(ConanFile):
             self.cpp_info.components["ompi-f77"].requires = ["ompi-fort"]
             self.cpp_info.components["ompi-f90"].set_property("pkg_config_name", "ompi-f90")
             self.cpp_info.components["ompi-f90"].requires = ["ompi-fort"]
+
+        if self.options.with_ucx:
+            self.cpp_info.components["oshmem"].set_property("pkg_config_name", "oshmem")
+            self.cpp_info.components["oshmem"].set_property("pkg_config_aliases", ["oshmem-c", "oshmem-cxx", "oshmem-fort"])
+            self.cpp_info.components["oshmem"].libs = ["oshmem"]
+            self.cpp_info.components["oshmem"].requires = ["ompi", "openucx::openucx"]
 
         bin_folder = os.path.join(self.package_folder, "bin")
         # Prepend to PATH to avoid a conflict with system MPI
