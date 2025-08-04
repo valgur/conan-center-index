@@ -22,7 +22,7 @@ class OpenUCXConan(ConanFile):
     homepage = "http://www.openucx.org/"
     topics = ("networking", "hpc", "mpi", "gemini", "pgas", "rdma", "infiniband", "iwarp", "roce", "cray", "verbs", "shared-memory", "aries")
     package_type = "shared-library"  # static build fails with an internal linker error
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "bfd": [True, False],
         "cma": [True, False],
@@ -97,7 +97,7 @@ class OpenUCXConan(ConanFile):
 
     def configure(self):
         if not self.options.cuda:
-            del self.options.gdrcopy
+            del self.settings.cuda
 
     def requirements(self):
         if any(self.options.get_safe(opt) for opt in ["mad", "mlx5", "rdmacm", "verbs"]):
@@ -110,12 +110,18 @@ class OpenUCXConan(ConanFile):
             self.requires("level-zero/[^1.17.39]")
         if self.options.openmp:
             self.requires("openmp/system")
+        if self.options.cuda:
+            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
         if self.options.mlx5 and not self.options.verbs:
             raise ConanInvalidConfiguration("Option 'mlx5' requires 'verbs' to be enabled.")
+        if self.options.gdrcopy and not self.options.cuda:
+            raise ConanInvalidConfiguration("Option 'gdrcopy' requires 'cuda' to be enabled.")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -148,11 +154,12 @@ class OpenUCXConan(ConanFile):
             enable_disable("openmp", self.options.openmp),
             enable_disable("tuning", self.options.tuning),
             with_without("bfd", self.options.bfd),
+            with_without("cuda", self.options.cuda),
             with_without("dc", self.options.dc),
             with_without("devx", self.options.devx),
             with_without("dm", self.options.dm),
             with_without("fuse3", self.options.fuse3),
-            with_without("gdrcopy", self.options.gdrcopy, "gdrcopy"),
+            with_without("gdrcopy", self.options.gdrcopy),
             with_without("ib-hw-tm", self.options.ib_hw_tm),
             with_without("mad", self.options.mad, "rdma-core"),
             with_without("mlx5", self.options.mlx5),
@@ -168,18 +175,6 @@ class OpenUCXConan(ConanFile):
             with_without("go", False),
             with_without("java", False),
         ])
-
-        if self.options.cuda:
-            cuda_home = tc.vars().get("CUDA_HOME") or os.environ.get("CUDA_HOME")
-            if cuda_home:
-                tc.configure_args.append(f"--with-cuda={cuda_home}")
-            elif os.path.exists("/usr/local/cuda"):
-                tc.configure_args.append("--with-cuda=/usr/local/cuda")
-            else:
-                tc.configure_args.append("--with-cuda")
-        else:
-            tc.configure_args.append("--without-cuda")
-
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -188,7 +183,12 @@ class OpenUCXConan(ConanFile):
         deps = AutotoolsDeps(self)
         deps.generate()
 
+    def _patch_sources(self):
+        if self.options.cuda and not self.dependencies["cudart"].options.shared:
+            replace_in_file(self, os.path.join(self.source_folder, "configure"), "-lcudart", "-lcudart_static")
+
     def build(self):
+        self._patch_sources()
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -248,10 +248,10 @@ class OpenUCXConan(ConanFile):
             return component
 
         if self.options.cuda:
-            ucm_cuda = _define_component("cuda", "ucm_cuda", ["ucm"])
+            ucm_cuda = _define_component("cuda", "ucm_cuda", ["ucm", "cudart::cudart_"])
             if self.options.openmp:
                 ucm_cuda.requires.append("openmp::openmp")
-            _define_component("uct-cuda", "uct_cuda", ["uct"])
+            _define_component("uct-cuda", "uct_cuda", ["uct", "cuda-driver-stubs::cuda-driver-stubs", "nvml-stubs::nvml-stubs"])
             if self.options.gdrcopy:
                  _define_component("uct-cuda-gdrcopy", "uct_cuda_gdrcopy", ["uct-cuda", "gdrcopy::gdrcopy"])
         if self.options.fuse3:
