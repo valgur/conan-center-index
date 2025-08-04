@@ -20,7 +20,7 @@ class OpenMPIConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.open-mpi.org"
     topics = ("mpi", "openmpi")
-    provides = "mpi"
+    provides = ["mpi", "pmix", "prrte"]
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
