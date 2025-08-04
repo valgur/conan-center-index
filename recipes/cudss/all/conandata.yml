@@ -1,0 +1,4 @@
+sources:
+  "0.6.0.5":
+    url: "https://developer.download.nvidia.com/compute/cudss/redist/redistrib_0.6.0.json"
+    sha256: "47e089e7b309eca7f78f7a8430cb08532800d0b575a726b9c8383221e189b3d2"
