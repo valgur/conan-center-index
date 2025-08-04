@@ -1,0 +1,8 @@
+sources:
+  "1.13.0":
+    url: "https://github.com/NVIDIA/cudnn-frontend/archive/refs/tags/v1.13.0.tar.gz"
+    sha256: "165eaf8bf57998691a48972c3b1785aa96cb9f79325094159bf24914ef512244"
+patches:
+  "1.13.0":
+    - patch_file: "patches/1.13.0-add-missing-include.patch"
+      patch_source: "https://github.com/NVIDIA/cudnn-frontend/pull/154"

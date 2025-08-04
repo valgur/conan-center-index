@@ -1,0 +1,10 @@
+--- a/include/cudnn_frontend_utils.h
++++ b/include/cudnn_frontend_utils.h
+@@ -29,6 +29,7 @@
+ #include <iomanip>
+ #include <sstream>
+ #include <cmath>
++#include <cstdint>
+ 
+ #include <cuda_fp16.h>
+ #include <cuda_bf16.h>
