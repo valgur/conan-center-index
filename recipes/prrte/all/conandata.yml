@@ -1,0 +1,4 @@
+sources:
+  "4.0.0":
+    url: "https://github.com/openpmix/prrte/releases/download/v4.0.0/prrte-4.0.0.tar.bz2"
+    sha256: "3c2ec961e0ba0c99128c7bf3545f4789d55a85a70ce958e868ae5e3db6ed4de4"

@@ -7,7 +7,6 @@ from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
@@ -48,10 +47,10 @@ class OpenPMIxConan(ConanFile):
 
     def requirements(self):
         # Used in a pmix/src/hwloc/pmix_hwloc.h public header
-        self.requires("hwloc/[^2.11.1]", transitive_headers=True)
+        self.requires("hwloc/[^2.11.1]")
         self.requires("zlib-ng/[^2.0]")
         # Used in pmix/src/include/pmix_types.h public header
-        self.requires("libevent/[^2.1.12]", transitive_headers=True)
+        self.requires("libevent/[^2.1.12]")
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):
@@ -69,7 +68,7 @@ class OpenPMIxConan(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         def root(pkg):
-            return unix_path(self, self.dependencies[pkg].package_folder)
+            return self.dependencies[pkg].package_folder
 
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
@@ -112,7 +111,6 @@ class OpenPMIxConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "etc"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
@@ -121,11 +119,14 @@ class OpenPMIxConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "pmix")
         self.cpp_info.libs = ["pmix"]
+        self.cpp_info.includedirs.append("include/pmix")
+        self.cpp_info.resdirs = ["etc", "share"]
 
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.runenv_info.prepend_path("PATH", bin_folder)
+        self.runenv_info.prepend_path("PATH", os.path.join(self.package_folder, "bin"))
         self.runenv_info.define_path("PMIX_PREFIX", self.package_folder)
         self.runenv_info.define_path("PMIX_EXEC_PREFIX", self.package_folder)
         self.runenv_info.define_path("PMIX_LIBDIR", os.path.join(self.package_folder, "lib"))
         self.runenv_info.define_path("PMIX_DATADIR", os.path.join(self.package_folder, "share"))
         self.runenv_info.define_path("PMIX_DATAROOTDIR", os.path.join(self.package_folder, "share"))
+        self.buildenv_info.define_path("PMIX_DATADIR", os.path.join(self.package_folder, "share"))
+        self.buildenv_info.define_path("PMIX_DATAROOTDIR", os.path.join(self.package_folder, "share"))
