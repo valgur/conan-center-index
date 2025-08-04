@@ -19,8 +19,8 @@ class OpenMPIConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.open-mpi.org"
-    topics = ("mpi", "openmpi")
-    provides = ["mpi", "pmix", "prrte"]
+    topics = ("mpi", "openmpi", "hpc")
+    provides = ["mpi"]
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
@@ -30,9 +30,6 @@ class OpenMPIConan(ConanFile):
         "with_cuda": [True, False],
         "with_libfabric": [True, False],
         "with_ucx": [True, False],
-        # Added in v5.0
-        "with_curl": [True, False],
-        "with_jansson": [True, False],
         # Removed in v5.0
         "enable_cxx": [True, False],
         "enable_cxx_exceptions": [True, False],
@@ -45,9 +42,6 @@ class OpenMPIConan(ConanFile):
         "with_cuda": False,
         "with_libfabric": False,
         "with_ucx": False,
-        # Added in v5.0
-        "with_curl": False,
-        "with_jansson": False,
         # Removed in v5.0
         "enable_cxx": False,
         "enable_cxx_exceptions": False,
@@ -64,9 +58,6 @@ class OpenMPIConan(ConanFile):
             # and were removed from the implementation in v5.0.
             del self.options.enable_cxx
             del self.options.enable_cxx_exceptions
-        else:
-            del self.options.with_curl
-            del self.options.with_jansson
 
     def configure(self):
         if self.options.shared:
@@ -90,13 +81,11 @@ class OpenMPIConan(ConanFile):
         self.requires("hwloc/[^2.11.1]")
         self.requires("zlib-ng/[^2.0]")
         self.requires("libevent/[^2.1.12]")
+        self.requires("openpmix/[<7]")
+        if Version(self.version) >= "5.0":
+            self.requires("prrte/[<5]")
         if self.settings.os == "Linux":
             self.requires("libnl/[^3.8.0]")
-        if self.options.get_safe("with_curl"):
-            self.requires("libcurl/[>=7.78 <9]")
-        if self.options.get_safe("with_jansson"):
-            # v2.14 is not compatible as of v5.0.5
-            self.requires("jansson/[^2.13.1]")
         if self.options.get_safe("with_libfabric"):
             self.requires("libfabric/1.21.0")
         if self.options.get_safe("with_verbs"):
@@ -113,6 +102,14 @@ class OpenMPIConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) >= "5.0":
+            rmdir(self, "3rd-party/openpmix")
+            rmdir(self, "3rd-party/prrte")
+            rm(self, "hwloc-*", "3rd-party")
+            rm(self, "libevent-*", "3rd-party")
+        else:
+            rmdir(self, "opal/mca/event/libevent2022/libevent")
+            rmdir(self, "opal/mca/pmix/pmix3x/pmix")
 
     def generate(self):
         def root(pkg):
@@ -132,7 +129,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-ofi"] = root("libfabric") if self.options.get_safe("with_libfabric") else "no"
         tc.configure_args["--with-ucx"] = root("openucx") if self.options.with_ucx else "no"
         tc.configure_args["--with-zlib"] = root("zlib-ng")
-        tc.configure_args["--with-pmix"] = "internal"
+        tc.configure_args["--with-pmix"] = root("openpmix")
         tc.configure_args["--with-treematch"] = "yes"  # internal
         tc.configure_args["--enable-wrapper-rpath"] = "no"
         tc.configure_args["--enable-wrapper-runpath"] = "no"
@@ -150,9 +147,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-pvfs2"] = "no"  # Pvfs2
         tc.configure_args["--with-valgrind"] = "no"  # Valgrind
         if Version(self.version) >= "5.0":
-            tc.configure_args["--with-curl"] = root("libcurl") if self.options.with_curl else "no"
-            tc.configure_args["--with-jansson"] = root("jansson") if self.options.with_jansson else "no"
-            tc.configure_args["--with-prrte"] = "internal"  # PMIx runtime
+            tc.configure_args["--with-prrte"] = root("prrte")  # PMIx runtime
             tc.configure_args["--enable-sphinx"] = "no"  # only used for docs
             tc.configure_args["--with-argobots"] = "no"  # argobots
             tc.configure_args["--with-cxi"] = "no"  # CXI
@@ -180,6 +175,8 @@ class OpenMPIConan(ConanFile):
         # Not adding it as it fails to be detected by ./configure in some cases.
         # https://github.com/open-mpi/ompi/blob/v4.1.6/opal/mca/dl/dl.h#L20-L25
         tc.configure_args["--with-libltdl"] = "no"
+        # Disable a PMIx linking check
+        tc.configure_args["oac_cv_check_package_pmix_wrapper_compiler_static_libs"] = ""
         tc.generate()
 
         deps = AutotoolsDeps(self)
@@ -213,10 +210,10 @@ class OpenMPIConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        # rmdir(self, os.path.join(self.package_folder, "etc"))
-        # rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-        # rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -231,13 +228,10 @@ class OpenMPIConan(ConanFile):
             "hwloc::hwloc",
             "libevent::libevent",
             "zlib-ng::zlib-ng",
+            "openpmix::openpmix",
         ]
         if self.settings.os == "Linux":
             requires.append("libnl::libnl")
-        if self.options.get_safe("with_curl"):
-            requires.append("libcurl::libcurl")
-        if self.options.get_safe("with_jansson"):
-            requires.append("jansson::jansson")
         if self.options.get_safe("with_libfabric"):
             requires.append("libfabric::libfabric")
         if self.options.get_safe("with_verbs"):
@@ -252,27 +246,20 @@ class OpenMPIConan(ConanFile):
         self.cpp_info.components["ompi"].libs = ["mpi"]
 
         if Version(self.version) >= "5.0":
-            self.cpp_info.components["pmix"].set_property("pkg_config_name", "pmix")
-            self.cpp_info.components["pmix"].libs = ["pmix"]
-            self.cpp_info.components["prrte"].set_property("pkg_config_name", "prrte")
-            self.cpp_info.components["prrte"].libs = ["prrte"]
-            self.cpp_info.components["prrte"].requires = ["pmix"]
-            self.cpp_info.components["ompi"].requires = ["pmix"]
-            main_component = self.cpp_info.components["ompi"]
+            self.cpp_info.components["ompi"].requires = ["prrte::prrte"]
+            self.cpp_info.components["ompi"].requires.append("open-pal")
         else:
             self.cpp_info.components["orte"].set_property("pkg_config_name", "orte")
             self.cpp_info.components["orte"].libs = ["open-rte"]
+            self.cpp_info.components["orte"].requires.append("open-pal")
             self.cpp_info.components["ompi"].requires = ["orte"]
-            main_component = self.cpp_info.components["orte"]
-
-        main_component.includedirs.append(os.path.join("include", "openmpi"))
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            main_component.system_libs = ["m", "dl", "pthread", "rt", "util"]
-        main_component.cflags = ["-pthread"]
-        main_component.requires += requires
 
         self.cpp_info.components["open-pal"].libs = ["open-pal"]
-        main_component.requires.append("open-pal")
+        self.cpp_info.components["open-pal"].includedirs.append(os.path.join("include", "openmpi"))
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.components["open-pal"].system_libs = ["m", "dl", "pthread", "rt", "util"]
+        self.cpp_info.components["open-pal"].cflags = ["-pthread"]
+        self.cpp_info.components["open-pal"].requires = requires
 
         if Version(self.version) < "5.0":
             self.cpp_info.components["ompitrace"].set_property("pkg_config_name", "ompitrace")
