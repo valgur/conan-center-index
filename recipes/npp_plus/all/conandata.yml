@@ -1,0 +1,4 @@
+sources:
+  "0.10.0.0":
+    url: "https://developer.download.nvidia.com/compute/nppplus/redist/redistrib_0.10.0.json"
+    sha256: "876789882db1db54f9767c4e48c0786c9a360b5a0fc756a571c31770cb2f5f8a"
