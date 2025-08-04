@@ -28,6 +28,7 @@ class OpenMPIConan(ConanFile):
         "fPIC": [True, False],
         "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"],
         "with_libfabric": [True, False],
+        "with_ucx": [True, False],
         # Added in v5.0
         "with_curl": [True, False],
         "with_jansson": [True, False],
@@ -41,6 +42,7 @@ class OpenMPIConan(ConanFile):
         "fPIC": True,
         "fortran": "no",
         "with_libfabric": False,
+        "with_ucx": False,
         # Added in v5.0
         "with_curl": False,
         "with_jansson": False,
@@ -95,6 +97,8 @@ class OpenMPIConan(ConanFile):
             self.requires("libfabric/1.21.0")
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/52.0")
+        if self.options.with_ucx:
+            self.requires("openucx/[^1.19.0-rc2, include_prerelease]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -122,6 +126,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-libevent"] = root("libevent")
         tc.configure_args["--with-libnl"] = root("libnl") if not is_apple_os(self) else "no"
         tc.configure_args["--with-ofi"] = root("libfabric") if self.options.get_safe("with_libfabric") else "no"
+        tc.configure_args["--with-ucx"] = root("openucx") if self.options.with_ucx else "no"
         tc.configure_args["--with-zlib"] = root("zlib-ng")
         tc.configure_args["--with-pmix"] = "internal"
         tc.configure_args["--enable-wrapper-rpath"] = "no"
@@ -140,7 +145,6 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-psm2"] = "no"  # PSM2
         tc.configure_args["--with-pvfs2"] = "no"  # Pvfs2
         tc.configure_args["--with-treematch"] = "no"  # TreeMatch
-        tc.configure_args["--with-ucx"] = "no"  # UCX
         tc.configure_args["--with-valgrind"] = "no"  # Valgrind
         if Version(self.version) >= "5.0":
             tc.configure_args["--with-curl"] = root("libcurl") if self.options.with_curl else "no"
@@ -236,6 +240,8 @@ class OpenMPIConan(ConanFile):
             requires.append("libfabric::libfabric")
         if self.options.get_safe("with_verbs"):
             requires.extend(["rdma-core::libibverbs", "rdma-core::librdmacm"])
+        if self.options.with_ucx:
+            requires.append("openucx::openucx")
 
         # The components are modelled based on OpenMPI's pkg-config files
         self.cpp_info.components["ompi"].set_property("pkg_config_name", "ompi")
