@@ -3,7 +3,8 @@ include_guard()
 # Find all packagages supported by FindCUDAToolkit.cmake as of CMake v4.0.3
 foreach(pkg
         cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
-        nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl)
+        nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl
+        nvcc-headers libcudacxx thrust cub)
     find_package(${pkg} QUIET)
     if(NOT ${pkg}_FOUND)
         continue()
