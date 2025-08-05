@@ -47,7 +47,7 @@ class OpenUCXConan(ConanFile):
     default_options = {
         "bfd": True,
         "cma": False,
-        "cuda": False,
+        "cuda": True,
         "dc": False,
         "devx": False,
         "dm": False,
@@ -92,12 +92,23 @@ class OpenUCXConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def configure(self):
         if not self.options.cuda:
             del self.settings.cuda
+
+    def package_id(self):
+        if self.info.options.cuda:
+            # No CUDA kernels are built by the project
+            del self.info.settings.cuda.architectures
 
     def requirements(self):
         if any(self.options.get_safe(opt) for opt in ["mad", "mlx5", "rdmacm", "verbs"]):
@@ -131,6 +142,8 @@ class OpenUCXConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("libtool/[^2.4.7]")
+        if self.options.cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -184,9 +197,13 @@ class OpenUCXConan(ConanFile):
         deps = AutotoolsDeps(self)
         deps.generate()
 
+        if self.options.cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
+
     def _patch_sources(self):
         if self.options.cuda and not self.dependencies["cudart"].options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "config/m4/cuda.m4"), "-lcudart", "-lcudart_static")
+            replace_in_file(self, os.path.join(self.source_folder, "config/m4/cuda.m4"), "cudart", "cudart_static")
 
     def build(self):
         self._patch_sources()
