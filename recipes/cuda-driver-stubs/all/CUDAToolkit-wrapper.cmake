@@ -20,10 +20,17 @@ foreach(pkg
     endif()
 endforeach()
 
+if(NOT TARGET CUDA::toolkit)
+    add_library(CUDA::toolkit IMPORTED INTERFACE)
+    target_include_directories(CUDA::toolkit SYSTEM INTERFACE "${CUDAToolkit_INCLUDE_DIRS}")
+    target_link_directories(CUDA::toolkit INTERFACE "${CUDAToolkit_LIBRARY_DIR}")
+endif()
+
+
+# Find NVCC and set some expected paths based on it
 set(CUDAToolkit_BIN_DIR)
 set(CUDAToolkit_TARGET_DIR)
 set(CUDAToolkit_LIBRARY_ROOT)
-
 if(FALSE AND DEFINED ENV{CUDACXX})
     set(CUDAToolkit_NVCC_EXECUTABLE "$ENV{CUDACXX}")
 else()
