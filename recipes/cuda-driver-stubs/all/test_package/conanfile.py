@@ -9,11 +9,21 @@ class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeToolchain", "CMakeDeps"
 
+    _test_FindCUDAToolkit = False
+
     def layout(self):
         cmake_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        if self._test_FindCUDAToolkit:
+            for pkg in ["cudart", "cublas", "cufile", "cufft", "curand", "cusolver", "cusparse", "cupti", "npp",
+                        "nvjpeg", "nvml-stubs", "nvptxcompiler", "nvrtc", "nvjitlink", "nvfatbin", "nvtx", "cuda-opencl"]:
+                self.requires(f"{pkg}/[*]")
+
+    def build_requirements(self):
+        if self._test_FindCUDAToolkit:
+            self.tool_requires("nvcc/[*]")
 
     def build(self):
         cmake = CMake(self)

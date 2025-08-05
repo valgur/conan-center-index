@@ -23,6 +23,9 @@ class CudaDriverStubsConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
+    def export_sources(self):
+        copy(self, "CUDAToolkit-wrapper.cmake", self.recipe_folder, self.export_sources_folder)
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -43,9 +46,16 @@ class CudaDriverStubsConan(ConanFile):
             copy(self, "libcuda.so", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib"))
         else:
             copy(self, "cuda.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
+        copy(self, "CUDAToolkit-wrapper.cmake", self.export_sources_folder, os.path.join(self.package_folder, "share", "conan"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "CUDA::cuda_driver")
         v = Version(self.version)
         self.cpp_info.set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
         self.cpp_info.libs = ["cuda"]
+
+        # Also install the wrapper for FindCUDAToolkit.cmake as cuda-driver-stubs is the root dependency for all other CUDA toolkit packages
+        self.cpp_info.set_property("cmake_find_mode", "both")
+        self.cpp_info.set_property("cmake_file_name", "CUDAToolkit")
+        self.cpp_info.set_property("cmake_build_modules", ["share/conan/CUDAToolkit-wrapper.cmake"])
+        self.cpp_info.builddirs = ["share/conan"]

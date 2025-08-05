@@ -81,10 +81,6 @@ class CudartConan(ConanFile):
             rm(self, "*cudart.*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
-        # TODO: create a complete wrapper for CUDAToolkit.cmake
-        self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.set_property("cmake_file_name", "CUDAToolkit")
-
         lib = "cudart" if self.options.shared else "cudart_static"
         self.cpp_info.components["cudart_"].set_property("cmake_target_name", f"CUDA::{lib}")
         v = Version(self.version)
