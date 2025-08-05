@@ -54,7 +54,6 @@ class CudlaConan(ConanFile):
         v = Version(self.version)
         self.cpp_info.set_property("cmake_target_name", "CUDA::cudla")
         self.cpp_info.set_property("pkg_config_name", f"libcudla-{v.major}.{v.minor}")
-        self.cpp_info.set_property("system_package_version", f"{v.major}.{v.minor}")
         self.cpp_info.libs = ["cudla"]
         if self.options.use_stubs:
             self.cpp_info.libdirs = ["lib/stubs", "lib"]

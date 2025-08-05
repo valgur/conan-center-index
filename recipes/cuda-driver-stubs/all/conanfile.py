@@ -48,5 +48,4 @@ class CudaDriverStubsConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CUDA::cuda_driver")
         v = Version(self.version)
         self.cpp_info.set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
-        self.cpp_info.set_property("system_package_version", f"{v.major}.{v.minor}")
         self.cpp_info.libs = ["cuda"]

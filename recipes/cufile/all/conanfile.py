@@ -97,7 +97,6 @@ class CuFileConan(ConanFile):
 
         if self.options.cufile_rdma:
             self.cpp_info.components["cufile_rdma"].set_property("pkg_config_name", f"cufile_rdma-{v.major}.{v.minor}")
-            self.cpp_info.components["cufile_rdma"].set_property("component_version", f"{v.major}.{v.minor}")
             lib = "cufile_rdma" if self.options.shared else "cufile_rdma_static"
             self.cpp_info.components["cufile_rdma"].set_property("cmake_target_name", f"CUDA::{lib}")
             if self.options.cmake_alias:

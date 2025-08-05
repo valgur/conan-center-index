@@ -83,7 +83,6 @@ class CublasConan(ConanFile):
             alias = "cublas_static" if self.options.get_safe("shared", True) else "cublas"
             self.cpp_info.components["cublas_"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.components["cublas_"].set_property("pkg_config_name", f"cublas-{v.major}.{v.minor}")
-        self.cpp_info.components["cublas_"].set_property("component_version", f"{v.major}.{v.minor}")
         self.cpp_info.components["cublas_"].libs = [lib]
         self.cpp_info.components["cublas_"].srcdirs = ["share/cublas/src"]
         if self.options.get_safe("use_stubs"):

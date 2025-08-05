@@ -86,7 +86,6 @@ class NvJpegConan(ConanFile):
         alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
         v = self._cuda_version
         self.cpp_info.set_property("pkg_config_name", f"nvjpeg-{v.major}.{v.minor}")
-        self.cpp_info.set_property("system_package_version", f"{v.major}.{v.minor}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::nvjpeg{suffix}")
         if self.options.get_safe("cmake_alias"):
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::nvjpeg{alias_suffix}"])

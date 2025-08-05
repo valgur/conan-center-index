@@ -57,7 +57,6 @@ class CudaOpenCLConan(ConanFile):
     def package_info(self):
         v = self._cuda_version
         self.cpp_info.set_property("pkg_config_name", f"opencl-{v.major}.{v.minor}")
-        self.cpp_info.set_property("system_package_version", f"{v.major}.{v.minor}")
         self.cpp_info.set_property("cmake_target_name", "CUDA::OpenCL")
         self.cpp_info.libs = ["OpenCL"]
         self.cpp_info.bindirs = []
