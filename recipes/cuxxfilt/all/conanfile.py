@@ -13,7 +13,7 @@ class CuxxfiltConan(ConanFile):
     license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "demangler")
-    package_type = "application"
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
 
     python_requires = "conan-utils/latest"
@@ -38,8 +38,10 @@ class CuxxfiltConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        libdir = os.path.join(self.source_folder, "lib", "x64") if self.settings.os == "Windows" else os.path.join(self.source_folder, "lib")
+        copy(self, "*", libdir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.libdirs = []
-        self.cpp_info.includedirs = []
-        self.cpp_info.resdirs = []
+        self.cpp_info.libs = ["cufilt"]
+        self.cpp_info.system_libs = ["gcc_s", "stdc++"]
