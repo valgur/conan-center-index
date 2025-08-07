@@ -1,0 +1,4 @@
+sources:
+  "1.5.0":
+    url: "https://github.com/openucx/ucc/archive/refs/tags/v1.5.0.tar.gz"
+    sha256: "7ab61a3215616ee9a7a6f51e61cfaac9e7055a12b233aef8d4a7218d2cb3860f"

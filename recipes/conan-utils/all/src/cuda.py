@@ -26,11 +26,15 @@ class NvccToolchain:
         if not skip_arch_flags:
             self.cudaflags.extend(self.arch_flags)
         if "cudart" in self.conanfile.dependencies.host:
-            cudart_info = self.conanfile.dependencies.host["cudart"].cpp_info
             runtime_type = "shared" if self.conanfile.dependencies.host["cudart"].options.shared else "static"
             self.cudaflags.append(f"--cudart={runtime_type}")
-            self.cudaflags.append(f"-L{cudart_info.libdir}")
-            self.cudaflags.append(f"-I{cudart_info.includedir}")
+            for pkg in ["cudart", "nvcc-headers", "cuda-driver-stubs", "libcudacxx"]:
+                if pkg in self.conanfile.dependencies.host:
+                    pkg_info = self.conanfile.dependencies.host[pkg].cpp_info
+                    if pkg_info.libdirs:
+                        self.cudaflags.append(f"-L{pkg_info.libdir}")
+                    if pkg_info.includedirs:
+                        self.cudaflags.append(f"-I{pkg_info.includedir}")
         self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", "").split())
         self.extra_cudaflags = []
 
