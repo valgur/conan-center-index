@@ -13,7 +13,7 @@ from conan.tools.scm import Version
 
 
 class NvccToolchain:
-    def __init__(self, conanfile: ConanFile):
+    def __init__(self, conanfile: ConanFile, skip_arch_flags=False):
         self.conanfile = conanfile
 
         if not self.conanfile.settings.get_safe("cuda.version"):
@@ -23,7 +23,8 @@ class NvccToolchain:
                                  "Please specify at least one architecture, e.g. 'cuda.architectures=70,75'.")
 
         self.cudaflags = []
-        self.cudaflags.extend(self.arch_flags)
+        if not skip_arch_flags:
+            self.cudaflags.extend(self.arch_flags)
         if "cudart" in self.conanfile.dependencies.host:
             cudart_info = self.conanfile.dependencies.host["cudart"].cpp_info
             runtime_type = "shared" if self.conanfile.dependencies.host["cudart"].options.shared else "static"
