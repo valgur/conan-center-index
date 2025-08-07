@@ -1,0 +1,4 @@
+sources:
+  "0.5.0.898":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.5.0.json"
+    sha256: "05744a36366835c2c848e12496defcd88dd92e3b497de1509d1e7a5d5460d5eb"
