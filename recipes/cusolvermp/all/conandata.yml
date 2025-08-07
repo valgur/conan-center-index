@@ -1,0 +1,4 @@
+sources:
+  "0.6.0.712":
+    url: "https://developer.download.nvidia.com/compute/cusolvermp/redist/redistrib_0.6.0.json"
+    sha256: "4b265dbcb6f36361b35ae5e78939eb86ea530c3b8162c2c94f1ee41ead12e7bb"
