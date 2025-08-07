@@ -1,0 +1,13 @@
+# See https://github.com/valgur/NVSHMEM-mirror for a mirror of the source code.
+sources:
+  "3.3.20":
+    url: "https://developer.nvidia.com/downloads/assets/secure/nvshmem/nvshmem_src_cuda12-all-all-3.3.20.tar.gz"
+    sha256: "96ec9620e82ec90de92c7d61a7ba03c0eba05075bf10e1fc4a066d45e7f7d21f"
+patches:
+  "3.3.20":
+    - patch_file: "patches/3.3.20-cmake-fixes.patch"
+      patch_description: "CMake tweaks for compatibility with Conan"
+      patch_type: "conan"
+    - patch_file: "patches/3.3.9-dont-add-build-paths-as-defines.patch"
+      patch_description: "Don't embed build paths as defines in public headers"
+      patch_type: "conan"
