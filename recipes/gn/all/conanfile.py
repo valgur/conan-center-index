@@ -1,17 +1,12 @@
 import os
-import shutil
-import sys
 import textwrap
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import *
+from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -35,85 +30,46 @@ class GnConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
 
-    @property
-    def _min_cppstd(self):
-        if self.version == "cci.20210429":
-            return 17
-        else:
-            return 20
-
-    @property
-    def _minimum_compiler_version(self):
-        if self._min_cppstd == 17:
-            return {
-                "msvc": 191,
-                "gcc": 7,
-                "clang": 4,
-                "apple-clang": 10,
-            }.get(str(self.settings.compiler))
-        else:
-            return {
-                "gcc": "11",
-                "clang": "12",
-                "apple-clang": "15",
-                "msvc": "192",
-            }.get(str(self.settings.compiler))
-
     def validate_build(self):
-        check_min_cppstd(self, self._min_cppstd)
-        if self._minimum_compiler_version and Version(self.settings.compiler.version) < self._minimum_compiler_version:
-            raise ConanInvalidConfiguration(f"gn requires a compiler supporting C++{self._min_cppstd}")
+        check_min_cppstd(self, 20)
 
     def build_requirements(self):
-        # FIXME: add cpython build requirements for `build/gen.py`.
-        self.tool_requires("ninja/[^1.10]")
+        self.tool_requires("ninja/[>=1.11.1 <2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
         apply_conandata_patches(self)
 
-    @property
-    def _gn_platform(self):
-        if is_apple_os(self):
-            return "darwin"
-        if is_msvc(self):
-            return "msvc"
-        # Assume gn knows about the os
-        return str(self.settings.os).lower()
+        # if compiler is not defined via Conan config (e.g. CXX buildenv flag, or compiler config),
+        # default to `c++` executable, which is the system default on most systems
+        replace_in_file(self, os.path.join(self.source_folder, "build/gen.py"), "'clang++'", "'c++'")
 
-    @property
-    def _cxx(self):
-        compilers_by_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
-        cxx = compilers_by_conf.get("cpp") or VirtualBuildEnv(self).vars().get("CXX")
-        if cxx:
-            return cxx
-        if self.settings.compiler == "apple-clang":
-            return XCRun(self).cxx
-        compiler_version = self.settings.compiler.version
-        major = Version(compiler_version).major
-        if self.settings.compiler == "gcc":
-            return shutil.which(f"g++-{compiler_version}") or shutil.which(f"g++-{major}") or shutil.which("g++") or ""
-        if self.settings.compiler == "clang":
-            return shutil.which(f"clang++-{compiler_version}") or shutil.which(f"clang++-{major}") or shutil.which("clang++") or ""
-        return ""
+        # support windows arm64
+        replace_in_file(self, os.path.join(self.source_folder, "src", "util", "build_config.h"),
+                        "defined(__aarch64__)", "defined(__aarch64__) || defined(_M_ARM64)")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
-        # Make sure CXX env var is set, otherwise gn defaults it to clang++
-        # https://gn.googlesource.com/gn/+/refs/heads/main/build/gen.py#386
-        env = Environment()
-        env.define("CXX", self._cxx)
-        env.vars(self).save_script("conanbuild_gn")
 
         if is_msvc(self):
             vcvars = VCVars(self)
             vcvars.generate()
+        else:
+            # gen.py listens to CXX, LD, CFLAGS, CXXFLAGS, which are defined by AutotoolsToolchain,
+            # this handles compiler (if other than default) and cross-compilation flags (e.g. macOS)
+            tc = AutotoolsToolchain(self)
+            tc.generate()
+
+        if self.settings.os == "Windows":
+            gn_platform = "msvc"
+        elif self.settings.os == "Macos":
+            gn_platform = "darwin"
+        else:
+            # may not work, best guess
+            gn_platform = str(self.settings.os).lower()
 
         configure_args = [
             "--no-last-commit-position",
-            f"--host={self._gn_platform}",
+            f"--host={gn_platform}",
         ]
         if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
             configure_args.append("-d")
@@ -132,10 +88,17 @@ class GnConan(ConanFile):
                 """),
              )
 
+        build_gen_py = os.path.join(self.source_folder, "build", "gen.py")
+
         # Disable GenerateLastCommitPosition()
-        replace_in_file(self, os.path.join(self.source_folder, "build/gen.py"),
+        replace_in_file(self, build_gen_py,
                         "def GenerateLastCommitPosition(host, header):",
                         "def GenerateLastCommitPosition(host, header):\n  return")
+
+        if is_msvc(self):
+            if self.settings.build_type not in ["Debug", "RelWithDebInfo"]:
+                replace_in_file(self, build_gen_py, "'/DEBUG', ", "")
+                replace_in_file(self, build_gen_py, "'/MACHINE:x64', ", "")
 
         if self.version.startswith("qt-"):
             replace_in_file(self, os.path.join(self.source_folder, "build", "gen.py"),
@@ -144,19 +107,16 @@ class GnConan(ConanFile):
     def build(self):
         self._patch_sources()
         with chdir(self, self.source_folder):
-            self.run(f"{sys.executable} build/gen.py " + load(self, "configure_args"))
-            self.run(f"ninja -C out -j{os.cpu_count()} -v")
+            python = "python" if self.settings_build.os == "Windows" else "python3"
+            self.run(f"{python} build/gen.py " + load(self, "configure_args"))
+            build_jobs = self.conf.get("tools.build:jobs", default=os.cpu_count())
+            verbose = "-v" if self.conf.get("tools.compilation:verbosity") == "verbose" else ""
+            self.run(f"ninja -C out -j{build_jobs} {verbose}")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        if self.settings.os == "Windows":
-            copy(self, "gn.exe",
-                 src=os.path.join(self.source_folder, "out"),
-                 dst=os.path.join(self.package_folder, "bin"))
-        else:
-            copy(self, "gn",
-                 src=os.path.join(self.source_folder, "out"),
-                 dst=os.path.join(self.package_folder, "bin"))
+        gn_bin = "gn.exe" if self.settings.os == "Windows" else "gn"
+        copy(self, gn_bin, src=os.path.join(self.source_folder, "out"), dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.includedirs = []

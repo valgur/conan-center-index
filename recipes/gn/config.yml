@@ -1,7 +1,7 @@
 versions:
-  "qt-6.9.0":
+  "cci.20250528":
     folder: all
   "cci.20240611":
     folder: all
-  "cci.20210429":
+  "qt-6.9.0":
     folder: all

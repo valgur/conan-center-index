@@ -34,10 +34,7 @@ class CpptraceConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if Version(self.version) >= "0.4.0":
-            self.requires("libdwarf/0.11.1")
-        else:
-            self.requires("libdwarf/0.8.0")
+        self.requires("libdwarf/[>=0.8.0 <1]")
         if self.options.unwind == "libunwind":
             self.requires("libunwind/[^1.8.0]", transitive_libs=True)
 
@@ -46,25 +43,16 @@ class CpptraceConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
         if Version(self.version) >= "0.7.5":
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "Autoconfig.cmake"),
                             "set(CMAKE_CXX_STANDARD 11)", "")
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         if is_msvc(self):
             tc.variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
-        if Version(self.version) >= "0.3.0":
-            tc.variables["CPPTRACE_USE_EXTERNAL_LIBDWARF"] = True
-            tc.variables["CPPTRACE_CONAN"] = True
-        else:
-            if not self.options.shared:
-                tc.variables["CPPTRACE_STATIC"] = True
-            tc.variables["CPPTRACE_USE_SYSTEM_LIBDWARF"] = True
+        tc.variables["CPPTRACE_USE_EXTERNAL_LIBDWARF"] = True
+        tc.variables["CPPTRACE_CONAN"] = True
         if self.options.unwind == "libunwind":
             tc.variables["CPPTRACE_UNWIND_WITH_LIBUNWIND"] = True
         tc.cache_variables["CPPTRACE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)

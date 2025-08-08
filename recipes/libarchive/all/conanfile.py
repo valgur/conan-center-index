@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -133,6 +134,9 @@ class LibarchiveConan(ConanFile):
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
         tc = CMakeToolchain(self)
+        # CMake 4 support
+        if Version(self.version) < "3.7.9":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         # turn off deps to avoid picking up them accidentally
         tc.variables["ENABLE_NETTLE"] = self.options.with_nettle
         tc.variables["ENABLE_OPENSSL"] = self.options.with_openssl

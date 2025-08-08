@@ -26,7 +26,7 @@ class SpirvReflectConan(ConanFile):
         self.requires(f"spirv-headers/{self.version}", transitive_headers=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <5]")
+        self.tool_requires("cmake/[>=3.24]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -47,7 +47,7 @@ class SpirvReflectConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if Version(self.version) < "1.4.313.0":

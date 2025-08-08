@@ -34,32 +34,21 @@ class AwsCCal(ConanFile):
     def _needs_openssl(self):
         return not (self.settings.os == "Windows" or is_apple_os(self))
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.version == "0.8.3":
-            self.requires("aws-c-common/0.11.0", transitive_headers=True, transitive_libs=True)
-        elif self.version == "0.6.14":
-            self.requires("aws-c-common/0.9.15", transitive_headers=True, transitive_libs=True)
-        elif self.version == "0.5.12":
-            self.requires("aws-c-common/0.6.11", transitive_headers=True, transitive_libs=True)
+        self.requires("aws-c-common/0.12.3", transitive_headers=True, transitive_libs=True)
         if self._needs_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["USE_OPENSSL"] = self._needs_openssl
-        if Version(self.version) < "0.8.3":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

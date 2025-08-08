@@ -52,12 +52,6 @@ class CrashpadConan(ConanFile):
         elif self.settings.os == "Android":
             self.options.http_transport = "socket"
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        if self.options.http_transport != "socket":
-            self.options.rm_safe("with_tls")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -82,8 +76,8 @@ class CrashpadConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("ninja/[^1.10]")
-        self.tool_requires("gn/cci.20210429")
+        self.tool_requires("ninja/[>=1.10.2 <2]")
+        self.tool_requires("gn/[>=cci.20210429]")
         self.tool_requires("cpython/[^3.12]")
         if self.settings_build.os == "Windows":
             self.win_bash = True

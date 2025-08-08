@@ -1,19 +1,10 @@
 sources:
-  "3.50.1":
-    url: "https://sqlite.org/2025/sqlite-autoconf-3500100.tar.gz"
-    sha256: "00a65114d697cfaa8fe0630281d76fd1b77afcd95cd5e40ec6a02cbbadbfea71"
-  "3.49.1":
-    url: "https://sqlite.org/2025/sqlite-autoconf-3490100.tar.gz"
-    sha256: "106642d8ccb36c5f7323b64e4152e9b719f7c0215acf5bfeac3d5e7f97b59254"
-  "3.48.0":
-    url: "https://sqlite.org/2025/sqlite-autoconf-3480000.tar.gz"
-    sha256: "ac992f7fca3989de7ed1fe99c16363f848794c8c32a158dafd4eb927a2e02fd5"
-  "3.47.2":
-    url: "https://sqlite.org/2024/sqlite-autoconf-3470200.tar.gz"
-    sha256: "f1b2ee412c28d7472bc95ba996368d6f0cdcf00362affdadb27ed286c179540b"
-  "3.46.1":
-    url: "https://sqlite.org/2024/sqlite-autoconf-3460100.tar.gz"
-    sha256: "67d3fe6d268e6eaddcae3727fce58fcc8e9c53869bdd07a0c61e38ddf2965071"
+  "3.50.4":
+    url: "https://sqlite.org/2025/sqlite-autoconf-3500400.tar.gz"
+    sha256: "a3db587a1b92ee5ddac2f66b3edb41b26f9c867275782d46c3a088977d6a5b18"
+  "3.49.2":
+    url: "https://sqlite.org/2025/sqlite-autoconf-3490200.tar.gz"
+    sha256: "5c6d8697e8a32a1512a9be5ad2b2e7a891241c334f56f8b0fb4fc6051e1652e8"
   "3.45.3":
     url: "https://sqlite.org/2024/sqlite-autoconf-3450300.tar.gz"
     sha256: "b2809ca53124c19c60f42bf627736eae011afdcc205bb48270a5ee9a38191531"
@@ -21,5 +12,5 @@ sources:
     url: "https://sqlite.org/2023/sqlite-autoconf-3440200.tar.gz"
     sha256: "1c6719a148bc41cf0f2bbbe3926d7ce3f5ca09d878f1246fcc20767b175bb407"
 icon:
-  url: "https://raw.githubusercontent.com/sqlite/sqlite/refs/tags/version-3.50.1/art/sqlite370.ico"
+  url: "https://raw.githubusercontent.com/sqlite/sqlite/refs/tags/version-3.50.4/art/sqlite370.ico"
   sha256: "8d1976b86205bd357f1d03e5df3d5e435c7978c0eaa40c3b48a732fcccf3800b"

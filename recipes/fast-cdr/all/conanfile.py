@@ -38,17 +38,17 @@ class FastCDRConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if Version(self.version) >= "1.1.0":
-            self.tool_requires("cmake/[>=3.16.3 <5]")
+        self.tool_requires("cmake/[>=3.16.3 <5]")
 
     def validate(self):
         check_min_cppstd(self, 11)
+
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             # This combination leads to an fast-cdr error when linking
             # linking dynamic '*.dll' and static MT runtime
             # see https://github.com/eProsima/Fast-CDR/blob/v1.0.21/include/fastcdr/eProsima_auto_link.h#L37
             # (2021-05-31)
-            raise ConanInvalidConfiguration("Mixing a dll eprosima library with a static runtime is a bad idea")
+            raise ConanInvalidConfiguration("Windows msvc static runtime is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

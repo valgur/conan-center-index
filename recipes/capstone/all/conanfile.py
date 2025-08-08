@@ -37,12 +37,12 @@ class CapstoneConan(ConanFile):
         "use_default_alloc": True,
     }
 
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
+
     _archs = ["arm", "m68k", "mips", "ppc", "sparc", "sysz", "xcore", "x86", "tms320c64x", "m680x", "evm"]
     options.update({a: [True, False] for a in _archs})
     default_options.update({a: True for a in _archs})
-
-    implements = ["auto_shared_fpic"]
-    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -56,19 +56,16 @@ class CapstoneConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) < "5.0":
-            tc.variables["CAPSTONE_BUILD_STATIC"] = not self.options.shared
-            tc.variables["CAPSTONE_BUILD_SHARED"] = self.options.shared
-        tc.variables["CAPSTONE_BUILD_TESTS"] = False
-        tc.variables["CAPSTONE_BUILD_CSTOOL"] = False
-        tc.variables["CAPSTONE_ARCHITECUTRE_DEFAULT"] = False
-        if Version(self.version) < "5.0":
-            tc.variables["CAPSTONE_USE_SYS_DYN_MEM"] = self.options.use_default_alloc
-        else:
-            tc.variables["CAPSTONE_USE_DEFAULT_ALLOC"] = self.options.use_default_alloc
+        tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.shared
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["BUILD_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
+
+        tc.cache_variables["CAPSTONE_BUILD_TESTS"] = False
+        tc.cache_variables["CAPSTONE_BUILD_CSTOOL"] = False
+        tc.cache_variables["CAPSTONE_ARCHITECUTRE_DEFAULT"] = False
+        tc.cache_variables["CAPSTONE_USE_DEFAULT_ALLOC"] = self.options.use_default_alloc
         for a in self._archs:
-            tc.variables[f"CAPSTONE_{a.upper()}_SUPPORT"] = self.options.get_safe(a)
-        tc.variables["CAPSTONE_BUILD_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
+            tc.cache_variables[f"CAPSTONE_{a.upper()}_SUPPORT"] = self.options.get_safe(a)
         tc.generate()
 
     def build(self):
@@ -84,7 +81,6 @@ class CapstoneConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        suffix = "_dll" if is_msvc(self) and self.options.shared and Version(self.version) < "5.0" else ""
-        self.cpp_info.libs = [f"capstone{suffix}"]
+        self.cpp_info.libs = ["capstone"]
         if self.options.shared:
             self.cpp_info.defines.append("CAPSTONE_SHARED")
