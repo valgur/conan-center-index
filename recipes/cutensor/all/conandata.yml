@@ -1,0 +1,4 @@
+sources:
+  "2.2.0.0":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.2.0.json"
+    sha256: "32a73efe841e39ff5624ca000f6bcc51afc23ae3e14ae67ff15b13d9981b403a"
