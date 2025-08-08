@@ -1,0 +1,4 @@
+sources:
+  "0.7.1.0":
+    url: "https://developer.download.nvidia.com/compute/cusparselt/redist/redistrib_0.7.1.json"
+    sha256: "a6bb3fb44f0ecae0d87950127ec47de59486143c5c968c06447b6689d661d2bb"
