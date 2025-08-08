@@ -85,14 +85,20 @@ def validate_cuda_settings(conanfile: ConanFile):
 
 
 def cuda_platform_id(settings):
-    if settings.arch == "armv8" and settings.get_safe("arch.cuda_platform") == "sbsa":
+    if settings.arch == "armv8" and settings.os == "Linux" and Version(settings.cuda.version) >= "13.0":
+        # CUDA 13 unified aarch64 and sbsa platforms into just sbsa, so assume implicit cuda.platform=sbsa for all armv8
+        return "linux-sbsa"
+    elif settings.get_safe("cuda.platform") == "sbsa":
         if settings.os != "Linux":
             raise ConanInvalidConfiguration(f"Invalid OS for cuda.platform=sbsa: {settings.os}")
+        if settings.arch != "armv8":
+            raise ConanInvalidConfiguration(f"Invalid architecture for cuda.platform=sbsa: {settings.arch}")
         return "linux-sbsa"
     return {
         ("Windows", "x86_64"): "windows-x86_64",
         ("Linux", "x86_64"): "linux-x86_64",
         ("Linux", "armv8"): "linux-aarch64",
+        ("Linux", "ppc64le"): "linux-ppc64le",
     }.get((str(settings.os), str(settings.arch)))
 
 
