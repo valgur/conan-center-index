@@ -32,6 +32,9 @@ class ManifoldConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -46,10 +49,11 @@ class ManifoldConan(ConanFile):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18 <5]")
+        self.tool_requires("cmake/[>=3.18]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_EXTENSIONS OFF)", "")
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
 
@@ -59,6 +63,7 @@ class ManifoldConan(ConanFile):
         tc.cache_variables["MANIFOLD_TEST"] = False
         tc.cache_variables["MANIFOLD_CBIND"] = False
         tc.cache_variables["MANIFOLD_PYBIND"] = False
+        tc.cache_variables["MANIFOLD_STRICT"] = False # no -Werror
         tc.cache_variables["MANIFOLD_CROSS_SECTION"] = self.options.with_clipper2
         tc.cache_variables["MANIFOLD_PAR"] = self.options.with_tbb
         tc.generate()
