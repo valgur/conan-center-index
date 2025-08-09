@@ -5,7 +5,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake, CMakeDeps
+from conan.tools.cmake import cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -26,7 +26,6 @@ class MathDxConan(ConanFile):
         "curanddx": [True, False],
         "cusolverdx": [True, False],
         "nvcompdx": [True, False],
-        "build_cufftdx_separate_twiddles_lut": [True, False],
     }
     default_options = {
         "cublasdx": True,
@@ -34,7 +33,6 @@ class MathDxConan(ConanFile):
         "curanddx": True,
         "cusolverdx": True,
         "nvcompdx": True,
-        "build_cufftdx_separate_twiddles_lut": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -49,8 +47,6 @@ class MathDxConan(ConanFile):
 
     @property
     def _min_cuda_version(self):
-        if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            return "12.8"
         if self.options.cusolverdx or self.options.nvcompdx:
             return "12.6.3"
         if self.options.cublasdx or self.options.curanddx:
@@ -59,18 +55,13 @@ class MathDxConan(ConanFile):
 
     @property
     def _header_only(self):
-        return not self.options.cusolverdx and not self.options.nvcompdx and not self.options.get_safe("build_cufftdx_separate_twiddles_lut")
+        return not self.options.cusolverdx and not self.options.nvcompdx
 
     @property
     def _use_fatbin(self):
         return self._cuda_version >= "12.8"
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-
     def configure(self):
-        if not self.options.cufftdx:
-            del self.options.build_cufftdx_separate_twiddles_lut
         if self._header_only:
             self.package_type = "header-library"
 
@@ -78,10 +69,7 @@ class MathDxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        if self.info.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            # Uses a compiler to build a .cu library
-            return
-        elif self.info.options.cusolverdx or self.info.options.nvcompdx:
+        if self.info.options.cusolverdx or self.info.options.nvcompdx:
             # Export a pre-built static library
             del self.info.settings.compiler
             del self.info.settings.build_type
@@ -101,8 +89,6 @@ class MathDxConan(ConanFile):
         self._utils.check_min_cuda_architecture(self, 70)
         if self._cuda_version < self._min_cuda_version:
             raise ConanInvalidConfiguration(f"cudart {self._min_cuda_version} or higher is required")
-        if self.options.build_cufftdx_separate_twiddles_lut and not self._use_fatbin:
-            raise ConanInvalidConfiguration("build_cufftdx_separate_twiddles_lut requires CUDA 12.8 or higher for .fatbin support")
 
         compiler_version = Version(self.settings.compiler.version)
         if self.settings.compiler == "gcc" and compiler_version < "7":
@@ -110,11 +96,6 @@ class MathDxConan(ConanFile):
         if self.settings.compiler == "clang" and compiler_version < "9":
             raise ConanInvalidConfiguration(f"{self.name} requires Clang >= 9")
         check_min_cppstd(self, 17)
-
-    def build_requirements(self):
-        if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            self.tool_requires(f"nvcc/[~{self.settings.cuda.version} >=11.4]")
-            self.tool_requires("cmake/[>=3.18]")
 
     @property
     def _source_path(self):
@@ -126,29 +107,9 @@ class MathDxConan(ConanFile):
         rmdir(self, self._source_path / "example")
         rmdir(self, self._source_path / "external")
         rmdir(self, self._source_path / "lib" / "cmake")
-        copy(self, "CMakeLists.txt", self.export_sources_folder, self._source_path)
-
-    def generate(self):
-        if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            tc = CMakeToolchain(self)
-            tc.cache_variables["CMAKE_CUDA_ARCHITECTURES"] = str(self.settings.cuda.architectures).replace(",", ";")
-            tc.generate()
-            deps = CMakeDeps(self)
-            deps.generate()
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
-
-    def build(self):
-        if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            cmake = CMake(self)
-            cmake.configure(build_script_folder=self._source_path)
-            cmake.build()
 
     def package(self):
         copy(self, "LICENSE.txt", self._source_path, os.path.join(self.package_folder, "licenses"))
-        if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-            cmake = CMake(self)
-            cmake.install()
         for name in ["cublasdx", "cufftdx", "curanddx", "cusolverdx", "nvcompdx", "commondx"]:
             if self.options.get_safe(name) or name == "commondx":
                 copy(self, f"{name}.hpp", os.path.join(self._source_path, "include"), os.path.join(self.package_folder, "include"))
@@ -163,35 +124,24 @@ class MathDxConan(ConanFile):
 
         if self._use_fatbin:
             fatbin_content = ["get_filename_component(PACKAGE_PREFIX_DIR ${CMAKE_CURRENT_LIST_DIR}/../../ ABSOLUTE)\n"]
-            if self.options.get_safe("build_cufftdx_separate_twiddles_lut"):
-                fatbin_content.append(self._generate_cmake_fatbin_targets(
-                    "cufftdx_separate_twiddles_lut", "lib/libcufftdx_separate_twiddles_lut.fatbin",
-                    aliases=["cufftdx::cufftdx_separate_twiddles_lut", "mathdx::cufftdx_separate_twiddles_lut"],
-                    extra=(
-                        "target_compile_definitions(cufftdx_separate_twiddles_lut_fatbin INTERFACE CUFFTDX_USE_SEPARATE_TWIDDLES)\n"
-                        "target_link_libraries(cufftdx_separate_twiddles_lut_fatbin INTERFACE cufftdx::cufftdx)"
-                    ),
-                    add_to_aggregate=False,
-                ))
-            else:
-                fatbin_content.append(textwrap.dedent("""
-                    if(NOT TARGET cufftdx::cufftdx_separate_twiddles_lut)
-                        if(NOT DEFINED cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES OR cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES STREQUAL "")
-                            set(cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
-                        endif()
-
-                        set(cufftdx_SEPARATE_TWIDDLES_SRCS "${PACKAGE_PREFIX_DIR}/share/cufftdx/src/lut.cu")
-                        add_library(cufftdx_separate_twiddles_lut OBJECT EXCLUDE_FROM_ALL ${cufftdx_SEPARATE_TWIDDLES_SRCS})
-                        add_library(cufftdx::cufftdx_separate_twiddles_lut ALIAS cufftdx_separate_twiddles_lut)
-                        set_target_properties(cufftdx_separate_twiddles_lut
-                            PROPERTIES
-                                CUDA_SEPARABLE_COMPILATION ON
-                                CUDA_ARCHITECTURES "${cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES}"
-                        )
-                        target_compile_definitions(cufftdx_separate_twiddles_lut PUBLIC CUFFTDX_USE_SEPARATE_TWIDDLES)
-                        target_link_libraries(cufftdx_separate_twiddles_lut PUBLIC cufftdx::cufftdx)
+            fatbin_content.append(textwrap.dedent("""
+                if(NOT TARGET cufftdx::cufftdx_separate_twiddles_lut)
+                    if(NOT DEFINED cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES OR cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES STREQUAL "")
+                        set(cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
                     endif()
-                """))
+
+                    set(cufftdx_SEPARATE_TWIDDLES_SRCS "${PACKAGE_PREFIX_DIR}/share/cufftdx/src/lut.cu")
+                    add_library(cufftdx_separate_twiddles_lut OBJECT EXCLUDE_FROM_ALL ${cufftdx_SEPARATE_TWIDDLES_SRCS})
+                    add_library(cufftdx::cufftdx_separate_twiddles_lut ALIAS cufftdx_separate_twiddles_lut)
+                    set_target_properties(cufftdx_separate_twiddles_lut
+                        PROPERTIES
+                            CUDA_SEPARABLE_COMPILATION ON
+                            CUDA_ARCHITECTURES "${cufftdx_SEPARATE_TWIDDLES_CUDA_ARCHITECTURES}"
+                    )
+                    target_compile_definitions(cufftdx_separate_twiddles_lut PUBLIC CUFFTDX_USE_SEPARATE_TWIDDLES)
+                    target_link_libraries(cufftdx_separate_twiddles_lut PUBLIC cufftdx::cufftdx)
+                endif()
+            """))
             if self.options.cusolverdx:
                 fatbin_content.append(self._generate_cmake_fatbin_targets(
                     "cusolverdx", "lib/libcusolverdx.fatbin", aliases=[
@@ -271,6 +221,6 @@ class MathDxConan(ConanFile):
             self.cpp_info.components["nvcompdx"].libs = ["nvcompdx"]
             self.cpp_info.components["nvcompdx"].requires = ["commondx"]
 
-        if self._cuda_version >= "12.8":
+        if self._use_fatbin:
             self.cpp_info.builddirs = ["share/conan"]
             self.cpp_info.set_property("cmake_build_modules", ["share/conan/mathdx_fatbin_targets.cmake"])
