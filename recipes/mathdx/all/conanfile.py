@@ -69,13 +69,13 @@ class MathDxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        if self.info.options.cusolverdx or self.info.options.nvcompdx:
-            # Export a pre-built static library
+        if (self.info.options.cusolverdx or self.info.options.nvcompdx) and not self._use_fatbin:
+            # Exports a pre-built static library
             del self.info.settings.compiler
             del self.info.settings.build_type
         else:
-            # cublasdx, cufftdx and curanddx are header-only
             self.info.settings.clear()
+            self.info.conf.clear()
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version} >=11.4]", transitive_headers=True, transitive_libs=True)
