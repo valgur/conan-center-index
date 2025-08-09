@@ -1,10 +1,10 @@
 sources:
-  "3.5.1":
-    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v3.5.1.tar.gz"
-    sha256: "20b7247cda2d257cbf8ba59ba3ca40a9211c4da61a9c9913e32b33a2c5883a36"
-  "3.5.0":
-    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v3.5.0.tar.gz"
-    sha256: "ef6af8526e3ad04f9827f35ee57eec555d09447f70a0ad0cf684a2e426ccbcb6"
-  "3.1.0":
-    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v3.1.0.tar.gz"
-    sha256: "821aa2e5b709a2e5d3922dcf2c5d445b4898a6ef8bac683cfb00125eafbca029"
+  "4.1.0":
+    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v4.1.0.tar.gz"
+    sha256: "8d4675b11e9e5207e3940eaac0f46db934ada371cbb3627c9fda642d912b6230"
+  "3.9.2":
+    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v3.9.2.tar.gz"
+    sha256: "4b97bd6cece9701664eec3a634a1f2f2061d85bf76d843fa5799e1a692b4db0d"
+  "2.11.0":
+    url: "https://github.com/NVIDIA/cutlass/archive/refs/tags/v2.11.0.tar.gz"
+    sha256: "b4394f1e080b63cfc54163069334096324c1262dfc66e67099880005d51b8af9"
