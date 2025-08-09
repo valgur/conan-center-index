@@ -29,3 +29,7 @@ class ConanUtilsPackage(ConanFile):
     license = "MIT"
     package_type = "python-require"
     exports = ["src/*.py"]
+
+
+def lazy_lt_semver(v1, v2):
+    return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))

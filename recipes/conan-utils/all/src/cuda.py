@@ -3,6 +3,7 @@ import re
 from functools import cached_property
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Union
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -11,12 +12,21 @@ from conan.tools.files import download, get
 from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.scm import Version
 
+cuda_supported_arch_ranges = {
+    9: (30, 70),
+    10: (30, 75),
+    11: (35, 90),
+    12: (50, 121),
+    13: (75, None),
+}
+
 
 class NvccToolchain:
     def __init__(self, conanfile: ConanFile, skip_arch_flags=False):
         self.conanfile = conanfile
 
-        if not self.conanfile.settings.get_safe("cuda.version"):
+        cuda_version = self.conanfile.settings.get_safe("cuda.version")
+        if not cuda_version:
             raise ConanInvalidConfiguration("'cuda.version' setting must be defined, e.g. 'cuda.version=12.1'.")
         if not self.arch_flags:
             raise ConanInvalidConfiguration("No valid CUDA architectures found in 'cuda.architectures' setting. "
@@ -40,11 +50,15 @@ class NvccToolchain:
 
     @cached_property
     def architectures(self):
-        return str(self.conanfile.settings.cuda.architectures).split(",")
+        return str(self.conanfile.settings.cuda.architectures).strip().split(",")
 
     @cached_property
     def arch_flags(self):
         # https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#gpu-name-gpuname-arch
+
+        cuda_major = int(Version(self.conanfile.settings.cuda.version).major.value)
+        supported_arch_range = cuda_supported_arch_ranges[cuda_major]
+
         flags = []
         for arch in self.architectures:
             if arch in ["native", "all", "all-major"]:
@@ -61,6 +75,13 @@ class NvccToolchain:
                 else:
                     raise ConanInvalidConfiguration(f"Unknown CUDA architecture suffix: {suffix}")
             assert re.match(r"\d\d\d?[a-z]?", arch), f"Invalid CUDA architecture value: {arch}"
+
+            # Validate architecture
+            if int(arch) < supported_arch_range[0]:
+                raise ConanInvalidConfiguration(f"CUDA architecture {arch} is no longer supported by CUDA {cuda_major}.")
+            if supported_arch_range[1] is not None and int(arch) > supported_arch_range[1]:
+                raise ConanInvalidConfiguration(f"CUDA architecture {arch} is not supported by CUDA {cuda_major}.")
+
             if real:
                 flags.append(f"-gencode=arch=compute_{arch},code=sm_{arch}")
             if virtual:
@@ -166,6 +187,35 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
 
 
+def check_min_cuda_architecture(conanfile: ConanFile, min_arch: Union[str, int]):
+    """Raises a ConanInvalidConfiguration if any of the architectures in 'cuda.architectures' setting
+    are below the given minimum architecture.
+
+    :param conanfile: The current recipe object. Always use ``self``.
+    :param min_arch: Minimal CUDA architecture to check against, e.g. "70" or "80".
+    """
+    if not conanfile.settings.get_safe("cuda.architectures"):
+        raise ConanInvalidConfiguration("No 'cuda.architectures' setting defined.")
+    min_arch = int(min_arch)
+    architectures = str(conanfile.settings.cuda.architectures).strip()
+    for arch in architectures.split(","):
+        if arch == "native":
+            # Can't check
+            continue
+        if arch in ["all", "all-major"]:
+            cuda_major = int(Version(conanfile.settings.cuda.version).major.value)
+            supported_range = cuda_supported_arch_ranges[cuda_major]
+            if min_arch > supported_range[0]:
+                raise ConanInvalidConfiguration(
+                    f"Can't use cuda.architectures={architectures}: {conanfile.name} requires at least {min_arch},"
+                    f" but 'all' will cover {supported_range[0]} to {supported_range[1] or 'latest'}."
+                )
+        arch = arch.split("-", 1)[0]
+        if int(arch) < min_arch:
+            raise ConanInvalidConfiguration(
+                f"cuda.architectures={architectures} is below the minimum required of {min_arch} by {conanfile.name}."
+            )
+
 __all__ = [
     "NvccToolchain",
     "validate_cuda_settings",
@@ -175,4 +225,6 @@ __all__ = [
     "get_cuda_package_info",
     "validate_cuda_package",
     "download_cuda_package",
+    "check_min_cuda_architecture",
+    "cuda_supported_arch_ranges",
 ]
