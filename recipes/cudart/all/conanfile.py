@@ -49,7 +49,7 @@ class CudartConan(ConanFile):
 
     def requirements(self):
         v = Version(self.version)
-        self.requires(f"nvcc-headers/[~{v.major}.{v.minor}]", transitive_headers=True)
+        self.requires(f"cuda-crt/[~{v.major}.{v.minor}]", transitive_headers=True)
         self.requires(f"cuda-driver-stubs/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
         self.requires("libcudacxx/[^2]", transitive_headers=True)
 
@@ -93,16 +93,16 @@ class CudartConan(ConanFile):
             self.cpp_info.components["cudart_"].bindirs = []
             self.cpp_info.components["cudart_"].system_libs = ["rt", "pthread", "dl", "m", "gcc_s", "stdc++"]
         self.cpp_info.components["cudart_"].requires = [
-            "nvcc-headers::nvcc-headers",
+            "cuda-crt::cuda-crt",
             "cuda-driver-stubs::cuda-driver-stubs",
             "libcudacxx::libcudacxx",
         ]
 
         self.cpp_info.components["cudadevrt"].set_property("cmake_target_name", "CUDA::cudadevrt")
         self.cpp_info.components["cudadevrt"].libs = ["cudadevrt"]
-        self.cpp_info.components["cudadevrt"].requires = ["nvcc-headers::nvcc-headers", "cuda-driver-stubs::cuda-driver-stubs"]
+        self.cpp_info.components["cudadevrt"].requires = ["cuda-crt::cuda-crt", "cuda-driver-stubs::cuda-driver-stubs"]
 
         if self.settings.os == "Linux":
             self.cpp_info.components["culibos"].set_property("cmake_target_name", "CUDA::culibos")
             self.cpp_info.components["culibos"].libs = ["culibos"]
-            self.cpp_info.components["culibos"].requires = ["nvcc-headers::nvcc-headers", "cuda-driver-stubs::cuda-driver-stubs"]
+            self.cpp_info.components["culibos"].requires = ["cuda-crt::cuda-crt", "cuda-driver-stubs::cuda-driver-stubs"]

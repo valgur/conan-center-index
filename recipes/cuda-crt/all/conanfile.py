@@ -7,9 +7,9 @@ from conan.tools.layout import basic_layout
 required_conan_version = ">=2.1"
 
 
-class NvccHeadersConan(ConanFile):
-    name = "nvcc-headers"
-    description = "Header files for the CUDA NVCC compiler"
+class CudaCrtConan(ConanFile):
+    name = "cuda-crt"
+    description = "CUDA Runtime internal headers"
     license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "nvcc")
@@ -37,7 +37,7 @@ class NvccHeadersConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"), excludes="nvPTXCompiler.h")
+        copy(self, "*", os.path.join(self.source_folder, "include", "crt"), os.path.join(self.package_folder, "include", "crt"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

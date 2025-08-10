@@ -4,7 +4,7 @@ include_guard()
 foreach(pkg
         cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
         nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl
-        nvcc-headers libcudacxx thrust cub)
+        cuda-crt libcudacxx thrust cub)
     find_package(${pkg} QUIET)
     if(NOT ${pkg}_FOUND)
         continue()
