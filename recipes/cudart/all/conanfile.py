@@ -32,12 +32,6 @@ class CudartConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
-    def config_options(self):
-        if self.options.shared:
-            self.package_type = "shared-library"
-        else:
-            self.package_type = "static-library"
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -57,9 +51,6 @@ class CudartConan(ConanFile):
         self._utils.validate_cuda_package(self, "cuda_cudart")
         if not Version(self.version).in_range(f"~{self.settings.cuda.version}"):
             raise ConanInvalidConfiguration(f"Version {self.version} is not compatible with the cuda.version {self.settings.cuda.version} setting")
-        # libstdc++11 is required by the C++ API but not the C API
-        # if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
-        #     raise ConanInvalidConfiguration("cudart requires libstdc++11")
 
     def build(self):
         self._utils.download_cuda_package(self, "cuda_cudart")
@@ -67,18 +58,19 @@ class CudartConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
-        copy(self, "*", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-        if self.settings.os == "Windows":
-            copy(self, "*.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
-            rm(self, "cuda.lib", os.path.join(self.package_folder, "lib"))
+        if self.settings.os == "Linux":
+            if self.options.shared:
+                copy(self, "libcudart.so*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
+            else:
+                copy(self, "libcudart_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "libcudadevrt.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "stubs"))
-        if self.options.shared:
-            rm(self, "*cudart_static.*", os.path.join(self.package_folder, "lib"))
-        else:
-            rm(self, "*cudart.*", os.path.join(self.package_folder, "lib"))
-            rm(self, "*cudart.*", os.path.join(self.package_folder, "bin"))
+            if self.options.shared:
+                copy(self, "cudart.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+                copy(self, "*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+            else:
+                copy(self, "cudart_static.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            copy(self, "cudadevrt.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         lib = "cudart" if self.options.shared else "cudart_static"
@@ -89,9 +81,14 @@ class CudartConan(ConanFile):
             alias = "cudart_static" if self.options.shared else "cudart"
             self.cpp_info.components["cudart_"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.components["cudart_"].libs = [lib]
-        if self.settings.os == "Linux":
-            self.cpp_info.components["cudart_"].bindirs = []
-            self.cpp_info.components["cudart_"].system_libs = ["rt", "pthread", "dl", "m", "gcc_s", "stdc++"]
+        if self.settings.os == "Linux" and not self.options.shared:
+            self.cpp_info.components["cudart_"].system_libs = ["pthread", "dl", "rt"]
+            # cudart_static relies on two libstdc++ symbols: __cxa_atexit and __dso_handle
+            # These can be provided by libc++abi for libc++.
+            if self.settings.get_safe("compiler.libcxx") == "libc++":
+                self.cpp_info.components["cudart_"].system_libs.append("c++abi")
+            else:
+                self.cpp_info.components["cudart_"].system_libs.append("stdc++")
         self.cpp_info.components["cudart_"].requires = [
             "cuda-crt::cuda-crt",
             "cuda-driver-stubs::cuda-driver-stubs",
@@ -100,9 +97,4 @@ class CudartConan(ConanFile):
 
         self.cpp_info.components["cudadevrt"].set_property("cmake_target_name", "CUDA::cudadevrt")
         self.cpp_info.components["cudadevrt"].libs = ["cudadevrt"]
-        self.cpp_info.components["cudadevrt"].requires = ["cuda-crt::cuda-crt", "cuda-driver-stubs::cuda-driver-stubs"]
-
-        if self.settings.os == "Linux":
-            self.cpp_info.components["culibos"].set_property("cmake_target_name", "CUDA::culibos")
-            self.cpp_info.components["culibos"].libs = ["culibos"]
-            self.cpp_info.components["culibos"].requires = ["cuda-crt::cuda-crt", "cuda-driver-stubs::cuda-driver-stubs"]
+        self.cpp_info.components["cudadevrt"].requires = ["cudart_"]
