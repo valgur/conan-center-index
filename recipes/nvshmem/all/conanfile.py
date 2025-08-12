@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -173,6 +173,11 @@ class NvshmemConan(ConanFile):
         self.cpp_info.components["nvshmem_"].requires = ["cudart::cudart_"]
         if self.options.with_nccl:
             self.cpp_info.components["nvshmem_"].requires.append("nccl::nccl")
+        if self.settings.os == "Linux":
+            self.cpp_info.components["nvshmem_"].system_libs = ["m", "dl", "pthread", "rt"]
+        if stdcpp_library(self):
+            # Need to link against C++ stdlib when using in a pure C project
+            self.cpp_info.components["nvshmem_"].system_libs.append(stdcpp_library(self))
 
         # There's a caveat about using nvshmem_device in shared libraries:
         # https://docs.nvidia.com/nvshmem/api/using.html#building-nvshmem-applications-libraries
