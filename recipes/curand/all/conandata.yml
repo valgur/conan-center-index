@@ -1,4 +1,10 @@
 sources:
+  "10.4.0.35":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.0.json"
+    sha256: "fe6a86b54450d03ae709123a52717870c49046d65d45303ce585c7aa8a83a217"
   "10.3.10.19":
     url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.1.json"
     sha256: "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630"
+  "10.2.10.91":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.7.1.json"
+    sha256: "d00124c995a9a9f8a1158a9580e1a503271821e44f156115c0e4eda11a83fcc3"

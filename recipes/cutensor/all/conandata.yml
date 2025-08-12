@@ -1,4 +1,28 @@
 sources:
+  "2.3.0.6":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.3.0.json"
+    sha256: "31ccbebc3f74c36a3ae7046483477f3dd0546586ecdaf218eb6a03e695dc5c98"
   "2.2.0.0":
     url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.2.0.json"
     sha256: "32a73efe841e39ff5624ca000f6bcc51afc23ae3e14ae67ff15b13d9981b403a"
+  "2.1.0.9":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.1.0.json"
+    sha256: "00c134e8b01de94b9b1ad7490152d487c88fbe3e6f7b95e0cda46b8da9ed9918"
+  "2.0.2.5":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.0.2.1.json"
+    sha256: "5de19ca6c3edd5e618ab0ada11b78e41277137911bf66ab95efdd0058380a5c9"
+  "1.7.0.1":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_1.7.0.json"
+    sha256: "8d1a53e066f49451bca0d12ffba70f77ed78ad0d8aa7b369197876b22303702e"
+  "1.6.2.3":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_1.6.2.json"
+    sha256: "029d2450d3beffcac5ca8db1139ad92c3ddfe325f63139a133c704741cf17e84"
+  "1.5.0.3":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_1.5.0.json"
+    sha256: "4dfeac247e501c5689a9aed6027b095bd36556da006e1e142ab714962de53b1b"
+  "1.4.0.6":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_1.4.0.json"
+    sha256: "42e7fe9a60fae885c492c1e96897de0b140b44e3ace7ccf31831ccc077225292"
+  "1.3.3.2":
+    url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_1.3.3.json"
+    sha256: "c508ce9e82a493ba2e29cbdef448311b599630be45c4585328b04b0ec26fee66"

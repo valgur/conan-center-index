@@ -1,4 +1,40 @@
 sources:
+  "9.12.0.46":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.12.0.json"
+    sha256: "39bb68f0ca6abdbf9bab3ecb1cb18f458d635f72d72ede98a308216fd22efab3"
   "9.11.0.98":
     url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.11.0.json"
     sha256: "7a16458ea21573e18d190df0c8d68ea1e8c82faf1bcfad4a39ceb600c26639cc"
+  "9.10.2.21":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.10.2.json"
+    sha256: "73a33a12bbb8eb12b105a515b5921db2e328b3ca679f92b6184c7f32fe94a8b0"
+  "9.9.0.52":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.9.0.json"
+    sha256: "614d3c5ceb02e1eb1508f0bc9231c3c03c113bb514b950a1108adb9fde801c77"
+  "9.8.0.87":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.8.0.json"
+    sha256: "a1599fa1f8dcb81235157be5de5ab7d3936e75dfc4e1e442d07970afad3c4843"
+  "9.7.1.26":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.7.1.json"
+    sha256: "f9bc411a4908f0931e7323f89049e3a38453632c4ac5f4aa3220af69ddded9dc"
+  "9.6.0.74":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.6.0.json"
+    sha256: "6dd9a931d981fe5afc7e7ed0c422a4035b1411db4e28a39cf2429e62e3efcd3e"
+  "9.5.1.17":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.5.1.json"
+    sha256: "a5484eef575bbb1fd4f96136cf12244ebc194b661f5ae9ed3b8aaa07e06434b1"
+  "9.4.0.58":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.4.0.json"
+    sha256: "6eeaafc5cc3d4bb2f283e6298e4c55d4c59d7c83c5d9fd8721a2c0e55aee4e54"
+  "9.3.0.75":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.3.0.json"
+    sha256: "d17d9a7878365736758550294f03e633a0b023bec879bf173349bfb34781972e"
+  "9.2.1.18":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.2.1.json"
+    sha256: "9a4198c59b2e66b2b115a736ebe4dc8f3dc6d78161bb494702f824da8fc77b99"
+  "9.1.1.17":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.1.1.json"
+    sha256: "d22d569405e5683ff8e563d00d6e8c27e5e6a902c564c23d752b22a8b8b3fe20"
+  "9.0.0.312":
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.0.0.json"
+    sha256: "4302e6ffb8806e56e56d3dd637a45b80f797d3a274e5c06180d580c20986968c"

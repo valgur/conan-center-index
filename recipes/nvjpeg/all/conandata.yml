@@ -1,4 +1,34 @@
 sources:
+  "13.0.0.40":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.0.json"
+    sha256: "fe6a86b54450d03ae709123a52717870c49046d65d45303ce585c7aa8a83a217"
   "12.4.0.76":
     url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.1.json"
     sha256: "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630"
+  "12.3.5.92":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.1.json"
+    sha256: "249e28a83008d711d5f72880541c8be6253f6d61608461de4fcb715554a6cf17"
+  "12.2.3.32":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.3.0.json"
+    sha256: "cdf49f47df4ebe7a2304aa393b98d6d945e46a93bdeda78239774d1e0d7ffb23"
+  "12.1.1.14":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.2.0.json"
+    sha256: "d883762c6339c8ebb3ffb072facc8f7265cd257d2db16a475fff9a9306ecea89"
+  "12.0.1.102":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.0.1.json"
+    sha256: "14edfe941958212d184fac97890ddd2e5eb05383ff3601e27f37a8514a215fef"
+  "11.9.0.86":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.8.0.json"
+    sha256: "941a950a4ab3b95311c50df7b3c8bca973e0cdda76fc2f4b456d2d5e4dac0281"
+  "11.8.0.2":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.7.1.json"
+    sha256: "d00124c995a9a9f8a1158a9580e1a503271821e44f156115c0e4eda11a83fcc3"
+  "11.7.2.34":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.7.0.json"
+    sha256: "84966d94efbcf5f9bf130fc9854c8d649e5ce0afeb4e053557cad0c6686a95f3"
+  "11.6.2.124":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.6.2.json"
+    sha256: "ecb64965d6690adc53f1e383dc6dda6b0547d6e279f40aaf7701f0774013af82"
+  "11.5.4.107":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.5.2.json"
+    sha256: "ea6b1576218c8f3163f90e8ab239dc6ca28a1f9cabbbff5d83d12b036497f06e"

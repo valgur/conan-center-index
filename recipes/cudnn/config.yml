@@ -1,5 +1,29 @@
 versions:
+  "9.12.0.46":
+    folder: all
   "9.11.0.98":
+    folder: all
+  "9.10.2.21":
+    folder: all
+  "9.9.0.52":
+    folder: all
+  "9.8.0.87":
+    folder: all
+  "9.7.1.26":
+    folder: all
+  "9.6.0.74":
+    folder: all
+  "9.5.1.17":
+    folder: all
+  "9.4.0.58":
+    folder: all
+  "9.3.0.75":
+    folder: all
+  "9.2.1.18":
+    folder: all
+  "9.1.1.17":
+    folder: all
+  "9.0.0.312":
     folder: all
   "8.9.7.29":
     folder: v8

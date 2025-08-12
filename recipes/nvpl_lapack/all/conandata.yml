@@ -2,3 +2,6 @@ sources:
   "0.3.1.1":
     url: "https://developer.download.nvidia.com/compute/nvpl/redist/redistrib_25.5.json"
     sha256: "cb41cde7d01c12a0fadb9cd971db5852581adef110fa5b4a8631a0fa7dcdd739"
+  "0.2.3.1":
+    url: "https://developer.download.nvidia.com/compute/nvpl/redist/redistrib_24.7.json"
+    sha256: "9dd62ebb94a31d14c0428213a2e42a05f31cc8263675e71a91aff841fc4b3588"

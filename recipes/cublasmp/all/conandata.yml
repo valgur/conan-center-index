@@ -1,4 +1,16 @@
 sources:
-  "0.5.0.898":
-    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.5.0.json"
-    sha256: "05744a36366835c2c848e12496defcd88dd92e3b497de1509d1e7a5d5460d5eb"
+  "0.5.1.65":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.5.1.json"
+    sha256: "3d4262759ee9773cc95b87f2601b6ec00e61a8214034e28c00d157ffdc946764"
+  "0.4.0.789":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.4.0.json"
+    sha256: "3805b369890e1378d33d7e089c41948e070e150b8db16213b45be6eb9ee0e953"
+  "0.3.1.663":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.3.1.json"
+    sha256: "ab213eded59e04af907aedda178d1b350da8fb99a4019d0d387d7786f0e5db6a"
+  "0.2.1.427":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.2.1.json"
+    sha256: "2bda286ae0be2a3996a407b01a68082374abb4087acaaf4165e88f7c54322805"
+  "0.1.2.289":
+    url: "https://developer.download.nvidia.com/compute/cublasmp/redist/redistrib_0.1.2.json"
+    sha256: "8b4bfba8b186eadaabb79e5a140404704681a6d0cd9b6bd11482a0bcfc80dc26"

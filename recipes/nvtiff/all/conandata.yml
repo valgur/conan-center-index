@@ -1,4 +1,10 @@
 sources:
-  "0.5.0.67":
-    url: "https://developer.download.nvidia.com/compute/nvtiff/redist/redistrib_0.5.0.json"
-    sha256: "c4829eb91e00e5aec0fffda4dd304d09bc8b74e5f5ac530d5925173ea85b0add"
+  "0.5.1.75":
+    url: "https://developer.download.nvidia.com/compute/nvtiff/redist/redistrib_0.5.1.json"
+    sha256: "09de061396f58af1239f2cb55d5b6f99791e2bc978c3e28c86b99652228087f8"
+  "0.4.0.62":
+    url: "https://developer.download.nvidia.com/compute/nvtiff/redist/redistrib_0.4.0.json"
+    sha256: "b3527eeda68544a5017030e9f281cd05a27fac0597198720bb1817c7b21985ae"
+  "0.3.1.56":
+    url: "https://developer.download.nvidia.com/compute/nvtiff/redist/redistrib_0.3.1.json"
+    sha256: "800c3d66f6efd3d5c1638183977638d9201e5a0a1e287a916d26cef91a0c3301"

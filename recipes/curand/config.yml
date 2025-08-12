@@ -1,3 +1,7 @@
 versions:
+  "10.4.0.35":
+    folder: all
   "10.3.10.19":
+    folder: all
+  "10.2.10.91":
     folder: all

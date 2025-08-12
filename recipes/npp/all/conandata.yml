@@ -1,4 +1,34 @@
 sources:
+  "13.0.0.50":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.0.json"
+    sha256: "fe6a86b54450d03ae709123a52717870c49046d65d45303ce585c7aa8a83a217"
   "12.4.1.87":
     url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.1.json"
     sha256: "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630"
+  "12.3.3.100":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.1.json"
+    sha256: "249e28a83008d711d5f72880541c8be6253f6d61608461de4fcb715554a6cf17"
+  "12.2.5.30":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.4.1.json"
+    sha256: "9cd815f3b71c2e3686ef2219b7794b81044f9dcefaa8e21dacfcb5bc4d931892"
+  "12.1.1.14":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.2.0.json"
+    sha256: "d883762c6339c8ebb3ffb072facc8f7265cd257d2db16a475fff9a9306ecea89"
+  "12.0.2.50":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.1.0.json"
+    sha256: "760f33db5f1c11a6c4b3653aaabfab729765be5ddb0ca5baeced3a4d97240001"
+  "11.8.0.86":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.8.0.json"
+    sha256: "941a950a4ab3b95311c50df7b3c8bca973e0cdda76fc2f4b456d2d5e4dac0281"
+  "11.7.4.75":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.7.1.json"
+    sha256: "d00124c995a9a9f8a1158a9580e1a503271821e44f156115c0e4eda11a83fcc3"
+  "11.6.3.124":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.6.2.json"
+    sha256: "ecb64965d6690adc53f1e383dc6dda6b0547d6e279f40aaf7701f0774013af82"
+  "11.5.1.107":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.5.2.json"
+    sha256: "ea6b1576218c8f3163f90e8ab239dc6ca28a1f9cabbbff5d83d12b036497f06e"
+  "11.4.0.110":
+    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.4.4.json"
+    sha256: "267c2edc731442f8d8860a2e77770fe51775217e1d152eaacb3ad57aef508244"

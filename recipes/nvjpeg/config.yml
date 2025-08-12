@@ -1,3 +1,23 @@
 versions:
+  "13.0.0.40":
+    folder: all
   "12.4.0.76":
+    folder: all
+  "12.3.5.92":
+    folder: all
+  "12.2.3.32":
+    folder: all
+  "12.1.1.14":
+    folder: all
+  "12.0.1.102":
+    folder: all
+  "11.9.0.86":
+    folder: all
+  "11.8.0.2":
+    folder: all
+  "11.7.2.34":
+    folder: all
+  "11.6.2.124":
+    folder: all
+  "11.5.4.107":
     folder: all
