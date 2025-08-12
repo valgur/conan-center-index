@@ -187,6 +187,8 @@ class MathDxConan(ConanFile):
         self.cpp_info.components["commondx"].libs = []
         self.cpp_info.components["commondx"].libdirs = []
         self.cpp_info.components["commondx"].requires = ["cudart::cudart_", "cutlass::cutlass"]
+        if self.settings.os == "Linux":
+            self.cpp_info.components["commondx"].system_libs = ["stdc++", "gcc_s"]
 
         if self.options.cublasdx:
             self.cpp_info.components["cublasdx"].set_property("cmake_target_name", "cublasdx::cublasdx")
