@@ -166,7 +166,7 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
     is_static = conanfile.package_type == "static-library" or conanfile.options.get_safe("shared") is False
     libcxx = conanfile.settings.get_safe("compiler.libcxx")
-    safe = ["cudart", "culibos"]  # these don't have a strong dependency on libstdc++
+    safe = ["cudart", "culibos", "nvptxcompiler"]  # these don't have a strong dependency on libstdc++
     if conanfile.settings.os == "Linux" and is_static and libcxx not in [None, "libstdc++11"] and conanfile.name not in safe:
         # Most CUDA libraries expose only a C API, so an ABI mismatch between libstdc++ and libc++ is not likely to be an issue.
         # However, linking against both libstdc++ and libc++ simultaneously in a C++ project is not safe.

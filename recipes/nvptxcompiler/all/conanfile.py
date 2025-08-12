@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -12,7 +13,7 @@ class NvptxcompilerLibsConan(ConanFile):
     description = "CUDA PTX Compiler APIs"
     license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
-    topics = ("cuda", "ptx")
+    topics = ("cuda", "ptx", "jit", "compiler")
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
@@ -31,11 +32,15 @@ class NvptxcompilerLibsConan(ConanFile):
         del self.info.settings.cuda.version
         del self.info.settings.cuda.architectures
 
+    @property
+    def _package(self):
+        return "cuda_nvcc" if Version(self.version) < "13.0" else "libnvptxcompiler"
+
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_nvcc")
+        self._utils.validate_cuda_package(self, self._package)
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_nvcc")
+        self._utils.download_cuda_package(self, self._package)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -48,4 +53,8 @@ class NvptxcompilerLibsConan(ConanFile):
         self.cpp_info.libs = ["nvptxcompiler_static"]
         self.cpp_info.bindirs = []
         if self.settings.os == "Linux":
-            self.cpp_info.system_libs = ["m"]
+            self.cpp_info.system_libs = ["m", "dl", "pthread", "gcc_s"]
+            if self.settings.get_safe("compiler.libcxx") == "libc++":
+                self.cpp_info.components["cudart_"].system_libs.append("c++abi")
+            else:
+                self.cpp_info.components["cudart_"].system_libs.append("stdc++")
