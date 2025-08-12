@@ -1,9 +1,11 @@
 import os
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -53,6 +55,10 @@ class NvccConan(ConanFile):
             if self._target_platform_id is None:
                 raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
 
+    def build_requirements(self):
+        v = Version(self.version)
+        self.tool_requires(f"nvvm/[~{v.major}.{v.minor}]", visible=True)
+
     def package(self):
         host_folder = os.path.join(self.source_folder, "host")
         self._utils.download_cuda_package(self, "cuda_nvcc", scope="host", destination=host_folder)
@@ -63,13 +69,29 @@ class NvccConan(ConanFile):
             target_folder = host_folder
         copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(host_folder, "bin"), os.path.join(self.package_folder, "bin"))
-        # nvptxcompiler_static is packaged separately, don't copy lib/
-        copy(self, "*", os.path.join(target_folder, "include"), os.path.join(self.package_folder, "include"))
-        copy(self, "*", os.path.join(target_folder, "nvvm"), os.path.join(self.package_folder, "nvvm"))
-        copy(self, "cicc*", os.path.join(host_folder, "nvvm", "bin"), os.path.join(self.package_folder, "nvvm", "bin"))
+        copy(self, "*", os.path.join(host_folder, "include"), os.path.join(self.package_folder, "include"))
+        if Version(self.version) < "13.0":
+            # remove nvptxcompiler_static and cuda-crt files
+            rm(self, "nvPTXCompiler.h", os.path.join(self.package_folder, "include"))
+            rmdir(self, os.path.join(self.package_folder, "include", "crt"))
+        # bin/nvcc.profile sets environment variables that are mostly invalid for Conan. We rely on env vars set by NvccToolchain instead.
+        # Dummy values still need to be set, since CMake looks for them in the stdout of nvcc.
+        save(self, os.path.join(self.package_folder, "bin", "nvcc.profile"), textwrap.dedent("""
+            TOP              = $(_HERE_)/..
+            LD_LIBRARY_PATH += $(TOP)/lib:
+            PATH            += $(CICC_PATH):$(_HERE_):
+            INCLUDES        +=  "-I$(TOP)/include" -I"$(CICC_PATH)/../include" $(_SPACE_)
+            SYSTEM_INCLUDES +=  $(_SPACE_)
+            LIBRARIES        =+ $(_SPACE_) "-L$(TOP)/lib" -L"$(CICC_PATH)/../lib"
+            CUDAFE_FLAGS    +=
+            PTXAS_FLAGS     +=
+        """))
+        # CMake looks for nvvm/libdevice in CMakeCUDAFindToolkit.cmake to determine a valid NVCC root dir.
+        save(self, os.path.join(self.package_folder, "nvvm", "libdevice", ".dummy"), "")
 
     def package_info(self):
         ext = ".exe" if self.settings.os == "Windows" else ""
         nvcc = os.path.join(self.package_folder, "bin", "nvcc" + ext)
         self.conf_info.update("tools.build:compiler_executables", {"cuda": nvcc})
         self.runenv_info.define_path("CUDACXX", nvcc)
+        self.runenv_info.define_path("CUDA_PATH", os.path.join(self.package_folder, "bin"))
