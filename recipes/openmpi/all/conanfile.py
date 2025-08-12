@@ -75,6 +75,11 @@ class OpenMPIConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        if self.options.with_cuda:
+            # No need to embed CUDA version and architectures in package ID.
+            del self.info.settings.cuda
+
     def requirements(self):
         # OpenMPI public headers don't include anything besides stddef.h.
         # transitive_headers=True is not needed for any dependencies.

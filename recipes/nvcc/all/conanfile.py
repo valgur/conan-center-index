@@ -15,7 +15,7 @@ class NvccConan(ConanFile):
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "nvcc")
     package_type = "application"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
 
     python_requires = "conan-utils/latest"
 
@@ -29,6 +29,8 @@ class NvccConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     @property
     def _cross_toolchain(self):

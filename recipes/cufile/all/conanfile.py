@@ -17,7 +17,7 @@ class CuFileConan(ConanFile):
     homepage = "https://docs.nvidia.com/gpudirect-storage/api-reference-guide/"
     topics = ("cuda", "gpudirect", "rdma")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -43,6 +43,8 @@ class CuFileConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     @cached_property
     def _cuda_version(self):

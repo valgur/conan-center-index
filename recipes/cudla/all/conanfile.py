@@ -15,7 +15,7 @@ class CudlaConan(ConanFile):
     homepage = "https://developer.nvidia.com/cudla"
     topics = ("cuda", "tegra", "deep-learning", "deep-learning-accelerator")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "use_stubs": [True, False],
     }
@@ -35,6 +35,8 @@ class CudlaConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcudla")

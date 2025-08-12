@@ -68,6 +68,9 @@ class NvshmemConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def package_id(self):
+        del self.settings.cuda.version
+
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")

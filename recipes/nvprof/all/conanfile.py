@@ -15,7 +15,7 @@ class NvprofConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/profiler-users-guide/#nvprof"
     topics = ("cuda", "utilities", "profiler")
     package_type = "application"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
 
     python_requires = "conan-utils/latest"
 
@@ -29,6 +29,8 @@ class NvprofConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_nvprof")

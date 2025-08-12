@@ -108,7 +108,7 @@ class OpenUCXConan(ConanFile):
     def package_id(self):
         if self.info.options.cuda:
             # No CUDA kernels are built by the project
-            del self.info.settings.cuda.architectures
+            del self.info.settings.cuda
 
     def requirements(self):
         if any(self.options.get_safe(opt) for opt in ["mad", "mlx5", "rdmacm", "verbs"]):

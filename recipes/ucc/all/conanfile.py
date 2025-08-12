@@ -51,12 +51,16 @@ class UccConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def configure(self):
         if not self.options.cuda:
             del self.settings.cuda
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        if self.options.cuda:
+            del self.info.settings.cuda.version
 
     def requirements(self):
         self.requires("openucx/[^1.19.0-rc2, include_prerelease]", options={

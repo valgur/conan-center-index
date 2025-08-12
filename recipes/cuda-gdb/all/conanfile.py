@@ -17,7 +17,7 @@ class CudaGdbConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/cuda-gdb/"
     topics = ("cuda", "gdb", "debugger")
     package_type = "application"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "python_version": ["all", "3.8", "3.9", "3.10", "3.11", "3.12"],
     }
@@ -37,6 +37,8 @@ class CudaGdbConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_gdb")

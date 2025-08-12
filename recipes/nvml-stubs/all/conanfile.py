@@ -16,7 +16,7 @@ class NvmlStubsConan(ConanFile):
     homepage = "https://developer.nvidia.com/management-library-nvml"
     topics = ("cuda", "nvidia", "management", "monitoring", "data-center", "gpu")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -43,6 +43,8 @@ class NvmlStubsConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
     @cached_property

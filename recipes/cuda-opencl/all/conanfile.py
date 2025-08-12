@@ -16,7 +16,7 @@ class CudaOpenCLConan(ConanFile):
     homepage = "https://developer.nvidia.com/opencl"
     topics = ("cuda", "nvidia", "opencl")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
 
     python_requires = "conan-utils/latest"
 
@@ -34,6 +34,8 @@ class CudaOpenCLConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     @cached_property
     def _cuda_version(self):

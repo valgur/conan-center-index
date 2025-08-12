@@ -14,7 +14,7 @@ class CudaSanitizerApiConan(ConanFile):
     homepage = "https://docs.nvidia.com/compute-sanitizer/SanitizerApiGuide/"
     topics = ("cuda", "sanitizer")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
 
     python_requires = "conan-utils/latest"
 
@@ -28,6 +28,8 @@ class CudaSanitizerApiConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def requirements(self):
         versions = self._utils.get_cuda_package_versions(self)

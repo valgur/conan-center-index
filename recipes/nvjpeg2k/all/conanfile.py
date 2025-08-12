@@ -43,7 +43,8 @@ class NvJpeg2kConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
         self.info.cuda_version = self.info.settings.cuda.version
-        del self.info.settings.cuda
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
     @cached_property

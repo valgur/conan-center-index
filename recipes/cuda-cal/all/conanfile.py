@@ -30,8 +30,8 @@ class CudaCalConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        self.info.cuda_version = self.info.settings.cuda.version
-        del self.info.settings.cuda
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)

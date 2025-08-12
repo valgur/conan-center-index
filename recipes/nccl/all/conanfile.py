@@ -41,6 +41,9 @@ class NcclConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        del self.settings.cuda.version
+
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         if self.options.with_ibverbs or self.options.with_mlx5:

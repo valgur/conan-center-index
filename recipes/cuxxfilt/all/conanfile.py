@@ -14,7 +14,7 @@ class CuxxfiltConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "demangler")
     package_type = "static-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
 
     python_requires = "conan-utils/latest"
 
@@ -28,6 +28,8 @@ class CuxxfiltConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda.version
+        del self.info.settings.cuda.architectures
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_cuxxfilt")
