@@ -143,7 +143,7 @@ def get_cuda_package_info(conanfile: ConanFile, package_name: str):
     redistrib_info = get_cuda_redistrib_info(conanfile)
     package_info = redistrib_info[package_name]
     package_info["base_url"] = redistrib_info["base_url"]
-    assert package_info["version"] == conanfile.version
+    assert package_info["version"] == conanfile.version, f"Version mismatch for {package_name}: {package_info['version']} != {conanfile.version}"
     return package_info
 
 def get_cuda_package_versions(conanfile: ConanFile):
@@ -164,6 +164,16 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
             raise ConanInvalidConfiguration(f"cuda.version {conanfile.settings.cuda.version} is not supported by package '{package_name}'")
     if platform_id not in package_info:
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
+    is_static = conanfile.package_type == "static-library" or conanfile.options.get_safe("shared") is False
+    libcxx = conanfile.settings.get_safe("compiler.libcxx")
+    safe = ["cudart", "culibos"]  # these don't have a strong dependency on libstdc++
+    if conanfile.settings.os == "Linux" and is_static and libcxx not in [None, "libstdc++11"] and conanfile.name not in safe:
+        # Most CUDA libraries expose only a C API, so an ABI mismatch between libstdc++ and libc++ is not likely to be an issue.
+        # However, linking against both libstdc++ and libc++ simultaneously in a C++ project is not safe.
+        conanfile.output.warning(
+            f"CUDA Toolkit libraries are built with libstdc++, but compiler.libcxx={libcxx}. "
+            f"Using {conanfile.name} in a C++ project is only safe with libcxx=libstdc++11 or with '-o {conanfile.name}/*:shared=False'."
+        )
 
 
 def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, platform_id=None, **kwargs):
