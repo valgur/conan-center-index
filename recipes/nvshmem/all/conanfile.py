@@ -69,7 +69,7 @@ class NvshmemConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.settings.cuda.version
+        del self.info.settings.cuda.version
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)

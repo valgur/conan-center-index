@@ -69,7 +69,7 @@ class MathDxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.settings.cuda.version
+        del self.info.settings.cuda.version
         if (self.info.options.cusolverdx or self.info.options.nvcompdx) and not self._use_fatbin:
             # Exports a pre-built static library
             del self.info.settings.compiler
