@@ -1,5 +1,4 @@
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -55,16 +54,23 @@ class NvccConan(ConanFile):
             if self._target_platform_id is None:
                 raise ConanInvalidConfiguration(f"Unsupported cross-compilation arch: {self.settings.arch}")
 
-    def build_requirements(self):
-        v = Version(self.version)
-        self.tool_requires(f"nvvm/[~{v.major}.{v.minor}]", visible=True)
+    @property
+    def _external_nvvm(self):
+        return Version(self.version) >= "13.0"
 
     def package(self):
         host_folder = os.path.join(self.source_folder, "host")
         self._utils.download_cuda_package(self, "cuda_nvcc", scope="host", destination=host_folder)
+        if self._external_nvvm:
+            # using nvvm via a separate Conan package almost works, but device code LTO fails in mathdx with
+            # nvlink fatal   : elfLink linker library load error
+            # bundling nvvm back into nvcc for this reason.
+            self._utils.download_cuda_package(self, "libnvvm", scope="host", destination=host_folder)
         if self._cross_toolchain:
             target_folder = os.path.join(self.source_folder, "target")
             self._utils.download_cuda_package(self, "cuda_nvcc", scope="target", destination=target_folder)
+            if self._external_nvvm:
+                self._utils.download_cuda_package(self, "libnvvm", scope="target", destination=target_folder)
         else:
             target_folder = host_folder
         copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))
@@ -74,20 +80,8 @@ class NvccConan(ConanFile):
             # remove nvptxcompiler_static and cuda-crt files
             rm(self, "nvPTXCompiler.h", os.path.join(self.package_folder, "include"))
             rmdir(self, os.path.join(self.package_folder, "include", "crt"))
-        # bin/nvcc.profile sets environment variables that are mostly invalid for Conan. We rely on env vars set by NvccToolchain instead.
-        # Dummy values still need to be set, since CMake looks for them in the stdout of nvcc.
-        save(self, os.path.join(self.package_folder, "bin", "nvcc.profile"), textwrap.dedent("""
-            TOP              = $(_HERE_)/..
-            LD_LIBRARY_PATH += $(TOP)/lib:
-            PATH            += $(CICC_PATH):$(_HERE_):
-            INCLUDES        +=  "-I$(TOP)/include" -I"$(CICC_PATH)/../include" $(_SPACE_)
-            SYSTEM_INCLUDES +=  $(_SPACE_)
-            LIBRARIES        =+ $(_SPACE_) "-L$(TOP)/lib" -L"$(CICC_PATH)/../lib"
-            CUDAFE_FLAGS    +=
-            PTXAS_FLAGS     +=
-        """))
-        # CMake looks for nvvm/libdevice in CMakeCUDAFindToolkit.cmake to determine a valid NVCC root dir.
-        save(self, os.path.join(self.package_folder, "nvvm", "libdevice", ".dummy"), "")
+        copy(self, "*", os.path.join(target_folder, "nvvm"), os.path.join(self.package_folder, "nvvm"))
+        copy(self, "cicc*", os.path.join(host_folder, "nvvm", "bin"), os.path.join(self.package_folder, "nvvm", "bin"))
 
     def package_info(self):
         ext = ".exe" if self.settings.os == "Windows" else ""
