@@ -82,10 +82,12 @@ class NvccToolchain:
             if supported_arch_range[1] is not None and int(arch) > supported_arch_range[1]:
                 raise ConanInvalidConfiguration(f"CUDA architecture {arch} is not supported by CUDA {cuda_major}.")
 
-            if real:
-                flags.append(f"-gencode=arch=compute_{arch},code=sm_{arch}")
-            if virtual:
+            if real and virtual:
+                flags.append(f"-gencode=arch=compute_{arch},code=[compute_{arch},sm_{arch}]")
+            elif virtual:
                 flags.append(f"-gencode=arch=compute_{arch},code=compute_{arch}")
+            elif real:
+                flags.append(f"-gencode=arch=compute_{arch},code=sm_{arch}")
         return flags
 
     def environment(self):
