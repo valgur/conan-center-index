@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -22,6 +23,10 @@ class CudaCrtConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
+    @property
+    def _package(self):
+        return "cuda_crt" if Version(self.version) >= "13.0" else "cuda_nvcc"
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -32,10 +37,10 @@ class CudaCrtConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_nvcc")
+        self._utils.validate_cuda_package(self, self._package)
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_nvcc")
+        self._utils.download_cuda_package(self, self._package)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
