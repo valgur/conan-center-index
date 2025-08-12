@@ -161,7 +161,10 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
     if "cuda_variant" in package_info:
         cuda_major = conanfile.settings.cuda.version.value.split(".")[0]
         if cuda_major not in package_info["cuda_variant"]:
-            raise ConanInvalidConfiguration(f"cuda.version {conanfile.settings.cuda.version} is not supported by package '{package_name}'")
+            supported = ", ".join(f"v{v}" for v in package_info['cuda_variant'])
+            suff = "s" if len(package_info['cuda_variant']) > 1 else ""
+            raise ConanInvalidConfiguration(f"{conanfile.ref} only supports CUDA major version{suff} {supported} and"
+                                            f" is not compatible with cuda.version={conanfile.settings.cuda.version}")
     if platform_id not in package_info:
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
     is_static = conanfile.package_type == "static-library" or conanfile.options.get_safe("shared") is False
