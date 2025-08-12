@@ -96,7 +96,7 @@ class OpenMPIConan(ConanFile):
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/[*]")
         if self.options.with_ucx:
-            self.requires("openucx/[^1.19.0-rc2, include_prerelease]")
+            self.requires("openucx/[^1.19.0]")
         if self.options.with_cuda:
             self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
 

@@ -63,7 +63,7 @@ class UccConan(ConanFile):
             del self.info.settings.cuda.version
 
     def requirements(self):
-        self.requires("openucx/[^1.19.0-rc2, include_prerelease]", options={
+        self.requires("openucx/[^1.19.0]", options={
             "cuda": self.options.cuda,
             "mlx5": self.options.mlx5,
             "rdmacm": self.options.mlx5,

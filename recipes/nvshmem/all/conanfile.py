@@ -84,7 +84,7 @@ class NvshmemConan(ConanFile):
         if self.options.with_libfabric:
             self.requires("libfabric/[^1.21.0]")
         if self.options.with_ucx:
-            self.requires("openucx/[^1.19.0-rc2, include_prerelease]", options={
+            self.requires("openucx/[^1.19.0]", options={
                 "cuda": True,
                 "gdrcopy": self.options.with_gdrcopy,
                 "mlx5": self.options.with_mlx5,
