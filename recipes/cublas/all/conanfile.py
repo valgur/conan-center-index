@@ -15,7 +15,7 @@ class CublasConan(ConanFile):
     homepage = "https://developer.nvidia.com/cublas"
     topics = ("cuda", "blas", "linear-algebra")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -48,11 +48,13 @@ class CublasConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         del self.info.options.cmake_alias
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        if self.settings.os == "Linux" and not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcublas")
@@ -103,7 +105,7 @@ class CublasConan(ConanFile):
             self.cpp_info.components["cublasLt"].system_libs = ["dl", "m", "pthread", "rt", "gcc_s", "stdc++"]
         self.cpp_info.components["cublasLt"].requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
-            self.cpp_info.components["cublasLt"].requires.append("cudart::culibos")
+            self.cpp_info.components["cublasLt"].requires.append("culibos::culibos")
 
         self.cpp_info.components["nvblas"].set_property("cmake_target_name", "CUDA::nvblas")
         self.cpp_info.components["nvblas"].libs = ["nvblas"]

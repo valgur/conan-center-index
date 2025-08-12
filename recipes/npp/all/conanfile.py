@@ -16,7 +16,7 @@ class NppConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/npp/"
     topics = ("cuda", "image-processing", "signal-processing", "performance-primitives")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -50,6 +50,7 @@ class NppConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
@@ -59,8 +60,9 @@ class NppConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        if not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libnpp")
@@ -112,7 +114,7 @@ class NppConan(ConanFile):
                 component.requires.append("nppc")
             if self.settings.os == "Linux" and not self.options.shared:
                 component.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-                component.requires.append("cudart::culibos")
+                component.requires.append("culibos::culibos")
 
         # Unofficial aggregate target for Image Processing
         self.cpp_info.components["nppi"].set_property("pkg_config_name", f"nppi-{v.major}.{v.minor}")

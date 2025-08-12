@@ -52,7 +52,6 @@ class NppPlusConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        self.info.cuda_version = self.info.settings.cuda.version
         del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
 
@@ -62,6 +61,8 @@ class NppPlusConan(ConanFile):
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        if not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libnpp_plus")
@@ -116,7 +117,7 @@ class NppPlusConan(ConanFile):
                 component.requires.append("npp_plus_c")
             if self.settings.os == "Linux" and not self.options.shared:
                 component.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-                component.requires.append("cudart::culibos")
+                component.requires.append("culibos::culibos")
 
         self.cpp_info.components["npp_plus_i"].set_property("cmake_target_name", f"nppPlus::npp_plus_i{suffix}")
         if self.options.get_safe("cmake_alias"):

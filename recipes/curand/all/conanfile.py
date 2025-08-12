@@ -16,7 +16,7 @@ class CuRandConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/curand/"
     topics = ("cuda", "random", "rng")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -50,6 +50,7 @@ class CuRandConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
@@ -59,8 +60,9 @@ class CuRandConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        if not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcurand")
@@ -95,4 +97,4 @@ class CuRandConan(ConanFile):
         self.cpp_info.requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-            self.cpp_info.requires.append("cudart::culibos")
+            self.cpp_info.requires.append("culibos::culibos")

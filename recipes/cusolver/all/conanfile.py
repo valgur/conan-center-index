@@ -16,7 +16,7 @@ class CuSolverConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/cusolver/"
     topics = ("cuda", "linear-algebra", "solver", "matrix", "decomposition", "lapack")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -53,6 +53,7 @@ class CuSolverConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
@@ -63,9 +64,11 @@ class CuSolverConan(ConanFile):
 
     def requirements(self):
         versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"cublas/[~{versions['libcublas']}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"cusparse/[~{versions['libcusparse']}]", transitive_headers=True, transitive_libs=True)
+        if not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusolver")
@@ -106,7 +109,7 @@ class CuSolverConan(ConanFile):
         self.cpp_info.components["cusolver_"].requires = ["cudart::cudart_", "cublas::cublas_", "cusparse::cusparse"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["cusolver_"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-            self.cpp_info.components["cusolver_"].requires.append("cudart::culibos")
+            self.cpp_info.components["cusolver_"].requires.append("culibos::culibos")
 
         if self.options.get_safe("cusolverMg"):
             self.cpp_info.components["cusolverMg"].set_property("cmake_target_name", "CUDA::cusolverMg")

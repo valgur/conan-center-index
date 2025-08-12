@@ -16,7 +16,7 @@ class CuSparseConan(ConanFile):
     homepage = "https://docs.nvidia.com/cuda/cusparse/"
     topics = ("cuda", "linear-algebra", "matrix", "sparse")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "cmake_alias": [True, False],
@@ -50,6 +50,7 @@ class CuSparseConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
@@ -60,8 +61,10 @@ class CuSparseConan(ConanFile):
 
     def requirements(self):
         versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"nvjitlink/[~{versions['libnvjitlink']}]")
+        if not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusparse")
@@ -101,4 +104,4 @@ class CuSparseConan(ConanFile):
         ]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-            self.cpp_info.requires.append("cudart::culibos")
+            self.cpp_info.requires.append("culibos::culibos")

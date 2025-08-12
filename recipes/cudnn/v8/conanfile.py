@@ -52,6 +52,7 @@ class CuDnnConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        del self.info.settings.cuda
         self.info.settings.rm_safe("cmake_alias")
 
     def requirements(self):
@@ -61,6 +62,8 @@ class CuDnnConan(ConanFile):
         self.requires(f"nvptxcompiler/[~{self.settings.cuda.version}]")
         if self.settings.os == "Linux":
             self.requires("zlib-ng/[^2.0]")
+            if not self.options.shared:
+                self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cudnn")
@@ -151,7 +154,7 @@ class CuDnnConan(ConanFile):
             "cudart::cudart_",
         ]
         if self.settings.os == "Linux" and not self.options.shared:
-            ext_requires.append("cudart::culibos")
+            ext_requires.append("culibos::culibos")
         if self.options.get_safe("shared", True):
             self.cpp_info.components["cudnn_shim"].requires.extend(ext_requires)
 
