@@ -70,6 +70,8 @@ class CuDssConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcudss")
+        if self.options.get_safe("shared", True):
+            self._utils.require_shared_deps(self, ["cublas", "nccl", "openmpi"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcudss")

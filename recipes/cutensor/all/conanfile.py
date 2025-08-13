@@ -47,6 +47,8 @@ class CuTensorConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcutensor")
+        if self.options.shared:
+            self._utils.require_shared_deps(self, ["cublas"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcutensor")

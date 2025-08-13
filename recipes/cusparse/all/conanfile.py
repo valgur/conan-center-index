@@ -62,13 +62,17 @@ class CuSparseConan(ConanFile):
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        if Version(self.version) >= "12.0":
-            self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
+        if Version(self.version) >= "12.6":
+            self.requires("nvjitlink/[^13]")
+        elif Version(self.version) >= "12.0":
+            self.requires("nvjitlink/[^12]")
         if not self.options.shared:
             self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusparse")
+        if self.options.get_safe("shared", True):
+            self._utils.require_shared_deps(self, ["nvjitlink"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcusparse")

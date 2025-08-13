@@ -41,6 +41,7 @@ class CufftMpConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuFFTMp is only supported on Linux")
         self._utils.validate_cuda_package(self, "libcufftmp")
+        self._utils.require_shared_deps(self, ["nvshmem"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcufftmp")

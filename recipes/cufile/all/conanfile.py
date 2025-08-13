@@ -60,6 +60,8 @@ class CuFileConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuFile is only available on Linux")
         self._utils.validate_cuda_package(self, "libcufile")
+        if self.options.shared:
+            self._utils.require_shared_deps(self, ["rdma-core"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcufile")

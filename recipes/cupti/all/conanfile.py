@@ -58,6 +58,8 @@ class CuptiConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_cupti")
+        if self.options.get_safe("shared", True):
+            self._utils.require_shared_deps(self, ["libvdpau"])
 
     def build(self):
         self._utils.download_cuda_package(self, "cuda_cupti")

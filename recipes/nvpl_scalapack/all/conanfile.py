@@ -50,6 +50,7 @@ class NvplScalapackConan(ConanFile):
             raise ConanInvalidConfiguration("NVPL libraries are only supported on Linux")
         if self.settings.arch != "armv8":
             raise ConanInvalidConfiguration("NVPL libraries are only supported on armv8")
+        self._utils.require_shared_deps(self, ["openmpi"])
 
     def build(self):
         self._utils.download_cuda_package(self, "nvpl_scalapack", platform_id="linux-sbsa")

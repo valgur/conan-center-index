@@ -43,6 +43,7 @@ class CudaCalConan(ConanFile):
         if not self.dependencies["cudart"].options.shared:
             raise ConanInvalidConfiguration("CAL requires -o cudart/*:shared=True")
         self._utils.validate_cuda_package(self, "libcal")
+        self._utils.require_shared_deps(self, ["ucc"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcal")

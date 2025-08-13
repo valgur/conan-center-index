@@ -273,6 +273,25 @@ def check_min_cuda_architecture(conanfile: ConanFile, min_arch: Union[str, int])
                 f"cuda.architectures={architectures} is below the minimum required of {min_arch} by {conanfile.name}."
             )
 
+
+def require_shared_deps(conanfile: ConanFile, deps: list[str]):
+    """Checks if the given dependencies are shared, and raises a ConanInvalidConfiguration if not.
+    This is needed for pre-built shared libraries to find their shared dependencies at runtime.
+
+    :param conanfile: The current recipe object. Always use ``self``.
+    :param deps: List of dependency names to check.
+    """
+    for dep_name in deps:
+        if dep_name not in conanfile.dependencies.host:
+            continue
+        dep = conanfile.dependencies.host[dep_name]
+        if not dep.options.get_safe("shared", True):
+            if "shared" in conanfile.options:
+                raise ConanInvalidConfiguration(f"{conanfile.name} requires -o {dep_name}/*:shared=True when -o {conanfile.name}/*:shared=True")
+            else:
+                raise ConanInvalidConfiguration(f"{conanfile.name} requires -o {dep_name}/*:shared=True")
+
+
 __all__ = [
     "NvccToolchain",
     "validate_cuda_settings",
@@ -284,4 +303,5 @@ __all__ = [
     "download_cuda_package",
     "check_min_cuda_architecture",
     "cuda_supported_arch_ranges",
+    "require_shared_deps",
 ]

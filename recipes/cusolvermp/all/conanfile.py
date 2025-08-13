@@ -42,6 +42,7 @@ class CusolvermpConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuSOLVERMp is only supported on Linux")
         self._utils.validate_cuda_package(self, "libcusolvermp")
+        self._utils.require_shared_deps(self, ["cusolver", "cusparse", "nccl"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcusolvermp")

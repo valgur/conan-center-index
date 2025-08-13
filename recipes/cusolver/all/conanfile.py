@@ -74,6 +74,9 @@ class CuSolverConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusolver")
+        if self.options.get_safe("shared", True):
+            self._utils.require_shared_deps(self, ["cublas", "cusparse"])
+        self._utils.require_shared_deps(self, ["rdma-core"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcusolver")
