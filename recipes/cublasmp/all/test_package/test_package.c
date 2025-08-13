@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main() {
-    int version;
+#if CUBLASMP_VER_MINOR > 3
     cublasMpStatus_t status = cublasMpGetVersion(&version);
     if (status != CUBLASMP_STATUS_SUCCESS) {
         printf("cuBLASMp API error: %d\n", status);
@@ -12,4 +12,7 @@ int main() {
     int minor = version % 1000 / 100;
     int patch = version % 100;
     printf("cuBLASMp version: %d.%d.%d\n", major, minor, patch);
+#else
+    printf("cuBLASMp version: %d.%d.%d\n", CUBLASMP_VER_MAJOR, CUBLASMP_VER_MINOR, CUBLASMP_VER_MAJOR);
+#endif
 }

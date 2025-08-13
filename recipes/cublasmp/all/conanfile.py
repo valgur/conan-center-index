@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -36,6 +37,11 @@ class CublasMpConan(ConanFile):
         self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         self.requires("nccl/[^2.18.5]", transitive_headers=True)
         self.requires("nvshmem/[^3.1]", run=True)
+        if Version(self.version) < "0.5":
+            if Version(self.settings.cuda.version).major > 11:
+                self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True, transitive_libs=True)
+            else:
+                self.requires("cuda-cal/0.4.3.36", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -58,3 +64,5 @@ class CublasMpConan(ConanFile):
             "nvshmem::nvshmem_host",
             "nccl::nccl",
         ]
+        if Version(self.version) < "0.5":
+            self.cpp_info.requires.append("cuda-cal::cuda-cal")
