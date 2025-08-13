@@ -1,5 +1,7 @@
 import json
+import os
 import re
+import stat
 from functools import cached_property
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -209,6 +211,11 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
         )
 
 
+def _chmod_plus_w(path):
+    if os.name == "posix":
+        os.chmod(path, os.stat(path).st_mode | stat.S_IWUSR)
+
+
 def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, platform_id=None, **kwargs):
     destination = destination or conanfile.source_folder
     if scope == "host":
@@ -228,6 +235,10 @@ def download_cuda_package(conanfile: ConanFile, package_name: str, scope="host",
     url = package_info["base_url"] + archive_info["relative_path"]
     sha256 = archive_info["sha256"]
     get(conanfile, url, sha256=sha256, strip_root=True, destination=destination, **kwargs)
+    # Old CTK archives set a read-only flag on LICENSE for some reason. Fix that.
+    license_file = os.path.join(destination, "LICENSE")
+    if os.path.exists(license_file):
+        _chmod_plus_w(license_file)
 
 
 def check_min_cuda_architecture(conanfile: ConanFile, min_arch: Union[str, int]):
