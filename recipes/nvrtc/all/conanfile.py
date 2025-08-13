@@ -59,9 +59,8 @@ class NvRtcConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvptxcompiler/[~{versions['cuda_nvcc']}]")
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"nvptxcompiler/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_nvrtc")

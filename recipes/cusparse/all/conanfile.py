@@ -61,9 +61,8 @@ class CuSparseConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvjitlink/[~{versions['libnvjitlink']}]")
+        self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
         if not self.options.shared:
             self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
