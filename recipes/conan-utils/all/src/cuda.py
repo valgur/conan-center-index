@@ -37,7 +37,6 @@ packages_following_ctk_major_version = {
     "npp",
     "nvcc",
     "nvfatbin",
-    "nvjitlink",
     "nvjpeg",
     "nvml-stubs",
     "nvptxcompiler",
