@@ -405,7 +405,7 @@ class OpenSSLConan(ConanFile):
         cxxflags.extend(gen_info["CXXFLAGS"])
 
         cc = self._tool("CC", "cc")
-        cxx = self._tool("CXX", "cxx")
+        cxx = self._tool("CXX", "c++")
         ar = self._tool("AR", "ar")
         ranlib = self._tool("RANLIB", "ranlib")
 
