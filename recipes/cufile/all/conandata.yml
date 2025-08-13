@@ -35,12 +35,3 @@ sources:
   "1.3.1.18":
     url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.7.1.json"
     sha256: "d00124c995a9a9f8a1158a9580e1a503271821e44f156115c0e4eda11a83fcc3"
-  "1.2.1.4":
-    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.6.2.json"
-    sha256: "ecb64965d6690adc53f1e383dc6dda6b0547d6e279f40aaf7701f0774013af82"
-  "1.1.1.25":
-    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.5.2.json"
-    sha256: "ea6b1576218c8f3163f90e8ab239dc6ca28a1f9cabbbff5d83d12b036497f06e"
-  "1.0.2.10":
-    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.4.4.json"
-    sha256: "267c2edc731442f8d8860a2e77770fe51775217e1d152eaacb3ad57aef508244"

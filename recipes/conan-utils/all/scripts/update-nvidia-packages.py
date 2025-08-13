@@ -21,6 +21,7 @@ conanfile_version_ranges = {
     "cudnn/v8": (None, "9.0"),
     "cudnn/all": ("9.0", None),
     "cudss/all": ("0.3", None),
+    "cufile/all": ("1.3", None),
 }
 conanfile_policies = {
     "cudnn/v8": "latest",
