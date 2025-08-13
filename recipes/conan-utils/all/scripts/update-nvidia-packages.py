@@ -25,6 +25,7 @@ conanfile_version_ranges = {
     "cupti/all": ("11.5", None),
     "cusparselt/all": ("0.4", None),
     "cutensor/all": ("1.7", None),
+    "nvjpeg2k/all": ("0.7", None),
 }
 conanfile_policies = {
     "cudnn/v8": "latest",

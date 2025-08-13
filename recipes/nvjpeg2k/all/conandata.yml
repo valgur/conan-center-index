@@ -8,9 +8,3 @@ sources:
   "0.7.5.32":
     url: "https://developer.download.nvidia.com/compute/nvjpeg2000/redist/redistrib_0.7.5.json"
     sha256: "65f887193f212a4fd03b0fd829326ea88621cff2173fb964391f6fc142b9350b"
-  "0.6.0.28":
-    url: "https://developer.download.nvidia.com/compute/nvjpeg2000/redist/redistrib_0.6.0.json"
-    sha256: "a9b4402cb8d0fdaa9f2d9c7c323a62acd5006992ffb0b11fdb3ba4da081644fa"
-  "0.5.0.25":
-    url: "https://developer.download.nvidia.com/compute/nvjpeg2000/redist/redistrib_0.5.0.json"
-    sha256: "d52040295b58ec674f5d0357b21680bbbba73c1f97149ab69063ae07eb314450"

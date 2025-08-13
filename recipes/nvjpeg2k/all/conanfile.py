@@ -2,8 +2,10 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -56,9 +58,20 @@ class NvJpeg2kConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libnvjpeg_2k")
+        if Version(self.settings.cuda.version) >= 13 and Version(self.version) < "0.9":
+            raise ConanInvalidConfiguration(f"CUDA {self.settings.cuda.version} requires nvjpeg2k >= 0.9")
 
     def build(self):
         self._utils.download_cuda_package(self, "libnvjpeg_2k")
+        if self.version == "0.9.0.43":
+            # Fix 'error: unknown type name ‘nvjpeg2kQualityType’; did you mean ‘nvjpeg2kQualityType_t’?'
+            replace_in_file(self, os.path.join(self.source_folder, "include/nvjpeg2k.h"),
+                            "nvjpeg2kQualityType quality_type",
+                            "nvjpeg2kQualityType_t quality_type")
+            # Fix 'error: unknown type name ‘nvjpeg2kProgOrder’'
+            replace_in_file(self, os.path.join(self.source_folder, "include/nvjpeg2k.h"),
+                            "nvjpeg2kProgOrder prog_order",
+                            "nvjpeg2kProgOrder_t prog_order")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
