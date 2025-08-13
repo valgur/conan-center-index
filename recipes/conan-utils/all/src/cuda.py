@@ -20,6 +20,29 @@ cuda_supported_arch_ranges = {
     13: (75, None),
 }
 
+packages_following_ctk_major_version = {
+    "cublas",
+    "cuda-crt",
+    "cuda-driver-stubs",
+    "cuda-gdb",
+    "cuda-opencl",
+    "cuda-profiler-api",
+    "cuda-sanitizer-api",
+    "cudart",
+    "cudla",
+    "culibos",
+    "cupti",
+    "npp",
+    "nvcc",
+    "nvfatbin",
+    "nvjitlink",
+    "nvjpeg",
+    "nvml-stubs",
+    "nvptxcompiler",
+    "nvrtc",
+    "nvvm",
+}
+
 
 class NvccToolchain:
     def __init__(self, conanfile: ConanFile, skip_arch_flags=False):
@@ -167,6 +190,11 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
             suff = "s" if len(package_info['cuda_variant']) > 1 else ""
             raise ConanInvalidConfiguration(f"{conanfile.ref} only supports CUDA major version{suff} {supported} and"
                                             f" is not compatible with cuda.version={conanfile.settings.cuda.version}")
+    if conanfile.name in packages_following_ctk_major_version:
+        if Version(conanfile.version).major != Version(str(conanfile.settings.cuda.version)).major:
+            raise ConanInvalidConfiguration(
+                f"Package version is not compatible with cuda.version={conanfile.settings.cuda.version}"
+            )
     if platform_id not in package_info:
         raise ConanInvalidConfiguration(f"Unsupported platform {platform_id} for CUDA package '{package_name}'")
     is_static = conanfile.package_type == "static-library" or conanfile.options.get_safe("shared") is False
