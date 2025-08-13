@@ -62,7 +62,8 @@ class CuSparseConan(ConanFile):
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
+        if Version(self.version) >= "12.0":
+            self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
         if not self.options.shared:
             self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
@@ -98,10 +99,9 @@ class CuSparseConan(ConanFile):
         self.cpp_info.srcdirs = ["share/cusparse/src"]
         if self.options.get_safe("use_stubs"):
             self.cpp_info.libdirs = ["lib/stubs", "lib"]
-        self.cpp_info.requires = [
-            "cudart::cudart_",
-            "nvjitlink::nvjitlink",
-        ]
+        self.cpp_info.requires = ["cudart::cudart_"]
+        if Version(self.version) >= "12.0":
+            self.cpp_info.requires.append("nvjitlink::nvjitlink")
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
             self.cpp_info.requires.append("culibos::culibos")
