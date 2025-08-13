@@ -3,6 +3,14 @@
 #include <stdio.h>
 
 int main() {
-    nvcomp::ZstdManager zstd_manager{1024, nvcompBatchedZstdOpts_t{}};
-    printf("nvCOMP version: %d.%d.%d.%d\n", NVCOMP_VER_MAJOR, NVCOMP_VER_MINOR, NVCOMP_VER_PATCH, NVCOMP_VER_BUILD);
+    nvcompProperties_t props;
+    nvcompStatus_t status = nvcompGetProperties(&props);
+    if (status != nvcompSuccess) {
+        printf("Failed to get nvcomp properties: %d\n", status);
+        return -1;
+    }
+    int major = props.version / 1000;
+    int minor = (props.version % 1000) / 100;
+    int patch = props.version % 100;
+    printf("nvCOMP version: %d.%d.%d\n", major, minor, patch);
 }

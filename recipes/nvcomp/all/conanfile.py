@@ -6,6 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -111,13 +112,14 @@ class NvCompConan(ConanFile):
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["nvcomp_cpu"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
 
-        self.cpp_info.components["nvcomp_device"].set_property("cmake_target_name", "nvcomp::nvcomp_device_static")
-        aliases = ["CUDA::nvcomp_device_static"]
-        if self.options.get_safe("cmake_alias"):
-            aliases.extend(["nvcomp::nvcomp_device", "CUDA::nvcomp_device"])
-        self.cpp_info.components["nvcomp_device"].set_property("cmake_target_aliases", aliases)
-        self.cpp_info.components["nvcomp_device"].libs = ["nvcomp_device_static"]
-        self.cpp_info.components["nvcomp_device"].includedirs = ["include/nvcomp/device"]
-        if self.settings.os == "Linux":
-            self.cpp_info.components["nvcomp_device"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
-        self.cpp_info.components["nvcomp_device"].requires = ["nvcomp_", "cudart::cudart_"]
+        if Version(self.version) < "5.0":
+            self.cpp_info.components["nvcomp_device"].set_property("cmake_target_name", "nvcomp::nvcomp_device_static")
+            aliases = ["CUDA::nvcomp_device_static"]
+            if self.options.get_safe("cmake_alias"):
+                aliases.extend(["nvcomp::nvcomp_device", "CUDA::nvcomp_device"])
+            self.cpp_info.components["nvcomp_device"].set_property("cmake_target_aliases", aliases)
+            self.cpp_info.components["nvcomp_device"].libs = ["nvcomp_device_static"]
+            self.cpp_info.components["nvcomp_device"].includedirs = ["include/nvcomp/device"]
+            if self.settings.os == "Linux":
+                self.cpp_info.components["nvcomp_device"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
+            self.cpp_info.components["nvcomp_device"].requires = ["nvcomp_", "cudart::cudart_"]
