@@ -44,7 +44,8 @@ class FfNvCodecHeaders(ConanFile):
     def _extract_license(self):
         # Extract the License/s from the header to a file
         tmp = load(self, os.path.join(self.source_folder, "include", "ffnvcodec", "nvEncodeAPI.h"))
-        license_contents = tmp[2 : tmp.find("*/", 1)]  # The license begins with a C comment /* and ends with */
+        license_contents = tmp[tmp.find("Copyright (c)"): tmp.find(" */", 1)]
+        license_contents = license_contents.replace(" * ", "").replace(" *", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
@@ -52,7 +53,7 @@ class FfNvCodecHeaders(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install(args=["PREFIX=/"])
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "ffnvcodec")
