@@ -3,7 +3,7 @@
 
 int main() {
     int major, minor, patch;
-    cusparseStatus_t status = CUSPARSE_STATUS_SUCCESS;
+    int status = CUSPARSE_STATUS_SUCCESS;
     status |= cusparseLtGetProperty(MAJOR_VERSION, &major);
     status |= cusparseLtGetProperty(MINOR_VERSION, &minor);
     status |= cusparseLtGetProperty(PATCH_LEVEL, &patch);
