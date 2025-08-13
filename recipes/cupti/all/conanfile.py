@@ -53,8 +53,7 @@ class CuptiConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        versions = self._utils.get_cuda_package_versions(self)
-        self.requires(f"cudart/[~{versions['cuda_cudart']}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
         self.requires("libvdpau/[^1.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
