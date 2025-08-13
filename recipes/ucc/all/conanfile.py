@@ -59,7 +59,7 @@ class UccConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
-        if self.options.cuda:
+        if self.info.options.cuda:
             del self.info.settings.cuda.version
 
     def requirements(self):
