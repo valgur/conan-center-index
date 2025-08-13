@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -33,6 +34,12 @@ class CuTensorConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
+    def config_options(self):
+        if Version(self.version) >= "2.3":
+            if self.settings.os == "Windows":
+                del self.options.shared
+                self.package_type = "shared-library"
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -47,7 +54,10 @@ class CuTensorConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcutensor")
-        if self.options.shared:
+        cuda_version = Version(self.settings.cuda.version)
+        if Version(self.version) < "2.3" and cuda_version >= "13":
+            raise ConanInvalidConfiguration(f"{self.ref} requires CUDA < 13, but cuda.version={self.settings.cuda.version}")
+        if self.options.get_safe("shared", True):
             self._utils.require_shared_deps(self, ["cublas"])
 
     def build(self):
@@ -56,8 +66,13 @@ class CuTensorConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
-        cuda_ver = str(Version(self.settings.cuda.version).major) if Version(self.settings.cuda.version) != "11.0" else "11.0"
-        lib_dir = os.path.join(self.source_folder, "lib", cuda_ver)
+        if Version(self.version) >= "2.3":
+            lib_dir = os.path.join(self.source_folder, "lib")
+            bin_dir = os.path.join(self.source_folder, "bin")
+        else:
+            cuda_ver = str(Version(self.settings.cuda.version).major) if Version(self.settings.cuda.version) != "11.0" else "11.0"
+            lib_dir = os.path.join(self.source_folder, "lib", cuda_ver)
+            bin_dir = lib_dir
 
         def copy_lib(name):
             if self.settings.os == "Linux":
@@ -66,8 +81,8 @@ class CuTensorConan(ConanFile):
                 else:
                     copy(self, f"lib{name}_static.a", lib_dir, os.path.join(self.package_folder, "lib"))
             else:
-                if self.options.shared:
-                    copy(self, f"{name}.dll", lib_dir, os.path.join(self.package_folder, "bin"))
+                if self.options.get_safe("shared", True):
+                    copy(self, f"{name}.dll", bin_dir, os.path.join(self.package_folder, "bin"))
                     copy(self, f"{name}.lib", lib_dir, os.path.join(self.package_folder, "lib"))
                 else:
                     copy(self, f"{name}_static.lib", lib_dir, os.path.join(self.package_folder, "lib"))
@@ -79,8 +94,8 @@ class CuTensorConan(ConanFile):
     def package_info(self):
         # The CMake target names are not an official part of the package or FindCUDAToolkit.cmake
 
-        suffix = "" if self.options.shared else "_static"
-        alias_suffix = "_static" if self.options.shared else ""
+        suffix = "" if self.options.get_safe("shared", True) else "_static"
+        alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
 
         self.cpp_info.components["cutensor_"].set_property("cmake_target_name", f"CUDA::cutensor{suffix}")
         if self.options.get_safe("cmake_alias"):
