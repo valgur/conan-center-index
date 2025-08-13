@@ -17,6 +17,11 @@ class CublasMpConan(ConanFile):
     topics = ("cuda", "blas", "linear-algebra", "distributed-computing", "hpc")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
+    default_options = {
+        "cublas/*:shared": True,
+        "nccl/*:shared": True,
+        "ucc/*:shared": True,
+    }
 
     python_requires = "conan-utils/latest"
 
@@ -34,18 +39,27 @@ class CublasMpConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
+        cuda_major = Version(self.settings.cuda.version).major
         self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires("nccl/[^2.18.5]", transitive_headers=True)
         self.requires("nvshmem/[^3.1]", run=True)
-        if Version(self.version) < "0.5":
-            if Version(self.settings.cuda.version).major > 11:
-                self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True, transitive_libs=True)
-            else:
-                self.requires("cuda-cal/0.4.3.36", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) >= "0.5":
+            self.requires("nccl/[^2.18.5]", transitive_headers=True)
+        elif cuda_major == 12:
+            self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True)
+        elif cuda_major == 11:
+            self.requires("cuda-cal/0.4.3.36", transitive_headers=True)
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuBLASMp is only supported on Linux")
+        if not self.dependencies["cudart"].options.shared:
+            raise ConanInvalidConfiguration("cuBLASMp requires -o cudart/*:shared=True")
+        if not self.dependencies["cublas"].options.get_safe("shared", True):
+            raise ConanInvalidConfiguration("cuBLASMp requires -o cublas/*:shared=True")
+        if Version(self.version) >= "0.5" and not self.dependencies["nccl"].options.shared:
+            raise ConanInvalidConfiguration("cuBLASMp requires -o nccl/*:shared=True")
+        if not self.dependencies["ucc"].options.get_safe("shared", True):
+            raise ConanInvalidConfiguration("cuBLASMp requires -o ucc/*:shared=True")
         self._utils.validate_cuda_package(self, "libcublasmp")
 
     def build(self):
@@ -62,7 +76,8 @@ class CublasMpConan(ConanFile):
             "cublas::cublas_",
             "cublas::cublasLt",
             "nvshmem::nvshmem_host",
-            "nccl::nccl",
         ]
-        if Version(self.version) < "0.5":
+        if Version(self.version) >= "0.5":
+            self.cpp_info.requires.append("nccl::nccl")
+        else:
             self.cpp_info.requires.append("cuda-cal::cuda-cal")

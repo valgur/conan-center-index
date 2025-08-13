@@ -3,6 +3,7 @@
 
 int main() {
 #if CUBLASMP_VER_MINOR > 3
+    int version;
     cublasMpStatus_t status = cublasMpGetVersion(&version);
     if (status != CUBLASMP_STATUS_SUCCESS) {
         printf("cuBLASMp API error: %d\n", status);
