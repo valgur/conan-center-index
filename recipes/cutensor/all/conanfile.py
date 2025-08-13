@@ -91,6 +91,12 @@ class CuTensorConan(ConanFile):
         if self.options.cutensorMg:
             copy_lib("cutensorMg")
 
+        if Version(self.version) < "2.0":
+            # Fix C compatibility
+            replace_in_file(self, os.path.join(self.package_folder, "include/cutensor/types.h"),
+                            "#include <cstdint>",
+                            "#include <stdint.h>")
+
     def package_info(self):
         # The CMake target names are not an official part of the package or FindCUDAToolkit.cmake
 
