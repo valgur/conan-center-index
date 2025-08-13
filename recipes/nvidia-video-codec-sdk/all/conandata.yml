@@ -1,0 +1,12 @@
+# The download URL is only accessible when logged in from
+# https://developer.nvidia.com/nvidia-video-codec-sdk/download
+# https://developer.nvidia.com/video-codec-sdk-archive
+sources:
+  "13.0.19":
+    sha256: "8ce8047af64dfb6b76f4671cedc895a550ba30fc31c1530e37a252ef86352209"
+  "12.2.72":
+    sha256: "fc3e05cd2a194fb93e2e9f11f8844f678401f4df5c9d017632d68c992e818a6e"
+  "11.1.5":
+    sha256: "d52b0a237dff4a66de55d7b39156462d3ddf6498cb7122cd3911a7c6065ea84b"
+  "10.0.26":
+    sha256: "67ff4543f93ad8ec1bc4ce2ef653b0778b94652597da9762a6e08f442dad5f45"
