@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -35,14 +36,32 @@ class CusolvermpConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires("cusolver/[^11]", transitive_headers=True, transitive_libs=True)
-        self.requires("cuda-cal/[~0.4]", transitive_headers=True)
+        cuda_major = Version(self.settings.cuda.version).major
+        if cuda_major >= 13:
+            cusolver_range = "^12"
+            cusparse_range = "^12"
+        elif cuda_major >= 12:
+            cusolver_range = "^11"
+            cusparse_range = "^12 <12.6"
+        else:
+            cusolver_range = "^11 <11.4"
+            cusparse_range = "^11"
+        self.requires(f"cusolver/[{cusolver_range}]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cusparse/[{cusparse_range}]", transitive_headers=True, transitive_libs=True)
+        if cuda_major >= 12:
+            self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
+        if Version(self.version) >= "0.7":
+            self.requires("nccl/[^2]", transitive_headers=True)
+        elif cuda_major == 12:
+            self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True)
+        elif cuda_major == 11:
+            self.requires("cuda-cal/0.4.3.36", transitive_headers=True)
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuSOLVERMp is only supported on Linux")
         self._utils.validate_cuda_package(self, "libcusolvermp")
-        self._utils.require_shared_deps(self, ["cusolver", "cusparse", "nccl"])
+        self._utils.require_shared_deps(self, ["cusolver", "cusparse", "nccl", "nvjitlink"])
 
     def build(self):
         self._utils.download_cuda_package(self, "libcusolvermp")
@@ -54,7 +73,3 @@ class CusolvermpConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["cusolverMp"]
-        self.cpp_info.requires = [
-            "cusolver::cusolver_",
-            "cuda-cal::cuda-cal",
-        ]

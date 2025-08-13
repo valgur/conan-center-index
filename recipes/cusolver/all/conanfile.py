@@ -64,10 +64,17 @@ class CuSolverConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
+        if Version(self.version) >= "12":
+            cublas_major = "13"
+            cusparse_major = "12"
+        elif Version(self.version) >= "11.4":
+            cublas_major = "12"
+            cusparse_major = "12"
+        else:
+            cublas_major = "11"
+            cusparse_major = "11"
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        cuda_major = Version(self.settings.cuda.version).major
-        cusparse_major = "11" if cuda_major == 11 else "12"
+        self.requires(f"cublas/[^{cublas_major}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"cusparse/[^{cusparse_major}]", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
             self.requires(f"culibos/[~{self.settings.cuda.version}]")
