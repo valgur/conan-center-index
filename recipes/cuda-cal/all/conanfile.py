@@ -40,6 +40,8 @@ class CudaCalConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("CAL is only supported on Linux")
+        if not self.dependencies["cudart"].options.shared:
+            raise ConanInvalidConfiguration("CAL requires -o cudart/*:shared=True")
         self._utils.validate_cuda_package(self, "libcal")
 
     def build(self):
