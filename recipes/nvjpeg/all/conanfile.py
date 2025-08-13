@@ -62,6 +62,8 @@ class NvJpegConan(ConanFile):
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        if self.settings.os == "Linux" and not self.options.shared:
+            self.requires(f"culibos/[~{self.settings.cuda.version}]")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libnvjpeg")
@@ -95,4 +97,5 @@ class NvJpegConan(ConanFile):
             self.cpp_info.libdirs = ["lib/stubs", "lib"]
         self.cpp_info.requires = ["cudart::cudart_"]
         if self.settings.os == "Linux" and not self.options.shared:
+            self.cpp_info.requires.append("culibos::culibos")
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
