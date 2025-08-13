@@ -58,6 +58,10 @@ class NvccToolchain:
                                  "Please specify at least one architecture, e.g. 'cuda.architectures=70,75'.")
 
         self.cudaflags = []
+        tc_vars = AutotoolsToolchain(self.conanfile).vars()
+        cc = tc_vars.get("CC")
+        if cc:
+            self.cudaflags.append(f"-ccbin={cc}")
         if not skip_arch_flags:
             self.cudaflags.extend(self.arch_flags)
         if "cudart" in self.conanfile.dependencies.host:
