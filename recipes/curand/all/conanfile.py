@@ -2,6 +2,7 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -67,6 +68,8 @@ class CuRandConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcurand")
+        if Version(self.settings.cuda.version).major == 11 and Version(self.version) >= "10.4":
+            raise ConanInvalidConfiguration("CUDA 11 is only compatible with cuRAND 10.3 or lower")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcurand")
