@@ -15,7 +15,6 @@ class FFNvEncHeaders(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/FFmpeg/nv-codec-headers"
     topics = ("ffmpeg", "video", "nvidia", "headers", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -28,8 +27,7 @@ class FFNvEncHeaders(ConanFile):
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
-            if "CONAN_MAKE_PROGRAM" not in os.environ:
-                self.tool_requires("make/[^4.4]")
+            self.tool_requires("make/[^4.4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -57,7 +55,6 @@ class FFNvEncHeaders(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.set_property("pkg_config_name", "ffnvcodec")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        self.cpp_info.set_property("pkg_config_name", "ffnvcodec")
