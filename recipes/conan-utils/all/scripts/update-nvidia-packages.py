@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import argparse
 import concurrent
 import re
 import textwrap
 from hashlib import sha256
 from pathlib import Path
+from pprint import pprint
 
 import requests
 import yaml
@@ -198,7 +200,30 @@ def update_all_conandata(all_versions, hashes):
         _update_config_yml(recipes_root / pkg / "config.yml", pkg_versions)
 
 
-if __name__ == "__main__":
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "packages",
+        nargs="*",
+        help="List of specific packages to update. If not provided, all NVIDIA redist packages will be updated.",
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
     redist_conan_packages = find_nvidia_redist_json_packages()
+    if args.packages:
+        for pkg in args.packages:
+            if pkg not in redist_conan_packages:
+                raise ValueError(f"Unknown package: {pkg}")
+        redist_conan_packages = {pkg: redist_conan_packages[pkg] for pkg in args.packages}
     all_versions, hashes = find_all_redist_package_versions(redist_conan_packages)
+    if args.verbose:
+        pprint(all_versions)
     update_all_conandata(all_versions, hashes)
+
+
+if __name__ == "__main__":
+    main()
