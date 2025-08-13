@@ -48,11 +48,13 @@ class CuDnnConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.shared
             self.package_type = "shared-library"
+        if Version(self.version) < "9.10":
+            del self.options.precompiled
 
     def configure(self):
         if self.options.legacy_api:
-            self.options.precompiled.value = True
-        if not self.options.precompiled:
+            self.options.rm_safe("precompiled")
+        if not self.options.get_safe("precompiled", True):
             self.options.rm_safe("shared")
             self.package_type = "shared-library"
 
@@ -73,13 +75,13 @@ class CuDnnConan(ConanFile):
             self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
-        pkg = "cudnn" if self.options.precompiled else "cudnn_jit"
+        pkg = "cudnn" if self.options.get_safe("precompiled", True) else "cudnn_jit"
         self._utils.validate_cuda_package(self, pkg)
-        if self.options.legacy_api and not self.options.precompiled:
+        if self.options.legacy_api and not self.options.get_safe("precompiled", True):
             raise ConanInvalidConfiguration("legacy_api=True requires precompiled=True")
 
     def build(self):
-        pkg = "cudnn" if self.options.precompiled else "cudnn_jit"
+        pkg = "cudnn" if self.options.get_safe("precompiled", True) else "cudnn_jit"
         self._utils.download_cuda_package(self, pkg)
 
     def package(self):
@@ -103,7 +105,7 @@ class CuDnnConan(ConanFile):
         copy_lib("cudnn_graph")
         copy_lib("cudnn_engines_runtime_compiled")
 
-        if self.options.precompiled:
+        if self.options.get_safe("precompiled", True):
             copy_lib("cudnn_heuristic")
             copy_lib("cudnn_engines_precompiled")
 
