@@ -121,8 +121,16 @@ class CuSolverConan(ConanFile):
 
         # internal components
         if not self.options.get_safe("shared", True):
-            self.cpp_info.components["cusolver_lapack"].libs = ["cusolver_lapack_static"]
-            self.cpp_info.components["cusolver_metis"].libs = ["cusolver_metis_static"]
-            self.cpp_info.components["cusolver_metis"].requires = ["metis"]
+            if Version(self.version) >= "11.3":
+                self.cpp_info.components["cusolver_lapack"].libs = ["cusolver_lapack_static"]
+                self.cpp_info.components["cusolver_"].requires.append("cusolver_lapack")
+            else:
+                self.cpp_info.components["lapack"].libs = ["lapack_static"]
+                self.cpp_info.components["cusolver_"].requires.append("lapack")
             self.cpp_info.components["metis"].libs = ["metis_static"]
-            self.cpp_info.components["cusolver_"].requires.extend(["cusolver_lapack", "cusolver_metis"])
+            if Version(self.version) >= "11.4":
+                self.cpp_info.components["cusolver_metis"].libs = ["cusolver_metis_static"]
+                self.cpp_info.components["cusolver_metis"].requires = ["metis"]
+                self.cpp_info.components["cusolver_"].requires.append("cusolver_metis")
+            else:
+                self.cpp_info.components["cusolver_"].requires.append("metis")
