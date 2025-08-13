@@ -8,8 +8,8 @@ from conan.tools.layout import basic_layout
 required_conan_version = ">=2.1"
 
 
-class FFNvEncHeaders(ConanFile):
-    name = "nv-codec-headers"
+class FfNvCodecHeaders(ConanFile):
+    name = "ffnvcodec"
     description = "FFmpeg version of headers required to interface with Nvidia's codec APIs"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
