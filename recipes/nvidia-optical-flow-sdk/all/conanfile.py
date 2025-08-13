@@ -22,12 +22,12 @@ class NvidiaOpticalFlowSDKConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "source": ["ANY"],
+        "archive_dir": ["ANY"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "source": "",
+        "archive_dir": None,
     }
     implements = ["auto_shared_fpic"]
     no_copy_source = True
@@ -36,7 +36,7 @@ class NvidiaOpticalFlowSDKConan(ConanFile):
         export_conandata_patches(self)
 
     def package_id(self):
-        del self.info.options.source
+        del self.info.options.archive_dir
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -56,11 +56,17 @@ class NvidiaOpticalFlowSDKConan(ConanFile):
         })
 
     def validate(self):
-        if not self.options.source:
-            raise ConanInvalidConfiguration(
-                f"The 'source' option must be a valid path to the Optical_Flow_SDK{self.version}.zip source archive file"
-            )
         check_min_cppstd(self, 11)
+
+    @property
+    def _file_name(self):
+        return f"Optical_Flow_SDK{self.version}.zip"
+
+    def validate_build(self):
+        if not self.options.archive_dir:
+            raise ConanInvalidConfiguration(
+                f"The 'archive_dir' option must be set to a directory path where a '{self._file_name}' file is located"
+            )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -69,9 +75,9 @@ class NvidiaOpticalFlowSDKConan(ConanFile):
         deps.generate()
 
     def _source(self):
-        check_sha256(self, str(self.options.source), self.conan_data["sources"][self.version]["sha256"])
-        unzip(self, str(self.options.source), destination=self.source_folder, strip_root=True)
-        apply_conandata_patches(self)
+        path = os.path.join(self.options.archive_dir.value, self._file_name)
+        check_sha256(self, path, self.conan_data["sources"][self.version]["sha256"])
+        unzip(self, path, destination=self.source_folder, strip_root=True)
 
     def build(self):
         self._source()
