@@ -180,7 +180,7 @@ def get_cuda_package_info(conanfile: ConanFile, package_name: str):
 def get_cuda_package_versions(conanfile: ConanFile):
     redistrib_info = get_cuda_redistrib_info(conanfile)
     versions = {pkg: Version(info["version"]) for pkg, info in redistrib_info.items() if isinstance(info, dict)}
-    if redistrib_info["release_product"] not in versions:
+    if "release_product" in redistrib_info and redistrib_info["release_product"] not in versions:
         versions[redistrib_info["release_product"]] = redistrib_info["release_label"]
     return versions
 
