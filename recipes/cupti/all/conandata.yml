@@ -41,6 +41,3 @@ sources:
   "11.5.114":
     url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.5.2.json"
     sha256: "ea6b1576218c8f3163f90e8ab239dc6ca28a1f9cabbbff5d83d12b036497f06e"
-  "11.4.120":
-    url: "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_11.4.4.json"
-    sha256: "267c2edc731442f8d8860a2e77770fe51775217e1d152eaacb3ad57aef508244"
