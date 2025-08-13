@@ -17,9 +17,10 @@ recipes_root = script_dir.parent.parent.parent
 
 
 conanfile_version_ranges = {
+    "cublasmp/all": ("0.2", None),
     "cudnn/v8": (None, "9.0"),
     "cudnn/all": ("9.0", None),
-    "cublasmp/all": ("0.2", None),
+    "cudss/all": ("0.3", None),
 }
 conanfile_policies = {
     "cudnn/v8": "latest",

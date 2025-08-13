@@ -1,6 +1,4 @@
 #include <cudss.h>
-#include <cudss_distributed_interface.h>
-#include <cudss_threading_interface.h>
 #include <stdio.h>
 
 int main() {
