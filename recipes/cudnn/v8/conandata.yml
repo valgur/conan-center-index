@@ -1,4 +1,7 @@
 sources:
-  "8.9.7.29":
+  "8.9.7.29":  # CUDA 11, 12
     url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_8.9.7.json"
     sha256: "5283f8646775f98186e27d804b19e009f058966960c430a84b344215f6828986"
+  "8.7.0.84":  # CUDA 10, 11
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_8.7.0.json"
+    sha256: "27c6a563152e3d223aeaf215a0c468a167d2d20e85294a015b614bca76255045"

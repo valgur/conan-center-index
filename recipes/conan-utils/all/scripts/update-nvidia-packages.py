@@ -94,8 +94,11 @@ def _fetch_and_process_redist_file(url, relevant_nv_packages, hashes, url_dates)
         if not isinstance(package_info, dict) or "version" not in package_info:
             continue
         version = package_info["version"]
+        cuda_versions = package_info.get("cuda_variant")
+        if cuda_versions:
+            cuda_versions = [int(v) for v in cuda_versions]
         if nv_pkg_name in relevant_nv_packages:
-            results[nv_pkg_name] = (version, url)
+            results[nv_pkg_name] = (version, cuda_versions, url)
     return results
 
 
@@ -126,12 +129,13 @@ def find_all_redist_package_versions(redist_conan_packages):
             for conan_pkg, info in redist_conan_packages.items():
                 for nv_pkg_name in info["nv_packages"]:
                     if nv_pkg_name in result:
-                        version, url = result[nv_pkg_name]
+                        version, cuda_versions, url = result[nv_pkg_name]
                         if conan_pkg not in versions:
                             versions[conan_pkg] = {}
                         if version not in versions[conan_pkg]:
                             versions[conan_pkg][version] = []
-                        versions[conan_pkg][version].append((url_dates[url], url))
+                        for cuda_major in cuda_versions or [0]:
+                            versions[conan_pkg][version].append((cuda_major, url_dates[url], url))
                         break
     return versions, hashes
 
@@ -153,22 +157,41 @@ def _select_versions(versions_dict, version_range=None, policy="latest_minor"):
             key = int(ver.major.value)
         else:
             key = None
-        if key not in groups:
-            groups[key] = []
-        groups[key].append((ver, info))
-    selected = []
+        for instance in info:
+            cuda_major = instance[0]
+            combined_key = (cuda_major, key)
+            if combined_key not in groups:
+                groups[combined_key] = []
+            info_subset = [x[1:] for x in info if x[0] == cuda_major]
+            groups[combined_key].append((ver, info_subset))
+    selected = {}
     for group in groups.values():
         ver, info = sorted(group)[-1]
         # Select the newest URL if the same version exists in multiple
         url = sorted(info)[-1][-1]
-        selected.append((ver, url))
-    return sorted(selected, reverse=True)
+        selected[ver] = url
+    return sorted(selected.items(), reverse=True)
 
 
-def _update_conandata(path, versions, hashes):
+def _get_supported_cuda_major_versions(selected, versions_dict):
+    cuda_major_versions = {}
+    for ver, _ in selected:
+        cuda_major_versions[ver] = sorted(set(x[0] for x in versions_dict[str(ver)] if x[0] != 0))
+    return cuda_major_versions
+
+
+def _update_conandata(path, versions, supported_cuda_major_versions, hashes):
     parts = ["sources:"]
     for ver, url in versions:
-        parts.append(textwrap.indent(f'"{ver}":\n  url: "{url}"\n  sha256: "{hashes[url]}"', "  "))
+        cuda_ver_comment = ""
+        supported = supported_cuda_major_versions.get(ver)
+        if supported:
+            cuda_ver_comment = f"  # CUDA {', '.join(map(str, supported))}"
+        parts.append(textwrap.indent((
+            f'"{ver}":{cuda_ver_comment}\n'
+            f'  url: "{url}"\n'
+            f'  sha256: "{hashes[url]}"'
+        ), "  "))
     content = path.read_text(encoding="utf-8")
     content, n = re.subn(r"sources:(?:\n  .+)+", "\n".join(parts), content)
     assert n > 0, f"{path} failed"
@@ -194,7 +217,8 @@ def update_all_conandata(all_versions, hashes):
                 conanfile_version_ranges.get(rel_path),
                 conanfile_policies.get(rel_path, "latest_minor"),
             )
-            _update_conandata(conanfile.parent.joinpath("conandata.yml"), selected_versions, hashes)
+            supported_cuda_major_versions = _get_supported_cuda_major_versions(selected_versions, versions)
+            _update_conandata(conanfile.parent.joinpath("conandata.yml"), selected_versions, supported_cuda_major_versions, hashes)
             pkg_versions += [(ver, conanfile.parent.name) for ver, _ in selected_versions]
         pkg_versions = sorted(set(pkg_versions), reverse=True)
         _update_config_yml(recipes_root / pkg / "config.yml", pkg_versions)

@@ -1,5 +1,5 @@
 sources:
-  "2.3.0.6":
+  "2.3.0.6":  # CUDA 12, 13
     url: "https://developer.download.nvidia.com/compute/cutensor/redist/redistrib_2.3.0.json"
     sha256: "31ccbebc3f74c36a3ae7046483477f3dd0546586ecdaf218eb6a03e695dc5c98"
   "2.2.0.0":
