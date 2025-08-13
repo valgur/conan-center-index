@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -15,7 +16,7 @@ class CuDnnFrontendConan(ConanFile):
     homepage = "https://github.com/NVIDIA/cudnn-frontend"
     topics = ("cuda", "cudnn", "deep-learning", "neural-networks", "header-only")
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "with_json": [True, False],
     }
@@ -35,7 +36,8 @@ class CuDnnFrontendConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        self.requires("cudnn/[>=8.5.0 <10]")
+        max_version = "9.11" if Version(self.settings.cuda.version) < 12 else "10"
+        self.requires(f"cudnn/[>=8.5.0 <{max_version}]")
         if self.options.with_json:
             self.requires("nlohmann_json/[^3]")
 
