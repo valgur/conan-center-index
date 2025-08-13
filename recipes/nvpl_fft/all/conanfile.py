@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -50,4 +51,5 @@ class NvplFftConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "nvpl_fftw")
         self.cpp_info.set_property("cmake_target_aliases", ["nvpl::fftw"])
         self.cpp_info.libs = ["nvpl_fftw"]
-        self.cpp_info.includedirs.append("include/nvpl_fftw")
+        if Version(self.version) >= "0.4":
+            self.cpp_info.includedirs.append("include/nvpl_fftw")
