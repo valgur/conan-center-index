@@ -33,7 +33,7 @@ class NvmlStubsConan(ConanFile):
         return self.python_requires["conan-utils"].module
 
     def config_options(self):
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or Version(self.version) < "12.4":
             del self.options.shared
             self.package_type = "shared-library"
 
@@ -62,7 +62,7 @@ class NvmlStubsConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
         if self.settings.os == "Linux":
-            if self.options.shared:
+            if self.options.get_safe("shared", True):
                 copy(self, "libnvidia-ml.so", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib", "stubs"))
             else:
                 copy(self, "libnvidia-ml.a", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib", "stubs"))
@@ -81,5 +81,5 @@ class NvmlStubsConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.libdirs = ["lib/stubs"]
         self.cpp_info.bindirs = []
-        if self.settings.os == "Linux" and not self.options.shared:
+        if self.settings.os == "Linux" and not self.options.get_safe("shared", True):
             self.cpp_info.system_libs = ["rt", "pthread", "m", "dl"]
