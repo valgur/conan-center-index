@@ -2,6 +2,7 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -27,7 +28,7 @@ class CuFFTConan(ConanFile):
         "shared": False,
         "cmake_alias": True,
         "use_stubs": False,
-        "nocallback": True,
+        "nocallback": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -42,9 +43,13 @@ class CuFFTConan(ConanFile):
             del self.options.use_stubs
             del self.options.nocallback
             self.package_type = "shared-library"
+        if Version(self.version) >= "12.0":
+            self.options.rm_safe("nocallback")
 
     def configure(self):
-        if not self.options.get_safe("shared", True):
+        if self.options.get_safe("shared", True):
+            self.options.rm_safe("nocallback")
+        else:
             self.options.rm_safe("use_stubs")
 
     def layout(self):
@@ -70,6 +75,8 @@ class CuFFTConan(ConanFile):
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcufft")
+        if self._cuda_version.major != Version(self.settings.cuda.version).major:
+            raise ConanInvalidConfiguration(f"{self.ref} expects CUDA v{self._cuda_version.major}, but cuda.version={self.settings.cuda.version}")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcufft")
@@ -81,7 +88,7 @@ class CuFFTConan(ConanFile):
             if self.options.shared:
                 copy(self, "*.so*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
                 copy(self, "*.so*", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib", "stubs"))
-            elif self.options.nocallback:
+            elif self.options.get_safe("nocallback"):
                 copy(self, "libcufft_static_nocallback.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
                 copy(self, "libcufftw_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
             else:
