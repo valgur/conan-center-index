@@ -55,6 +55,6 @@ class NvptxcompilerLibsConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m", "dl", "pthread", "gcc_s"]
             if self.settings.get_safe("compiler.libcxx") == "libc++":
-                self.cpp_info.components["cudart_"].system_libs.append("c++abi")
+                self.cpp_info.system_libs.append("c++abi")
             else:
-                self.cpp_info.components["cudart_"].system_libs.append("stdc++")
+                self.cpp_info.system_libs.append("stdc++")
