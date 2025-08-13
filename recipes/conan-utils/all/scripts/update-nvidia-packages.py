@@ -27,6 +27,13 @@ conanfile_policies = {
     "nvprof/all": "latest",
     "nvprune/all": "latest",
 }
+nv_packages = {
+    "cuda-crt": ["cuda_crt", "cuda_nvcc"],
+    "nvvm": ["libnvvm", "cuda_nvcc"],
+    "nvptxcompiler": ["libnvptxcompiler", "cuda_nvcc"],
+    "culibos": ["cuda_culibos", "cuda_cudart"],
+    "cudnn": ["cudnn"],
+}
 
 
 def find_conanfiles():
@@ -49,44 +56,17 @@ def find_nvidia_redist_json_packages():
         if "download_cuda_package" not in content:
             continue
         conan_pkg_name = conanfile.parent.parent.name
-        match conan_pkg_name:
-            case "cuda-crt":
-                nv_pkg_names = ["nvcc", "cuda-crt"]
-            case "nvvm":
-                nv_pkg_names = ["nvcc", "nvvm"]
-            case "nvptxcompiler":
-                nv_pkg_names = ["nvcc", "nvptxcompiler"]
-            case "culibos":
-                nv_pkg_names = ["cudart", "culibos"]
-            case "cudnn":
-                nv_pkg_names = ["cudnn"]
-            case _:
-                m = pattern.search(content)
-                if not m:
-                    raise ValueError(f"Could not determine NVIDIA package name in {conanfile}")
-                nv_pkg_names = [m.group(1)]
+        nv_pkg_names = nv_packages.get(conan_pkg_name)
+        if not nv_pkg_names:
+            m = pattern.search(content)
+            if not m:
+                raise ValueError(f"Could not determine NVIDIA package name in {conanfile}")
+            nv_pkg_names = [m.group(1)]
         packages[conan_pkg_name] = {
             "nv_packages": nv_pkg_names,
             "urls": get_redist_urls(conanfile.parent / "conandata.yml"),
         }
     return packages
-
-
-def _fetch_and_process_redist_file(url, relevant_nv_packages, hashes, url_dates):
-    r = requests.get(url)
-    r.raise_for_status()
-    hashes[url] = sha256(r.content).hexdigest()
-    redist_info = r.json()
-    url_dates[url] = redist_info.get("release_date", None)
-    results = []
-    for nv_pkg_name, package_info in redist_info.items():
-        if not isinstance(package_info, dict) or "version" not in package_info:
-            continue
-        version = package_info["version"]
-        if nv_pkg_name in relevant_nv_packages:
-            conan_pkg = relevant_nv_packages[nv_pkg_name]
-            results.append((conan_pkg, version, url))
-    return results
 
 
 def _process_base_url(base_url, redist_conan_packages):
@@ -99,6 +79,22 @@ def _process_base_url(base_url, redist_conan_packages):
             for nv_pkg_name in info["nv_packages"]:
                 relevant_nv_packages[nv_pkg_name] = conan_pkg
     return [(f"{base_url}/{redist_file}", relevant_nv_packages) for redist_file in redist_files]
+
+
+def _fetch_and_process_redist_file(url, relevant_nv_packages, hashes, url_dates):
+    r = requests.get(url)
+    r.raise_for_status()
+    hashes[url] = sha256(r.content).hexdigest()
+    redist_info = r.json()
+    url_dates[url] = redist_info.get("release_date", None)
+    results = {}
+    for nv_pkg_name, package_info in redist_info.items():
+        if not isinstance(package_info, dict) or "version" not in package_info:
+            continue
+        version = package_info["version"]
+        if nv_pkg_name in relevant_nv_packages:
+            results[nv_pkg_name] = (version, url)
+    return results
 
 
 def find_all_redist_package_versions(redist_conan_packages):
@@ -123,12 +119,18 @@ def find_all_redist_package_versions(redist_conan_packages):
         for future in tqdm(
             concurrent.futures.as_completed(futures), total=len(futures), desc="Fetching redist files"
         ):
-            for conan_pkg, version, url in future.result():
-                if conan_pkg not in versions:
-                    versions[conan_pkg] = {}
-                if version not in versions[conan_pkg]:
-                    versions[conan_pkg][version] = []
-                versions[conan_pkg][version].append((url_dates[url], url))
+            result = future.result()
+            # Iterate over "nv_packages" for each Conan package name to allow earlier names to take precedence
+            for conan_pkg, info in redist_conan_packages.items():
+                for nv_pkg_name in info["nv_packages"]:
+                    if nv_pkg_name in result:
+                        version, url = result[nv_pkg_name]
+                        if conan_pkg not in versions:
+                            versions[conan_pkg] = {}
+                        if version not in versions[conan_pkg]:
+                            versions[conan_pkg][version] = []
+                        versions[conan_pkg][version].append((url_dates[url], url))
+                        break
     return versions, hashes
 
 
@@ -156,7 +158,7 @@ def _select_versions(versions_dict, version_range=None, policy="latest_minor"):
     for group in groups.values():
         ver, info = sorted(group)[-1]
         # Select the newest URL if the same version exists in multiple
-        url = sorted(info)[-1][1]
+        url = sorted(info)[-1][-1]
         selected.append((ver, url))
     return sorted(selected, reverse=True)
 
