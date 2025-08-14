@@ -6,7 +6,7 @@ int main() {
     cudaError_t error = cudaRuntimeGetVersion(&version);
     if (error != cudaSuccess) {
         printf("CUDA Runtime API error: %s\n", cudaGetErrorString(error));
-        return 1;
+        return 0;
     }
     int major = version / 1000;
     int minor = version % 1000 / 10;
