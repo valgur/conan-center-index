@@ -89,6 +89,8 @@ class Libx265Conan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} fails to build for Mac M1. Contributions are welcome.")
 
     def build_requirements(self):
+        # Too many incompatibilities for CMake v4
+        self.tool_requires("cmake/[<4]")
         if self.options.assembly:
             if self.settings.arch in ["x86", "x86_64"]:
                 self.tool_requires("nasm/[^2.16]")
@@ -124,6 +126,7 @@ class Libx265Conan(ConanFile):
             tc.variables["PLATFORM_LIBS"] = "dl"
         if "arm" in self.settings.arch:
             tc.variables["CROSS_COMPILE_ARM"] = cross_building(self)
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
