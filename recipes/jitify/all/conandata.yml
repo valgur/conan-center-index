@@ -1,0 +1,4 @@
+sources:
+  "0.0.0.cci.20231004":
+    url: "https://github.com/NVIDIA/jitify/archive/9c01f4988bbc3e11fcb84fc2747b5d0f2af7862e.tar.gz"
+    sha256: "39176a384f420458323282a4c20706dab202b9f944cc4336bc830f7a75c90569"
