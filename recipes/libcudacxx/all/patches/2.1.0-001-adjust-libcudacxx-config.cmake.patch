@@ -1,5 +1,5 @@
---- libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake
-+++ libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake
+--- lib/cmake/libcudacxx/libcudacxx-config.cmake
++++ lib/cmake/libcudacxx/libcudacxx-config.cmake
 @@ -33,12 +33,7 @@
  #
  

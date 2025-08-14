@@ -1,6 +1,6 @@
---- libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake
-+++ libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake
-@@ -33,12 +33,7 @@
+--- lib/cmake/libcudacxx/libcudacxx-config.cmake
++++ lib/cmake/libcudacxx/libcudacxx-config.cmake
+@@ -33,13 +33,7 @@
  #
  
  _libcudacxx_declare_interface_alias(libcudacxx::libcudacxx _libcudacxx_libcudacxx)
@@ -10,11 +10,12 @@
 -)
 -unset(_libcudacxx_VERSION_INCLUDE_DIR CACHE) # Clear tmp variable from cache
 -target_include_directories(_libcudacxx_libcudacxx INTERFACE "${_libcudacxx_INCLUDE_DIR}")
+-target_compile_definitions(_libcudacxx_libcudacxx INTERFACE $<$<CONFIG:Debug>:CCCL_ENABLE_ASSERTIONS>)
 +target_include_directories(_libcudacxx_libcudacxx INTERFACE "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}")
  
  #
  # Standardize version info
-@@ -50,9 +45,3 @@
+@@ -51,9 +45,3 @@
  set(LIBCUDACXX_VERSION_PATCH ${${CMAKE_FIND_PACKAGE_NAME}_VERSION_PATCH} CACHE INTERNAL "")
  set(LIBCUDACXX_VERSION_TWEAK ${${CMAKE_FIND_PACKAGE_NAME}_VERSION_TWEAK} CACHE INTERNAL "")
  set(LIBCUDACXX_VERSION_COUNT ${${CMAKE_FIND_PACKAGE_NAME}_VERSION_COUNT} CACHE INTERNAL "")

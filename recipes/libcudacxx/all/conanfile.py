@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -15,7 +16,6 @@ class LibcudacxxConan(ConanFile):
     license = "Apache-2.0 WITH LLVM-exception AND (NCSA OR MIT) AND DocumentRef-LICENSE.txt:LicenseRef-NVIDIA-SOFTWARE-LICENSE"
     homepage = "https://nvidia.github.io/libcudacxx/"
     topics = ("cuda", "standard-library", "libcxx", "gpu", "nvidia", "nvidia-hpc-sdk", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -33,36 +33,41 @@ class LibcudacxxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        move_folder_contents(self, os.path.join(self.source_folder, "libcudacxx"), self.source_folder)
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.TXT",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
-        copy(self, "libcudacxx-config.cmake",
-             src=os.path.join(self.source_folder, "lib", "cmake", "libcudacxx"),
-             dst=os.path.join(self.package_folder, "lib", "cmake"))
-        rename(self, os.path.join(self.package_folder, "lib", "cmake", "libcudacxx-config.cmake"),
-                     os.path.join(self.package_folder, "lib", "cmake", "libcudacxx-config-official.cmake"))
+        copy(self, "LICENSE.TXT", os.path.join(self.source_folder, "libcudacxx"), os.path.join(self.package_folder, "licenses"))
+
+        if Version(self.version) >= "2.2.0":
+            include_dir = os.path.join(self.source_folder, "libcudacxx", "include")
+        else:
+            include_dir = os.path.join(self.source_folder, "include")
+        copy(self, "*", include_dir, os.path.join(self.package_folder, "include"))
+
+        if "2.2.0" <= Version(self.version) < "2.8.0":
+            cmake_dir = os.path.join(self.source_folder, "libcudacxx/lib/cmake/libcudacxx")
+        else:
+            cmake_dir = os.path.join(self.source_folder, "lib/cmake/libcudacxx")
+        copy(self, "libcudacxx-config.cmake", cmake_dir, os.path.join(self.package_folder, "lib/cmake"))
+        rename(self, os.path.join(self.package_folder, "lib/cmake/libcudacxx-config.cmake"),
+                     os.path.join(self.package_folder, "lib/cmake/libcudacxx-config-official.cmake"))
 
     def package_info(self):
+        # Follows the naming conventions of the official CMake config file:
+        # https://github.com/NVIDIA/cccl/blob/main/lib/cmake/libcudacxx/libcudacxx-config.cmake
+        self.cpp_info.set_property("cmake_file_name", "libcudacxx")
+        # Disable the default target.
+        # libcudacxx::libcudacxx is created in the loaded .cmake module instead.
+        self.cpp_info.set_property("cmake_target_name", "_libcudacxx_do_not_use")
+        # The CMake module ensures that the include dir is exported as a non-SYSTEM include in CMake
+        # https://github.com/NVIDIA/cccl/blob/v2.2.0/libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake#L11-L29
+        self.cpp_info.set_property("cmake_build_modules", ["lib/cmake/libcudacxx-config-official.cmake"])
+
         self.cpp_info.bindirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
+        self.cpp_info.builddirs = ["lib/cmake"]
 
-        # Follows the naming conventions of the official CMake config file:
-        # https://github.com/NVIDIA/cccl/blob/main/libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake
-        self.cpp_info.set_property("cmake_file_name", "libcudacxx")
-        # Disable the target. It is created in the .cmake module instead.
-        self.cpp_info.set_property("cmake_target_name", "_libcudacxx_do_not_use")
-
-        # The CMake module ensures that the include dir is exported as a non-SYSTEM include in CMake
-        # https://github.com/NVIDIA/cccl/blob/v2.2.0/libcudacxx/lib/cmake/libcudacxx/libcudacxx-config.cmake#L11-L29
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        module_path = os.path.join("lib", "cmake", "libcudacxx-config-official.cmake")
-        self.cpp_info.set_property("cmake_build_modules", [module_path])
+        if self.settings.build_type == "Debug" and Version(self.version) >= "2.8.0":
+            self.cpp_info.defines.append("CCCL_ENABLE_ASSERTIONS")
