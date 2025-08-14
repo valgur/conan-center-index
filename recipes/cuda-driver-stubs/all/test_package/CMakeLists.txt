@@ -9,7 +9,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cuda_driver)
 # Check the FindCUDAToolkit.cmake wrapper output
 foreach(pkg
         cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
-        nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl culibos)
+        nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl culibos
+        Thrust cub libcudacxx)
     if(${pkg}_COMPONENT_NAMES)
         string(REPLACE ";" " " libs "${${pkg}_COMPONENT_NAMES}")
     else()

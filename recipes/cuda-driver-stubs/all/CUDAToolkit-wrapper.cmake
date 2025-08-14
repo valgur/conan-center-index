@@ -4,12 +4,13 @@ include_guard()
 foreach(pkg
         cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
         nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl
-        culibos cuda-crt libcudacxx thrust cub)
+        culibos cuda-crt libcudacxx Thrust cub)
     find_package(${pkg} QUIET)
     if(NOT ${pkg}_FOUND)
         continue()
     endif()
     list(APPEND CUDAToolkit_INCLUDE_DIRS ${${pkg}_INCLUDE_DIRS})
+    list(APPEND CUDAToolkit_LIBRARIES ${${pkg}_LIBARIES})  # Not an official variable
     if(EXISTS "${${pkg}_INCLUDE_DIR}/../lib")
         get_filename_component(_lib_dir "${${pkg}_INCLUDE_DIR}/../lib" ABSOLUTE)
         list(APPEND CUDAToolkit_LIBRARY_DIR "${_lib_dir}")
