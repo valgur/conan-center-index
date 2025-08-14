@@ -46,7 +46,12 @@ class CudartConan(ConanFile):
         v = Version(self.version)
         self.requires(f"cuda-crt/[~{v.major}.{v.minor}]", transitive_headers=True)
         self.requires(f"cuda-driver-stubs/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
-        self.requires("libcudacxx/[^2]", transitive_headers=True)
+        if Version(self.version) >= "13.0":
+            self.requires("libcudacxx/[^3]", transitive_headers=True)
+        elif Version(self.version) >= "12.2":
+            self.requires("libcudacxx/[^2]", transitive_headers=True)
+        else:
+            self.requires("libcudacxx/[^1]", transitive_headers=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_cudart")
