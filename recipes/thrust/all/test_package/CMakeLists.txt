@@ -19,5 +19,4 @@ else()
     add_executable(${PROJECT_NAME} test_package.cpp)
 endif()
 
-target_link_libraries(${PROJECT_NAME} thrust::thrust)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
+target_link_libraries(${PROJECT_NAME} Thrust::Thrust)
