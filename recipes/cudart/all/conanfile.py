@@ -98,9 +98,7 @@ class CudartConan(ConanFile):
         self.cpp_info.components["cudart_"].requires = [
             "cuda-crt::cuda-crt",
             "cuda-driver-stubs::cuda-driver-stubs",
-            "cuda-cccl::libcudacxx",
-            "cuda-cccl::cub",
-            "cuda-cccl::thrust",
+            "cuda-cccl::cuda-cccl",
         ]
 
         self.cpp_info.components["cudadevrt"].set_property("cmake_target_name", "CUDA::cudadevrt")
