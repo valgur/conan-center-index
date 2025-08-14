@@ -18,6 +18,13 @@ class FfNvCodecHeaders(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    options = {
+        "prefixless_includes": [True, False],
+    }
+    default_options = {
+        # prefixless headers are not officially exported by FFMpeg, but enable them for versatility
+        "prefixless_includes": True,
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -57,5 +64,7 @@ class FfNvCodecHeaders(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "ffnvcodec")
+        if self.options.prefixless_includes:
+            self.cpp_info.includedirs.append("include/ffnvcodec")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
