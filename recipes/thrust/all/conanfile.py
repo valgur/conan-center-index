@@ -10,70 +10,73 @@ required_conan_version = ">=2.1"
 
 class ThrustConan(ConanFile):
     name = "thrust"
-    license = "Apache-2.0"
     description = "Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL)."
-    topics = ("parallel", "stl", "header-only", "cuda", "gpgpu")
+    license = "Apache-2.0 AND BSL-1.0 AND BSD-2-Clause"
+    topics = ("parallel", "stl", "cuda", "gpgpu", "header-only")
     homepage = "https://nvidia.github.io/thrust/"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    options = {
-        "device_system": ["cuda", "cpp", "omp", "tbb"],
-    }
-    default_options = {
-        "device_system": "tbb",
-    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires(f"cub/{self.version}")
-        if Version(self.version) >= "2.0":
-            self.requires(f"libcudacxx/{self.version}")
-
-        if self.options.device_system == "tbb":
-            self.requires("onetbb/[>=2021 <2023]")
-
-        if self.options.device_system in ["cuda", "omp"]:
-            dev = str(self.options.device_system).upper()
-            self.output.warning(
-                f"Conan package for {dev} is not available, this package will use {dev} from system."
-            )
 
     def package_id(self):
         self.info.clear()
 
-    def source(self):
-        if Version(self.version) >= "2.2":
-            tmpdir = os.path.join(self.export_sources_folder, "tmp")
-            get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=tmpdir)
-            move_folder_contents(self, os.path.join(tmpdir, "thrust"), self.source_folder)
-            rmdir(self, tmpdir)
+    @property
+    def _cmake_dir(self):
+        if Version(self.version) >= "2.8":
+            return os.path.join(self.source_folder, "lib/cmake/thrust")
+        elif Version(self.version) >= "2.2":
+            return os.path.join(self.source_folder, "thrust/thrust/cmake")
         else:
-            get(self, **self.conan_data["sources"][self.version], strip_root=True)
+            return os.path.join(self.source_folder, "thrust/cmake")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        cmake_config = os.path.join(self._cmake_dir, "thrust-config.cmake")
+        replace_in_file(self, cmake_config,
+                        "find_package(CUB ",
+                        'message(TRACE "find_package(CUB" ')
+        replace_in_file(self, cmake_config,
+                        "${_THRUST_VERSION_INCLUDE_DIR}",
+                        "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}")
+        replace_in_file(self, cmake_config,
+                        "set(Thrust_CONFIG",
+                        "# set(Thrust_CONFIG")
+        replace_in_file(self, cmake_config,
+                        "find_package_handle_standard_args(",
+                        "# find_package_handle_standard_args(")
+        if self.version == "2.1.0":
+            replace_in_file(self, cmake_config,
+                            "set(thrust_libcudacxx_version 1.8.0)",
+                            f"set(thrust_libcudacxx_version {self.version})")
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        for pattern in ["*.h", "*.inl"]:
-            copy(self, pattern,
-                 src=os.path.join(self.source_folder, "thrust"),
-                 dst=os.path.join(self.package_folder, "include", "thrust"))
+        if Version(self.version) >= "2.2":
+            copy(self, "LICENSE", os.path.join(self.source_folder, "thrust"), os.path.join(self.package_folder, "licenses"))
+            copy(self, "*", os.path.join(self.source_folder, "thrust", "thrust"), os.path.join(self.package_folder, "include", "thrust"))
+        else:
+            copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+            copy(self, "*", os.path.join(self.source_folder, "thrust"), os.path.join(self.package_folder, "include", "thrust"))
+        copy(self, "thrust-config.cmake", self._cmake_dir, os.path.join(self.package_folder, "lib/cmake"))
+        rename(self, os.path.join(self.package_folder, "lib/cmake/thrust-config.cmake"),
+                     os.path.join(self.package_folder, "lib/cmake/thrust-config-official.cmake"))
 
     def package_info(self):
-        # Follows the naming conventions of the official CMake config file:
+        self.cpp_info.set_property("cmake_file_name", "Thrust")
+        # Disable the default target.
+        # Thrust::Thrust is created in the loaded .cmake module instead.
         # https://github.com/NVIDIA/cccl/blob/main/lib/cmake/thrust/thrust-config.cmake
-        self.cpp_info.set_property("cmake_file_name", "thrust")
-        self.cpp_info.set_property("cmake_target_name", "Thrust::Thrust")
+        self.cpp_info.set_property("cmake_target_name", "_thrust_do_not_use")
+        self.cpp_info.set_property("cmake_build_modules", ["lib/cmake/thrust-config-official.cmake"])
 
         self.cpp_info.bindirs = []
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
-        dev = str(self.options.device_system).upper()
-        self.cpp_info.defines = [f"THRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_{dev}"]
-
-        if self.dependencies["cub"].ref.version != self.version:
-            self.cpp_info.defines += ["THRUST_IGNORE_CUB_VERSION_CHECK=1"]
-
-        # TODO: apply https://github.com/NVIDIA/cccl/blob/main/thrust/thrust/cmake/thrust-config.cmake
+        self.cpp_info.resdirs = []
+        self.cpp_info.builddirs = ["lib/cmake"]
