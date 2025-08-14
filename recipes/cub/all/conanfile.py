@@ -13,10 +13,8 @@ class CubConan(ConanFile):
     name = "cub"
     description = "Cooperative primitives for CUDA C++"
     license = "BSD 3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/NVIDIA/cccl/tree/main/cub"
     topics = ("algorithms", "cuda", "gpu", "nvidia", "nvidia-hpc-sdk", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -36,7 +34,7 @@ class CubConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        if Version(self.version) >= "2.0":
+        if Version(self.version) >= "2.2":
             move_folder_contents(self, os.path.join(self.source_folder, "cub"), self.source_folder)
 
     def package(self):
@@ -44,12 +42,12 @@ class CubConan(ConanFile):
         copy(self, "*", os.path.join(self.source_folder, "cub"), os.path.join(self.package_folder, "include", "cub"))
 
     def package_info(self):
+        # Follows the naming conventions of the official CMake config file:
+        # https://github.com/NVIDIA/cccl/blob/main/lib/cmake/cub/cub-config.cmake
+        self.cpp_info.set_property("cmake_file_name", "cub")
+        self.cpp_info.set_property("cmake_target_name", "CUB::CUB")
+
         self.cpp_info.bindirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # Follows the naming conventions of the official CMake config file:
-        # https://github.com/NVIDIA/cub/blob/main/cub/cmake/cub-config.cmake
-        self.cpp_info.set_property("cmake_file_name", "cub")
-        self.cpp_info.set_property("cmake_target_name", "CUB::CUB")
