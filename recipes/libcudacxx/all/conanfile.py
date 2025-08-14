@@ -36,13 +36,12 @@ class LibcudacxxConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.TXT", os.path.join(self.source_folder, "libcudacxx"), os.path.join(self.package_folder, "licenses"))
-
         if Version(self.version) >= "2.2.0":
-            include_dir = os.path.join(self.source_folder, "libcudacxx", "include")
+            copy(self, "LICENSE.TXT", os.path.join(self.source_folder, "libcudacxx"), os.path.join(self.package_folder, "licenses"))
+            copy(self, "*", os.path.join(self.source_folder, "libcudacxx", "include"), os.path.join(self.package_folder, "include"))
         else:
-            include_dir = os.path.join(self.source_folder, "include")
-        copy(self, "*", include_dir, os.path.join(self.package_folder, "include"))
+            copy(self, "LICENSE.TXT", self.source_folder, os.path.join(self.package_folder, "licenses"))
+            copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
 
         if "2.2.0" <= Version(self.version) < "2.8.0":
             cmake_dir = os.path.join(self.source_folder, "libcudacxx/lib/cmake/libcudacxx")
