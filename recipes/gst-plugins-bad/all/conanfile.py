@@ -327,7 +327,7 @@ class GStPluginsBadConan(ConanFile):
         if self.options.get_safe("with_xorg"):
             self.requires("xorg/system")
         if "libx265" in reqs:
-            self.requires("libx265/3.4")
+            self.requires("libx265/[>=3.4 <5]")
         if "zbar" in reqs:
             self.requires("zbar/0.23.92")
         if "zxing-cpp" in reqs:

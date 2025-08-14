@@ -242,7 +242,7 @@ class GStPluginsGoodConan(ConanFile):
         if "libv4l" in reqs:
             self.requires("libv4l/1.28.1")
         if "libvpx" in reqs:
-            self.requires("libvpx/1.14.1")
+            self.requires("libvpx/[^1.14.1]")
         if "xorg" in reqs:
             self.requires("xorg/system")
 

@@ -338,9 +338,9 @@ class FFMpegConan(ConanFile):
         if self.options.with_libx264:
             self.requires("libx264/cci.20240224")
         if self.options.with_libx265:
-            self.requires("libx265/3.4")
+            self.requires("libx265/[>=3.4 <5]")
         if self.options.with_libvpx:
-            self.requires("libvpx/1.14.1")
+            self.requires("libvpx/[^1.14.1]")
         if self.options.with_libmp3lame:
             self.requires("libmp3lame/3.100")
         if self.options.get_safe("with_libfdk_aac"):

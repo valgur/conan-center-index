@@ -1342,7 +1342,7 @@ class OpenCVConan(ConanFile):
             self.requires("glog/[>=0.6 <1]")
         # text module dependencies
         if self.options.get_safe("with_tesseract"):
-            self.requires("tesseract/5.3.3")
+            self.requires("tesseract/[^5.3.3]")
 
     def _check_mandatory_options(self, opencv_modules):
         disabled_options = self._get_mandatory_disabled_options(opencv_modules)
