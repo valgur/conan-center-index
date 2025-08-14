@@ -1,0 +1,16 @@
+sources:
+  "3.0.2":
+    url: "https://github.com/NVIDIA/cccl/archive/refs/tags/v3.0.2.tar.gz"
+    sha256: "3ded63682f94071685cd6492cee70ad2a1feae02abfb3fbcce50e2d2f22edf4e"
+  "2.8.5":
+    url: "https://github.com/NVIDIA/cccl/archive/refs/tags/v2.8.5.tar.gz"
+    sha256: "226d4794c5f0cbb6040d022a9bcf8be40cbc2fa147b633940d9b439529ce6a4b"
+  "2.7.0":
+    url: "https://github.com/NVIDIA/cccl/archive/refs/tags/v2.7.0.tar.gz"
+    sha256: "50e9c8bba572a217e7d6748b8c93e76fc42f7c125f6d1da7f117240a14d9a31b"
+  "2.6.1":
+    url: "https://github.com/NVIDIA/cccl/archive/refs/tags/v2.6.1.tar.gz"
+    sha256: "993f483a3f8134bd719dc61651c0a0db17ad6007ee22e97f4ac4a3c310834004"
+  "2.5.0":
+    url: "https://github.com/NVIDIA/cccl/archive/refs/tags/v2.5.0.tar.gz"
+    sha256: "dc548c33178f4bed1d63dfc6b3a39aa3bf6da22a2b46305ec86b9938222634d7"
