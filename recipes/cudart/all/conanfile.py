@@ -47,17 +47,11 @@ class CudartConan(ConanFile):
         self.requires(f"cuda-crt/[~{v.major}.{v.minor}]", transitive_headers=True)
         self.requires(f"cuda-driver-stubs/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "13.0":
-            self.requires("libcudacxx/[^3]", transitive_headers=True)
+            self.requires("cuda-cccl/[^3]", transitive_headers=True)
         elif Version(self.version) >= "12.2":
-            self.requires("libcudacxx/[^2]", transitive_headers=True)
+            self.requires("cuda-cccl/[^2]", transitive_headers=True)
         else:
-            self.requires("libcudacxx/[^1]", transitive_headers=True)
-        if Version(self.version) >= "13.0":
-            self.requires("cub/[^3]", transitive_headers=True)
-        elif Version(self.version) >= "12.0":
-            self.requires("cub/[^2]", transitive_headers=True)
-        else:
-            self.requires("cub/[^1]", transitive_headers=True)
+            self.requires("cuda-cccl/[^1]", transitive_headers=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_cudart")
@@ -104,8 +98,9 @@ class CudartConan(ConanFile):
         self.cpp_info.components["cudart_"].requires = [
             "cuda-crt::cuda-crt",
             "cuda-driver-stubs::cuda-driver-stubs",
-            "libcudacxx::libcudacxx",
-            "cub::cub",
+            "cuda-cccl::libcudacxx",
+            "cuda-cccl::cub",
+            "cuda-cccl::thrust",
         ]
 
         self.cpp_info.components["cudadevrt"].set_property("cmake_target_name", "CUDA::cudadevrt")
