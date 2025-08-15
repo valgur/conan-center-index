@@ -13,6 +13,16 @@ class CudaCcclConan(ConanFile):
     topics = ("cuda", "header-only")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "cudax": [True, False],
+    }
+    default_options = {
+        "cudax": False,
+    }
+
+    def config_options(self):
+        if Version(self.version) < "2.5":
+            del self.options.cudax
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -25,7 +35,7 @@ class CudaCcclConan(ConanFile):
             self.requires(f"libcudacxx/{self.version}")
             self.requires(f"cub/{self.version}")
             self.requires(f"thrust/{self.version}")
-            if Version(self.version) >= "2.5":
+            if self.options.get_safe("cudax"):
                 self.requires(f"cudax/{self.version}")
         else:
             self.requires(f"libcudacxx/{self.version}")
@@ -50,7 +60,7 @@ class CudaCcclConan(ConanFile):
         self.cpp_info.components["thrust"].set_property("cmake_target_name", "CCCL::Thrust")
         self.cpp_info.components["thrust"].requires = ["thrust::thrust"]
 
-        if Version(self.version) >= "2.5":
+        if self.options.get_safe("cudax"):
             self.cpp_info.components["cudax"].set_property("cmake_target_name", "CCCL::cudax")
             self.cpp_info.components["cudax"].requires = ["cudax::cudax"]
 
