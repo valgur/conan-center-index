@@ -13,12 +13,10 @@ class VilibConan(ConanFile):
     name = "vilib"
     description = "CUDA Visual Library by RPG. GPU-Accelerated Frontend for High-Speed VIO."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/uzh-rpg/vilib"
     topics = ("computer-vision", "visual-odometry", "visual-features", "cuda")
-
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -29,9 +27,14 @@ class VilibConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "*.cmake", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -39,11 +42,16 @@ class VilibConan(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True, options={"highgui": True})
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Shared builds on Windows are not supported")
+        self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -51,13 +59,16 @@ class VilibConan(ConanFile):
         rmdir(self, "ros")
         rmdir(self, os.path.join("visual_lib", "test"))
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", " -Werror", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+        nvcc_tc = self._utils.NvccToolchain(self)
+        nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -70,15 +81,10 @@ class VilibConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        copy(self, "vilib-cuda-dep.cmake", self.export_sources_folder, os.path.join(self.package_folder, "lib", "cmake", "vilib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "vilib")
         self.cpp_info.set_property("cmake_target_name", "vilib::vilib")
-
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "vilib"))
-        self.cpp_info.set_property("cmake_build_modules", [os.path.join("lib", "cmake", "vilib", "vilib-cuda-dep.cmake")])
-
         self.cpp_info.libs = ["vilib"]
         self.cpp_info.requires = [
             "eigen::eigen",
@@ -86,7 +92,7 @@ class VilibConan(ConanFile):
             "opencv::opencv_imgproc",
             "opencv::opencv_features2d",
             "opencv::opencv_highgui",
+            "cudart::cudart_",
         ]
-
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["pthread", "dl", "m", "rt"])
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs = ["pthread", "dl", "m", "rt"]

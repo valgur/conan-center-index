@@ -69,10 +69,10 @@ class NvccToolchain:
             for pkg in ["cudart", "cuda-crt", "cuda-driver-stubs", "libcudacxx", "thrust", "cub"]:
                 if pkg in self.conanfile.dependencies.host:
                     pkg_info = self.conanfile.dependencies.host[pkg].cpp_info
-                    if pkg_info.libdirs:
-                        self.cudaflags.append(f"-L{pkg_info.libdir}")
-                    if pkg_info.includedirs:
-                        self.cudaflags.append(f"-I{pkg_info.includedir}")
+                    for path in pkg_info.libdirs:
+                        self.cudaflags.append(f"-L{path}")
+                    for path in pkg_info.includedirs:
+                        self.cudaflags.append(f"-I{path}")
         self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", "").split())
         self.extra_cudaflags = []
 
