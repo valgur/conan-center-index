@@ -83,6 +83,7 @@ class OpenblasConan(ConanFile):
         "target": [None] + available_openblas_targets,
         "max_threads": ["auto", "ANY"],
         "max_omp_parallel": ["ANY"],
+        "use_fortran": [True, False],
     }
     default_options = {
         "shared": False,
@@ -98,6 +99,7 @@ class OpenblasConan(ConanFile):
         "target": None,
         "max_threads": 128,
         "max_omp_parallel": 1,
+        "use_fortran": True,
     }
     options_description = {
         "ilp64": "Build with ILP64 interface instead of LP64 (incompatible with the standard API)",
@@ -111,14 +113,12 @@ class OpenblasConan(ConanFile):
         "target": "OpenBLAS TARGET variable (see TargetList.txt)",
         "max_threads": "The maximum number of parallel threads you expect to need (defaults to the number of cores in the build cpu)",
         "max_omp_parallel": "Number of OpenMP instances that your code may use for parallel calls into OpenBLAS",
+        "use_fortran": "Build LAPACK from the original Fortran instead of translated C sources. Enabled by default if a Fortran compiler is available.",
     }
 
     @property
     def _fortran_compiler(self):
-        comp_exe = self.conf.get("tools.build:compiler_executables")
-        if comp_exe and "fortran" in comp_exe:
-            return comp_exe["fortran"]
-        return None
+        return self.conf.get("tools.build:compiler_executables", default={}).get("fortran", None)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -126,6 +126,8 @@ class OpenblasConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if not self._fortran_compiler:
+            self.options.use_fortran = False
 
     def configure(self):
         if self.options.shared:
@@ -134,6 +136,7 @@ class OpenblasConan(ConanFile):
             self.options.build_relapack.value = self.settings.compiler not in ["msvc", "apple-clang"]
         else:
             del self.options.build_relapack
+            del self.options.use_fortran
         if not self.options.use_thread:
             del self.options.max_threads
         if not self.options.use_openmp:
@@ -163,6 +166,9 @@ class OpenblasConan(ConanFile):
             if int(self.settings.os.api_level.value) < 23:
                 # All basic complex math functions are only available since API level 23.
                 raise ConanInvalidConfiguration("build_lapack=True requires Android API level 23 or higher for complex math support")
+        if self.options.get_safe("use_fortran") and not self._fortran_compiler:
+            raise ConanInvalidConfiguration(f"use_fortran=True requires a Fortran compiler. "
+                                            "Please set the 'fortran' executable path in 'tools.build:compiler_executables'.")
 
     def build_requirements(self):
         if self.options.use_openmp:
@@ -198,7 +204,7 @@ class OpenblasConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
 
         tc.variables["NOFORTRAN"] = not self.options.build_lapack
-        if self.options.build_lapack and not self._fortran_compiler:
+        if self.options.build_lapack and not self.options.use_fortran:
             tc.variables["C_LAPACK"] = True
             tc.variables["NOFORTRAN"] = True
             self.output.info("Building LAPACK without a Fortran compiler")
@@ -277,11 +283,11 @@ class OpenblasConan(ConanFile):
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", f"openblas{self._64bit}")
         self.cpp_info.components["openblas_component"].includedirs.append(os.path.join("include", f"openblas{self._64bit}"))
         self.cpp_info.components["openblas_component"].libs = [self._lib_name]
-        if self.settings.os in ["Linux", "FreeBSD"]:
+        if self.settings.os in ["Linux", "FreeBSD"] and not self.options.shared:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
             if self.options.use_thread:
                 self.cpp_info.components["openblas_component"].system_libs.append("pthread")
-            if self.options.build_lapack and self._fortran_compiler:
+            if self.options.get_safe("use_fortran") and "gfortran" in self._fortran_compiler:
                 self.cpp_info.components["openblas_component"].system_libs.append("gfortran")
         if self.options.use_openmp:
             self.cpp_info.components["openblas_component"].requires.append("openmp::openmp")
