@@ -1,13 +1,13 @@
 import os
+import textwrap
 import urllib
 
 from conan import ConanFile
-from conan.errors import ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -15,25 +15,33 @@ required_conan_version = ">=2.1"
 
 class LibrealsenseConan(ConanFile):
     name = "librealsense"
+    description = "Intel(R) RealSense(tm) Cross Platform API for accessing Intel RealSense cameras."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/IntelRealSense/librealsense"
-    description = "Intel(R) RealSense(tm) Cross Platform API for accessing Intel RealSense cameras."
     topics = ("usb", "camera")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "tools": [True, False],
         "rsusb_backend": [True, False],
+        "with_cuda": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "tools": True,
         "rsusb_backend": True, # TODO: change to False when CI gets MSVC ATL support
+        "with_cuda": False,
     }
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -47,6 +55,8 @@ class LibrealsenseConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,14 +67,23 @@ class LibrealsenseConan(ConanFile):
             self.requires("libudev/[^255.18]")
         # Used only in .cpp files
         self.requires("openmp/system")
+        if self.options.with_cuda:
+            cusparse_range = self._utils.get_version_range("cusparse", self.settings.cuda.version)
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            self.requires(f"cusparse/[{cusparse_range}]")
 
     def validate(self):
         check_min_cppstd(self, 14)
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <5]")
+        self.tool_requires("cmake/[>=4]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
@@ -73,11 +92,20 @@ class LibrealsenseConan(ConanFile):
         for firmware in sources["firmware"]:
             filename = os.path.basename(urllib.parse.urlparse(firmware["url"]).path)
             download(self, filename=filename, **firmware)
+        # Replace https://github.com/IntelRealSense/librealsense/blob/v2.57.2/CMake/cuda_config.cmake
+        save(self, "CMake/cuda_config.cmake", textwrap.dedent("""
+            cmake_minimum_required(VERSION 3.18)
+            enable_language(CUDA)
+            find_package(CUDAToolkit REQUIRED)
+            link_libraries(CUDA::cusparse CUDA::cublas CUDA::cudart)
+            set(CUDA_SEPARABLE_COMPILATION ON)
+            list(APPEND CUDA_NVCC_FLAGS "-O3")
+        """))
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CHECK_FOR_UPDATES"] = False
-        tc.variables["BUILD_WITH_STATIC_CRT"] = False
+        tc.variables["BUILD_WITH_STATIC_CRT"] = is_msvc_static_runtime(self)
         tc.variables["BUILD_EASYLOGGINGPP"] = False
         tc.variables["BUILD_TOOLS"] = self.options.tools
         tc.variables["BUILD_EXAMPLES"] = False
@@ -86,7 +114,7 @@ class LibrealsenseConan(ConanFile):
         tc.variables["BUILD_INTERNAL_UNIT_TESTS"] = False
         tc.variables["BUILD_NETWORK_DEVICE"] = False
         tc.variables["BUILD_UNIT_TESTS"] = False
-        tc.variables["BUILD_WITH_CUDA"] = False
+        tc.variables["BUILD_WITH_CUDA"] = self.options.with_cuda
         tc.variables["BUILD_WITH_OPENMP"] = True
         tc.variables["BUILD_WITH_TM2"] = True
         tc.variables["BUILD_PYTHON_BINDINGS"] = False
@@ -104,9 +132,7 @@ class LibrealsenseConan(ConanFile):
         tc.variables["BUILD_CV_KINFU_EXAMPLE"] = False
         if self.settings.os == "Windows":
             tc.variables["FORCE_RSUSB_BACKEND"] = self.options.rsusb_backend
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "2.53.1": # pylint: disable=conan-unreachable-upper-version
-            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.8"
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -114,6 +140,10 @@ class LibrealsenseConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -149,6 +179,12 @@ class LibrealsenseConan(ConanFile):
         self.cpp_info.components["realsense2"].requires = ["libusb::libusb", "openmp::openmp"]
         if Version(self.version) >= "2.50.0":
             self.cpp_info.components["realsense2"].requires.append("libudev::libudev")
+        if self.options.with_cuda:
+            self.cpp_info.components["realsense2"].requires.extend([
+                "cudart::cudart_",
+                "cublas::cublas_",
+                "cusparse::cusparse",
+            ])
         if self.settings.os == "Linux":
             self.cpp_info.components["realsense2"].system_libs.extend(["m", "pthread"])
         elif self.settings.os == "Windows":
