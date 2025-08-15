@@ -15,17 +15,12 @@ required_conan_version = ">=2.1"
 
 class CeresSolverConan(ConanFile):
     name = "ceres-solver"
+    description = "Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://ceres-solver.org/"
-    description = (
-        "Ceres Solver is an open source C++ library for modeling "
-        "and solving large, complicated optimization problems"
-    )
     topics = ("optimization", "non-linear least squares")
-
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -73,6 +68,12 @@ class CeresSolverConan(ConanFile):
                                       "Can impact compilation time and memory usage and binary size."),
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     @property
     def _min_cppstd(self):
         if Version(self.version) >= "2.2.0":
@@ -83,7 +84,6 @@ class CeresSolverConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "ceres-conan-cuda-support.cmake", self.recipe_folder, self.export_sources_folder)
         copy(self, "FindSuiteSparse.cmake", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
@@ -111,6 +111,8 @@ class CeresSolverConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.get_safe("use_cuda"):
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -138,12 +140,19 @@ class CeresSolverConan(ConanFile):
             self.requires("onetbb/[^2020.3]")
         if self.options.get_safe("use_OpenMP"):
             self.requires("openmp/system")
+        if self.options.get_safe("use_cuda"):
+            cusparse_range = self._utils.get_version_range("cusparse", self.settings.cuda.version)
+            cusolver_range = self._utils.get_version_range("cusolver", self.settings.cuda.version)
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            self.requires(f"cusparse/[{cusparse_range}]")
+            self.requires(f"cusolver/[{cusolver_range}]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
 
         if self.options.get_safe("use_cuda"):
-            self.output.warning("CUDA support requires CUDA to be present on the system.")
+            self._utils.validate_cuda_settings(self)
 
         if self.options.get_safe("use_eigen_metis") and not self.options.use_eigen_sparse:
             raise ConanInvalidConfiguration("use_eigen_metis requires use_eigen_sparse=True")
@@ -157,11 +166,18 @@ class CeresSolverConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
+        if Version(self.version) >= "2.2.0" and self.options.use_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake"))
+        if Version(self.version) >= "2.2.0":
+            # Don't force CMAKE_CUDA_ARCHITECTURES, let NvccToolchain handle it
+            replace_in_file(self, "CMakeLists.txt",
+                            "CMAKE_CUDA_ARCHITECTURES",
+                            "CMAKE_CUDA_ARCHITECTURES_ignored")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -213,6 +229,10 @@ class CeresSolverConan(ConanFile):
         deps.set_property("suitesparse-cxsparse", "cmake_target_name", "CXSparse::CXSparse")
         deps.generate()
 
+        if Version(self.version) >= "2.2.0" and self.options.use_cuda:
+            tc = self._utils.NvccToolchain(self)
+            tc.generate()
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -224,7 +244,6 @@ class CeresSolverConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "CMake"))
-        copy(self, "ceres-conan-cuda-support.cmake", self.export_sources_folder, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_variables_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
@@ -283,13 +302,17 @@ class CeresSolverConan(ConanFile):
                 self.cpp_info.components["ceres"].system_libs.append(libcxx)
 
         if self.options.get_safe("use_cuda"):
+            self.cpp_info.components["ceres"].requires.extend([
+                "cudart::cudart_",
+                "cublas::cublas_",
+                "cusolver::cusolver_",
+                "cusparse::cusparse",
+            ])
             if Version(self.version) >= "2.2.0":
                 self.cpp_info.components["ceres_cuda_kernels"].set_property("cmake_target_name", "Ceres::ceres_cuda_kernels")
                 self.cpp_info.components["ceres_cuda_kernels"].libs.append(f"ceres_cuda_kernels{libsuffix}")
+                self.cpp_info.components["ceres_cuda_kernels"].requires = ["cudart::cudart_"]
                 if not self.options.shared:
                     self.cpp_info.components["ceres"].requires.append("ceres_cuda_kernels")
 
-        cmake_modules = [self._module_variables_file_rel_path]
-        if self.options.get_safe("use_cuda"):
-            cmake_modules.append(os.path.join("lib", "cmake", "ceres-conan-cuda-support.cmake"))
-        self.cpp_info.set_property("cmake_build_modules", cmake_modules)
+        self.cpp_info.set_property("cmake_build_modules", [self._module_variables_file_rel_path])
