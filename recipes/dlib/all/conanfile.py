@@ -19,7 +19,7 @@ class DlibConan(ConanFile):
     homepage = "http://dlib.net"
     license = "BSL-1.0"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -32,6 +32,7 @@ class DlibConan(ConanFile):
         "with_sse4": [True, False, "auto"],
         "with_avx": [True, False, "auto"],
         "with_openblas": [True, False],
+        "with_cuda": [True, False],
     }
     default_options = {
         "shared": False,
@@ -45,28 +46,14 @@ class DlibConan(ConanFile):
         "with_sse4": "auto",
         "with_avx": "auto",
         "with_openblas": True,
+        "with_cuda": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        if Version(self.version) < "19.24.2":
-            return 11
-        return 14
+    python_requires = "conan-utils/latest"
 
     @property
-    def _compilers_minimum_version(self):
-        if Version(self.version) < "19.24.2":
-            return {}
-        return {
-            "msvc": "191",
-            "gcc": "6",
-            "clang": "5",
-            "apple-clang": "10",
-        }
-
-    @property
-    def _has_with_webp_option(self):
-        return Version(self.version) >= "19.24"
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -75,12 +62,12 @@ class DlibConan(ConanFile):
             self.options.rm_safe("with_sse2")
             self.options.rm_safe("with_sse4")
             self.options.rm_safe("with_avx")
-        if not self._has_with_webp_option:
-            self.options.rm_safe("with_webp")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -92,25 +79,43 @@ class DlibConan(ConanFile):
             self.requires("libjpeg-meta/latest")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
-        if self.options.get_safe("with_webp"):
+        if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_openblas:
             self.requires("openblas/[>=0.3.28 <1]")
 
+        if self.options.with_cuda:
+            cusolver_range = self._utils.get_version_range("cusolver", self.settings.cuda.version)
+            curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
+            # Used in public dlib/cuda/cuda_utils.h
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+            self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            self.requires(f"cusolver/[{cusolver_range}]")
+            self.requires(f"curand/[{curand_range}]")
+            self.requires("cudnn/[>=8 <10]")
+
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14 if Version(self.version) >= "19.24.2" else 11)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} does not support shared on Windows. See https://github.com/davisking/dlib/issues/1483.")
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        save(self, "dlib/cmake_utils/test_for_cudnn/find_cudnn.txt",
+             "find_package(cuDNN REQUIRED)\n"
+             "set(cudnn cuDNN::cuDNN)\n"
+             "set(cudnn_include ${cuDNN_INCLUDE_DIRS})\n")
+        # sm_50 is no longer supported by newer CUDA versions
+        replace_in_file(self, "dlib/cmake_utils/test_for_cuda/CMakeLists.txt", "-arch=sm_50;", "")
+        replace_in_file(self, "dlib/cmake_utils/test_for_cudnn/CMakeLists.txt", "-arch=sm_50;", "")
 
     def _patch_sources(self):
         dlib_cmakelists = os.path.join(self.source_folder, "dlib", "CMakeLists.txt")
@@ -137,10 +142,9 @@ class DlibConan(ConanFile):
             replace_in_file(self, dlib_cmakelists, "if (sqlite AND sqlite_path)", "if(1)")
             replace_in_file(self, dlib_cmakelists, "${sqlite}", "SQLite::SQLite3")
         # robust libwebp injection
-        if self._has_with_webp_option:
-            replace_in_file(self, dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)")
-            replace_in_file(self, dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
-            replace_in_file(self, dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
+        replace_in_file(self, dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)")
+        replace_in_file(self, dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
+        replace_in_file(self, dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
         if self.options.with_png:
             replace_in_file(self, dlib_cmakelists, "include(cmake_utils/find_libpng.cmake)", "find_package(PNG REQUIRED)")
         if self.options.with_jpeg:
@@ -151,35 +155,41 @@ class DlibConan(ConanFile):
 
         # With in-project builds dlib is always built as a static library,
         # we want to be able to build it as a shared library too
-        tc.variables["DLIB_IN_PROJECT_BUILD"] = False
+        tc.cache_variables["DLIB_IN_PROJECT_BUILD"] = False
 
-        tc.variables["DLIB_ISO_CPP_ONLY"] = False
-        tc.variables["DLIB_NO_GUI_SUPPORT"] = True
+        tc.cache_variables["DLIB_ISO_CPP_ONLY"] = False
+        tc.cache_variables["DLIB_NO_GUI_SUPPORT"] = True
         # Configure external dependencies
-        tc.variables["DLIB_JPEG_SUPPORT"] = self.options.with_jpeg
-        if self._has_with_webp_option:
-            tc.variables["DLIB_WEBP_SUPPORT"] = self.options.with_webp
-        tc.variables["DLIB_LINK_WITH_SQLITE3"] = self.options.with_sqlite3
-        tc.variables["DLIB_USE_BLAS"] = True    # FIXME: all the logic behind is not sufficiently under control
-        tc.variables["DLIB_USE_LAPACK"] = True  # FIXME: all the logic behind is not sufficiently under control
-        tc.variables["DLIB_USE_CUDA"] = False   # TODO: add with_cuda option?
-        tc.variables["DLIB_PNG_SUPPORT"] = self.options.with_png
-        tc.variables["DLIB_GIF_SUPPORT"] = self.options.with_gif
-        tc.variables["DLIB_USE_MKL_FFT"] = False
+        tc.cache_variables["DLIB_JPEG_SUPPORT"] = self.options.with_jpeg
+        tc.cache_variables["DLIB_WEBP_SUPPORT"] = self.options.with_webp
+        tc.cache_variables["DLIB_LINK_WITH_SQLITE3"] = self.options.with_sqlite3
+        tc.cache_variables["DLIB_USE_BLAS"] = True    # FIXME: all the logic behind is not sufficiently under control
+        tc.cache_variables["DLIB_USE_LAPACK"] = True  # FIXME: all the logic behind is not sufficiently under control
+        tc.cache_variables["DLIB_PNG_SUPPORT"] = self.options.with_png
+        tc.cache_variables["DLIB_GIF_SUPPORT"] = self.options.with_gif
+        tc.cache_variables["DLIB_USE_MKL_FFT"] = False
+        tc.cache_variables["DLIB_USE_CUDA"] = self.options.with_cuda
+        tc.cache_variables["DLIB_USE_CUDA_COMPUTE_CAPABILITIES"] = ","  # Let NvccToolchain manage this
+        # Skip the unnecessary test compiles that don't play well with Conan
+        tc.cache_variables["cuda_test_compile_worked"] = True
+        tc.cache_variables["cudnn_test_compile_worked"] = True
 
         # Configure SIMD options if possible
         if self.settings.arch in ["x86", "x86_64"]:
             if self.options.with_sse2 != "auto":
-                tc.variables["USE_SSE2_INSTRUCTIONS"] = self.options.with_sse2
+                tc.cache_variables["USE_SSE2_INSTRUCTIONS"] = self.options.with_sse2
             if self.options.with_sse4 != "auto":
-                tc.variables["USE_SSE4_INSTRUCTIONS"] = self.options.with_sse4
+                tc.cache_variables["USE_SSE4_INSTRUCTIONS"] = self.options.with_sse4
             if self.options.with_avx != "auto":
-                tc.variables["USE_AVX_INSTRUCTIONS"] = self.options.with_avx
-        if Version(self.version) < "19.24.2":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+                tc.cache_variables["USE_AVX_INSTRUCTIONS"] = self.options.with_avx
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         self._patch_sources()
