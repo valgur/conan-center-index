@@ -1269,8 +1269,8 @@ class OpenCVConan(ConanFile):
             if self.options.with_cublas:
                 self.requires(f"cublas/[~{self.settings.cuda.version}]")
             if self.options.with_cufft:
-                cufft_major = cuda_major - 1
-                self.requires(f"cufft/[^{cufft_major}]")
+                cufft_range = self._utils.get_version_range("cufft", self.settings.cuda.version)
+                self.requires(f"cufft/[{cufft_range}]")
             if self.options.get_safe("dnn_cuda"):
                 self.requires("cudnn/[>=8 <10]")
             if any(self.options.get_safe(mod) for mod in ["cudaarithm", "cudaimgproc", "cudafilters", "cudawarping"]):

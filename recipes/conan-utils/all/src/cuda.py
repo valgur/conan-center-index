@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from typing import Union
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.env import Environment
 from conan.tools.files import download, get
 from conan.tools.gnu import AutotoolsToolchain
@@ -292,6 +292,44 @@ def require_shared_deps(conanfile: ConanFile, deps: list[str]):
                 raise ConanInvalidConfiguration(f"{conanfile.name} requires -o {dep_name}/*:shared=True")
 
 
+def get_version_range(package_name, cuda_version):
+    """Returns the version range that is compatible with the given CUDA (major) version for a CUDA Toolkit package."""
+    cuda_version = Version(str(cuda_version))
+    cuda_major = int(cuda_version.major.value)
+    if package_name in packages_following_ctk_major_version:
+        if cuda_version.minor is None:
+            return f"~{cuda_major}"
+        return f"~{cuda_version.major}.{cuda_version.minor}"
+    if package_name == "cuda-cccl":
+        if cuda_major >= 13:
+            return "^3"
+        elif cuda_version >= "12.2":
+            return "^2"
+        else:
+            return "^1"
+    if package_name == "cufft":
+        return f"^{cuda_major - 1}"
+    if package_name == "cufile":
+        if cuda_major >= 13:
+            return ">=1.15"
+        elif cuda_major >= 12:
+            return ">=1.5 <1.15"
+        else:
+            return "<1.5"
+    if package_name == "curand":
+        return "^10"
+    if package_name == "cusolver":
+        return "^12" if cuda_major >= 13 else "^11"
+    if package_name == "cusparse":
+        if cuda_major >= 13:
+            return ">=12.6"
+        elif cuda_major >= 12:
+            return ">=12 <12.6"
+        else:
+            return "^11"
+    raise ConanException(f"Unknown CUDA package name: {package_name}")
+
+
 __all__ = [
     "NvccToolchain",
     "validate_cuda_settings",
@@ -304,4 +342,5 @@ __all__ = [
     "check_min_cuda_architecture",
     "cuda_supported_arch_ranges",
     "require_shared_deps",
+    "get_version_range"
 ]

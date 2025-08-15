@@ -2,6 +2,7 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -73,6 +74,8 @@ class CuSparseConan(ConanFile):
         self._utils.validate_cuda_package(self, "libcusparse")
         if self.options.get_safe("shared", True):
             self._utils.require_shared_deps(self, ["nvjitlink"])
+        if self.options.shared and Version(self.version) >= "12.6" and Version(self.settings.cuda.version) < "13":
+            raise ConanInvalidConfiguration("cuSPARSE 12.6+ requires CUDA 13.0 or higher when shared=True for compatibility with nvjitlink.")
 
     def build(self):
         self._utils.download_cuda_package(self, "libcusparse")
