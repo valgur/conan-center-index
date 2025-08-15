@@ -1,0 +1,4 @@
+sources:
+  "0.1.1":
+    url: "https://github.com/rapidsai/rapids-logger/archive/refs/tags/v0.1.1.tar.gz"
+    sha256: "9ef22efcc3e00affed254bf12b52c6775050bb55e93e010067c2fcd9620163c9"
