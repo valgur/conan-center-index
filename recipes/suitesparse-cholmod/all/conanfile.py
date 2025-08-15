@@ -17,7 +17,7 @@ class SuiteSparseCholmodConan(ConanFile):
     topics = ("mathematics", "sparse-matrix", "linear-algebra", "matrix-factorization")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -39,8 +39,11 @@ class SuiteSparseCholmodConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    def export_sources(self):
-        copy(self, "cholmod-conan-cuda-support.cmake", self.recipe_folder, self.export_sources_folder)
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     @property
     def _license_is_gpl(self):
@@ -51,6 +54,8 @@ class SuiteSparseCholmodConan(ConanFile):
             self.options.rm_safe("fPIC")
         if self._license_is_gpl:
             self.license = "LGPL-2.1-or-later AND GPL-2.0-or-later AND Apache-2.0"
+        if not self.options.cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -66,17 +71,26 @@ class SuiteSparseCholmodConan(ConanFile):
         # A modified vendored version of METIS v5.1.0 is included,
         # but it has been modified to not conflict with the general version
 
+        if self.options.cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
+            self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True)
+            self.requires(f"nvrtc/[~{self.settings.cuda.version}]")
+
     def validate(self):
-        if self.options.cuda and not self.options.gpl:
-            raise ConanInvalidConfiguration("CUDA acceleration requires GPL-licensed modules. Set suitesparse-cholmod/*:gpl=True.")
         if self.options.build_supernodal and not self.dependencies["openblas"].options.build_lapack:
             raise ConanInvalidConfiguration("-o openblas/*:build_lapack=True is required when build_supernodal=True")
+        if self.options.cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
+        if self.options.cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Don't force a static cudart
+        replace_in_file(self, "CHOLMOD/CMakeLists.txt", "CUDA_RUNTIME_LIBRARY Static", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -95,10 +109,16 @@ class SuiteSparseCholmodConan(ConanFile):
         tc.variables["BLAS_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_FOUND"] = True
+        if self.options.cuda:
+            tc.variables["CMAKE_CUDA_ARCHITECTURES"] = str(self.settings.cuda.architectures).replace(",", ";")
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
+
+        if self.options.cuda:
+            tc = self._utils.NvccToolchain(self)
+            tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -113,8 +133,6 @@ class SuiteSparseCholmodConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        if self.options.cuda:
-            copy(self, "cholmod-conan-cuda-support.cmake", self.export_sources_folder, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CHOLMOD")
@@ -123,17 +141,26 @@ class SuiteSparseCholmodConan(ConanFile):
             self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::CHOLMOD_static"])
         self.cpp_info.set_property("pkg_config_name", "CHOLMOD")
 
-        if self.options.cuda:
-            self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-            self.cpp_info.set_property("cmake_build_modules", [os.path.join("lib", "cmake", "cholmod-conan-cuda-support.cmake")])
-
         self.cpp_info.libs = ["cholmod"]
         self.cpp_info.includedirs.append(os.path.join("include", "suitesparse"))
+        self.cpp_info.requires = [
+            "suitesparse-config::suitesparse-config",
+            "suitesparse-amd::suitesparse-amd",
+            "suitesparse-camd::suitesparse-camd",
+            "suitesparse-colamd::suitesparse-colamd",
+            "suitesparse-ccolamd::suitesparse-ccolamd",
+        ]
+
+        if self.options.cuda:
+            self.cpp_info.defines.append("CHOLMOD_HAS_CUDA")
+            self.cpp_info.requires.extend([
+                "cudart::cudart_",
+                "cublas::cublas_",
+                "nvrtc::nvrtc",
+            ])
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
 
         if not self._license_is_gpl:
             self.cpp_info.defines.append("NGPL")
-        if self.options.cuda:
-            self.cpp_info.defines.append("CHOLMOD_HAS_CUDA")
