@@ -2,9 +2,9 @@ sources:
   "9.12.0.46":  # CUDA 12, 13
     url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.12.0.json"
     sha256: "39bb68f0ca6abdbf9bab3ecb1cb18f458d635f72d72ede98a308216fd22efab3"
-  "9.11.0.98":  # CUDA 12
-    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.11.0.json"
-    sha256: "7a16458ea21573e18d190df0c8d68ea1e8c82faf1bcfad4a39ceb600c26639cc"
+  "9.11.1.4":  # CUDA 12
+    url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.11.1.json"
+    sha256: "ace81583a37b8fe238324b73087e32f290099cbd6d012772b9f14ec4efac1f21"
   "9.10.2.21":  # CUDA 11, 12
     url: "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.10.2.json"
     sha256: "73a33a12bbb8eb12b105a515b5921db2e328b3ca679f92b6184c7f32fe94a8b0"
