@@ -47,7 +47,7 @@ class CudaCcclConan(ConanFile):
 
     def package_info(self):
         # https://github.com/NVIDIA/cccl/blob/main/lib/cmake/cccl/cccl-config.cmake
-        self.cpp_info.set_property("cmake_file_name", "cccl")
+        self.cpp_info.set_property("cmake_file_name", "CCCL")
         self.cpp_info.set_property("cmake_target_name", "CCCL::CCCL")
         self.cpp_info.set_property("cmake_additional_variables_prefixes", ["CCCL"])
 
