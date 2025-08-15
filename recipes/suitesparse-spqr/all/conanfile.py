@@ -17,7 +17,7 @@ class SuiteSparseSpqrConan(ConanFile):
     topics = ("mathematics", "sparse-matrix", "linear-algebra", "matrix-factorization", "qr-factorization")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -31,10 +31,22 @@ class SuiteSparseSpqrConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.options["openblas"].build_lapack = True
+        self.options["suitesparse-cholmod"].build_supernodal = True
+        self.options["suitesparse-cholmod"].build_matrixops = True
+        if self.options.cuda:
+            self.options["suitesparse-cholmod"].cuda = True
+        else:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -42,20 +54,31 @@ class SuiteSparseSpqrConan(ConanFile):
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
         self.requires("suitesparse-config/[^7.8.3]", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True,
-                      options={"build_supernodal": True, "build_matrixops": True})
+        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
+
+        if self.options.cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
+            self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True)
+            self.requires(f"nvrtc/[~{self.settings.cuda.version}]")
 
     def validate(self):
-        if self.options.cuda and not self.dependencies["suitesparse-cholmod"].options.cuda:
-            raise ConanInvalidConfiguration("suitesparse-spqr/*:cuda=True option requires suitesparse-cholmod/*:cuda=True")
         if not self.dependencies["openblas"].options.build_lapack:
             raise ConanInvalidConfiguration("-o openblas/*:build_lapack=True is required")
+        if self.options.cuda:
+            if not self.dependencies["suitesparse-cholmod"].options.cuda:
+                raise ConanInvalidConfiguration("suitesparse-spqr/*:cuda=True option requires suitesparse-cholmod/*:cuda=True")
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
+        if self.options.cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Don't force a static cudart
+        replace_in_file(self, "SPQR/GPURuntime/CMakeLists.txt", "CUDA_RUNTIME_LIBRARY Static", "")
+        replace_in_file(self, "SPQR/GPUQREngine/CMakeLists.txt", "CUDA_RUNTIME_LIBRARY Static", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -71,10 +94,16 @@ class SuiteSparseSpqrConan(ConanFile):
         tc.variables["BLAS_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_FOUND"] = True
+        if self.options.cuda:
+            tc.variables["CMAKE_CUDA_ARCHITECTURES"] = str(self.settings.cuda.architectures).replace(",", ";")
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
+
+        if self.options.cuda:
+            tc = self._utils.NvccToolchain(self)
+            tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -99,9 +128,18 @@ class SuiteSparseSpqrConan(ConanFile):
 
         self.cpp_info.libs = ["spqr"]
         self.cpp_info.includedirs.append(os.path.join("include", "suitesparse"))
-
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
+        self.cpp_info.requires = [
+            "suitesparse-config::suitesparse-config",
+            "suitesparse-cholmod::suitesparse-cholmod",
+        ]
 
         if self.options.cuda:
             self.cpp_info.defines.append("SPQR_HAS_CUDA")
+            self.cpp_info.requires.extend([
+                "cudart::cudart_",
+                "cublas::cublas_",
+                "nvrtc::nvrtc",
+            ])
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs.append("m")
