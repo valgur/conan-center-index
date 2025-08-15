@@ -19,7 +19,7 @@ class ArrowConan(ConanFile):
     homepage = "https://arrow.apache.org/"
     topics = ("memory", "gandiva", "parquet", "skyhook", "acero", "hdfs", "csv", "cuda", "gcs", "json", "hive", "s3", "grpc")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -129,6 +129,8 @@ class ArrowConan(ConanFile):
         if not self.options.gandiva and not self.options.compute:
             del self.options.with_re2
             del self.options.with_utf8proc
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -153,6 +155,8 @@ class ArrowConan(ConanFile):
             self.requires("mimalloc/[^1.7.6]")
         if self.options.with_boost:
             self.requires("boost/[^1.71.0]", libs=False)
+        if self.options.with_cuda:
+            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
         if self.options.with_gflags:
             self.requires("gflags/2.2.2")
         if self.options.with_glog:
@@ -423,9 +427,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow_cuda"].set_property("pkg_config_name", "arrow_cuda")
             self.cpp_info.components["libarrow_cuda"].set_property("cmake_target_name", f"Arrow::arrow_cuda_{cmake_suffix}")
             self.cpp_info.components["libarrow_cuda"].libs = [f"arrow_cuda{suffix}"]
-            self.cpp_info.components["libarrow_cuda"].requires = ["libarrow"]
-            if not self.options.shared:
-                self.cpp_info.components["libarrow_cuda"].system_libs.append("cuda")
+            self.cpp_info.components["libarrow_cuda"].requires = ["libarrow", "cuda-driver-stubs::cuda-driver-stubs"]
 
         if self.options.parquet:
             self.cpp_info.components["libparquet"].set_property("pkg_config_name", "parquet")
