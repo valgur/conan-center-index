@@ -1,10 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <rmm/logger.hpp>
-#include <rmm/version_config.hpp>
+#include <rmm/mr/device/cuda_async_memory_resource.hpp>
 
-int main() {
-    // The log output will be sent to rmm_log.txt in the build directory by default
-    RMM_LOG_INFO("rmm version: {}.{}.{}", RMM_VERSION_MAJOR, RMM_VERSION_MINOR, RMM_VERSION_PATCH);
-    return EXIT_SUCCESS;
+int main()
+{
+    rmm::mr::cuda_async_memory_resource mr{rmm::percent_of_free_device_memory(1)};
 }

@@ -1,12 +1,9 @@
 import os
-import textwrap
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.files import *
-from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -15,95 +12,89 @@ class RmmConan(ConanFile):
     name = "rmm"
     description = "RAPIDS Memory Manager"
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rapidsai/rmm"
     topics = ("cuda", "memory-management", "memory-allocation", "rapids", "header-only")
-    package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    python_requires = "conan-utils/latest"
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        # Based partially on https://github.com/rapidsai/rmm/tree/v23.06.00#get-rmm-dependencies
-        return {
-            "msvc": "191",
-            "gcc": "9.3",
-            "clang": "8",
-            "apple-clang": "14.0",
-        }
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def layout(self):
-        basic_layout(self, src_folder="src")
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("thrust/[^1.17.2]")
-        self.requires("spdlog/[^1.9]")
-        self.requires("fmt/[>=9 <11]")
-
-    def package_id(self):
-        self.info.clear()
+        self.requires("rapids_logger/[>=0.1 <1]", transitive_headers=True, transitive_libs=True)
+        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.requires("nvtx/[^3]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 17)
+        self._utils.validate_cuda_settings(self)
 
-        def lazy_lt_semver(v1, v2):
-            # Needed to allow version "9" >= "9.3" for gcc
-            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and lazy_lt_semver(self.settings.compiler.version, minimum_version):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
-        if self.dependencies["thrust"].options.get_safe("backend") != "cuda":
-            self.output.warning(
-                "RMM requires the CUDA backend to be enabled in Thrust by setting thrust/*:backend=cuda."
-            )
-
-    def _write_version_header(self):
-        # Workaround for the `rapids_cmake_write_version_file(include/rmm/version_config.hpp)` CMakeLists.txt step
-        # https://github.com/rapidsai/rapids-cmake/blob/branch-23.08/rapids-cmake/cmake/write_version_file.cmake
-        # https://github.com/rapidsai/rapids-cmake/blob/branch-23.08/rapids-cmake/cmake/template/version.hpp.in
-        major, minor, patch = self.version.split(".")[:3]
-        save(self, os.path.join(self.source_folder, "include", "rmm", "version_config.hpp"),
-            textwrap.dedent(f"""\
-            #pragma once
-            #define RMM_VERSION_MAJOR {int(major)}
-            #define RMM_VERSION_MINOR {int(minor)}
-            #define RMM_VERSION_PATCH {int(patch)}
-            """)
-        )
-
-    def _patch_sources(self):
-        if Version(self.version) < "23.08":
-            # https://github.com/rapidsai/rmm/pull/1295
-            # Add missing include in logger.hpp
-            replace_in_file(self, os.path.join(self.source_folder, "include", "rmm", "logger.hpp"),
-                            "#include <string>", "#include <string>\n#include <array>")
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.30.4]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._write_version_header()
-        self._patch_sources()
+        get(self, **self.conan_data["sources"][self.version]["rmm"], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["rapids-cmake"], strip_root=True, destination="cpp/rapids-cmake")
+        # Use the local copy of rapids-cmake
+        replace_in_file(self, "cmake/RAPIDS.cmake",
+                        'FetchContent_Declare(rapids-cmake URL "${rapids-cmake-url}")',
+                        'FetchContent_Declare(rapids-cmake URL "${CMAKE_SOURCE_DIR}/rapids-cmake")')
+        # Prohibit FetchContent after loading rapids-cmake
+        replace_in_file(self, "cpp/CMakeLists.txt",
+                        "include(rapids-cmake)",
+                        "include(rapids-cmake)\n"
+                        "set(FETCHCONTENT_FULLY_DISCONNECTED 1)")
+        # Don't force an exact CCCL version
+        replace_in_file(self, "cpp/rapids-cmake/rapids-cmake/cpm/cccl.cmake", "FIND_PACKAGE_ARGUMENTS EXACT", "")
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["RMM_NVTX"] = True
+        tc.cache_variables["BUILD_TESTS"] = False
+        tc.cache_variables["CPM_USE_LOCAL_PACKAGES"] = True
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure(build_script_folder="cpp")
+        cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        for pattern in ["*.hpp", "*.h"]:
-            copy(self, pattern,
-                 dst=os.path.join(self.package_folder, "include"),
-                 src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
-
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("dl")
+        self.cpp_info.set_property("cmake_file_name", "rmm")
+        self.cpp_info.set_property("cmake_target_name", "rmm::rmm")
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["RMM"])
+        self.cpp_info.libs = ["rmm"]
+        self.cpp_info.defines = [
+            "LIBCUDACXX_ENABLE_EXPERIMENTAL_MEMORY_RESOURCE",
+            "RMM_NVTX"
+        ]
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs = ["dl"]
+        self.cpp_info.requires = [
+            "rapids_logger::rapids_logger",
+            "cudart::cudart_",
+            "nvtx::nvtx",
+        ]
