@@ -1,5 +1,4 @@
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -68,30 +67,12 @@ class LibgeotiffConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "doc"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_file)
-        )
-
-    def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
-            set(GEOTIFF_FOUND ${GeoTIFF_FOUND})
-            if(DEFINED GeoTIFF_INCLUDE_DIR)
-                set(GEOTIFF_INCLUDE_DIR ${GeoTIFF_INCLUDE_DIR})
-            endif()
-            if(DEFINED GeoTIFF_LIBRARIES)
-                set(GEOTIFF_LIBRARIES ${GeoTIFF_LIBRARIES})
-            endif()
-        """)
-        save(self, module_file, content)
-
-    @property
-    def _module_vars_file(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_module_file_name", "GeoTIFF")
-        self.cpp_info.set_property("cmake_build_modules", [self._module_vars_file])
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["GEOTIFF"])
         self.cpp_info.set_property("cmake_file_name", "geotiff")
         self.cpp_info.set_property("cmake_target_name", "geotiff_library")
 
