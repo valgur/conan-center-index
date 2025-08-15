@@ -100,7 +100,7 @@ class OpenCVConan(ConanFile):
     topics = ("computer-vision", "deep-learning", "image-processing")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -114,8 +114,6 @@ class OpenCVConan(ConanFile):
         "with_cuda": [True, False],
         "with_cublas": [True, False],
         "with_cufft": [True, False],
-        "with_cudnn": [True, False],
-        "cuda_arch_bin": [None, "ANY"],
         "cpu_baseline": [None, "ANY"],
         "cpu_dispatch": [None, "ANY"],
         "with_itt": [True, False],
@@ -187,8 +185,6 @@ class OpenCVConan(ConanFile):
         "with_cuda": False,
         "with_cublas": False,
         "with_cufft": False,
-        "with_cudnn": False,
-        "cuda_arch_bin": None,
         "cpu_baseline": None,
         "cpu_dispatch": None,
         "with_itt": False,
@@ -259,6 +255,12 @@ class OpenCVConan(ConanFile):
         "build_all_contrib": False,
     }
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     @property
     def _is_cl_like(self):
@@ -565,6 +567,21 @@ class OpenCVConan(ConanFile):
                 return ["onetbb::onetbb"]
             return []
 
+        def cudart():
+            return ["cudart::cudart"] if self.options.with_cuda else []
+
+        def cublas():
+            return ["cublas::cublas_"] if self.options.get_safe("with_cublas") else []
+
+        def cufft():
+            return ["cufft::cufft"] if self.options.get_safe("with_cufft") else []
+
+        def cudnn():
+            return ["cudnn::cudnn"] if self.options.get_safe("dnn_cuda") else []
+
+        def nvcodec():
+            return []  # TODO
+
         def protobuf():
             return ["protobuf::protobuf"] if self.options.get_safe("with_protobuf") else []
 
@@ -654,7 +671,7 @@ class OpenCVConan(ConanFile):
             "core": {
                 "is_built": True,
                 "no_option": True,
-                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp() + opencl() + va() + itt(),
+                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp() + opencl() + va() + itt() + cudart(),
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
@@ -668,7 +685,7 @@ class OpenCVConan(ConanFile):
                 "is_built": self.options.dnn,
                 "mandatory_options": ["imgproc"],
                 "requires": ["opencv_core", "opencv_imgproc"] +
-                            protobuf() + vulkan() + ipp() + openvino() + lapack(),
+                            cudnn() + cublas() + protobuf() + vulkan() + ipp() + openvino() + lapack(),
             },
             "features2d": {
                 "is_built": self.options.features2d,
@@ -786,7 +803,7 @@ class OpenCVConan(ConanFile):
             "cudaarithm": {
                 "is_built": self.options.cudaarithm,
                 "mandatory_options": ["with_cuda"],
-                "requires": ["opencv_core", "opencv_cudev"] + ipp(),
+                "requires": ["opencv_core", "opencv_cudev", "npp::nppi"] + ipp() + cublas() + cufft(),
             },
             "cudabgsegm": {
                 "is_built": self.options.cudabgsegm,
@@ -796,7 +813,7 @@ class OpenCVConan(ConanFile):
             "cudacodec": {
                 "is_built": self.options.cudacodec,
                 "mandatory_options": ["with_cuda", "videoio"],
-                "requires": ["opencv_core", "opencv_videoio"] + ipp(),
+                "requires": ["opencv_core", "opencv_videoio"] + ipp() + nvcodec(),
             },
             "cudafeatures2d": {
                 "is_built": self.options.cudafeatures2d,
@@ -806,12 +823,12 @@ class OpenCVConan(ConanFile):
             "cudafilters": {
                 "is_built": self.options.cudafilters,
                 "mandatory_options": ["with_cuda", "imgproc", "cudaarithm"],
-                "requires": ["opencv_imgproc", "opencv_cudaarithm"] + ipp(),
+                "requires": ["opencv_imgproc", "opencv_cudaarithm", "npp::nppi"] + ipp(),
             },
             "cudaimgproc": {
                 "is_built": self.options.cudaimgproc,
                 "mandatory_options": ["with_cuda", "imgproc"],
-                "requires": ["opencv_imgproc", "opencv_cudev"] + opencv_cudaarithm() + opencv_cudafilters() + ipp(),
+                "requires": ["opencv_imgproc", "opencv_cudev", "npp::nppi"] + opencv_cudaarithm() + opencv_cudafilters() + ipp(),
             },
             "cudalegacy": {
                 "is_built": self.options.cudalegacy,
@@ -838,7 +855,7 @@ class OpenCVConan(ConanFile):
             "cudawarping": {
                 "is_built": self.options.cudawarping,
                 "mandatory_options": ["with_cuda", "imgproc"],
-                "requires": ["opencv_core", "opencv_imgproc", "opencv_cudev"] + ipp(),
+                "requires": ["opencv_core", "opencv_imgproc", "opencv_cudev", "npp::nppi"] + ipp(),
             },
             "cudev": {
                 "is_built": self.options.with_cuda,
@@ -1208,11 +1225,10 @@ class OpenCVConan(ConanFile):
         if not self.options.videoio and not self.options.gapi:
             self.options.rm_safe("with_gstreamer")
         if not self.options.with_cuda:
+            del self.settings.cuda
             self.options.rm_safe("with_cublas")
-            self.options.rm_safe("with_cudnn")
             self.options.rm_safe("with_cufft")
             self.options.rm_safe("dnn_cuda")
-            self.options.rm_safe("cuda_arch_bin")
         if not self.options.text:
             self.options.rm_safe("with_tesseract")
         if not self.options.videostab:
@@ -1246,9 +1262,20 @@ class OpenCVConan(ConanFile):
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.get_safe("with_clp"):
             self.requires("coin-clp/[^1.17.6]")
+        if self.options.with_cuda:
+            cuda_major = int(Version(self.settings.cuda.version).major.value)
+            # Used in opencv2/cudev/ public headers
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
+            if self.options.with_cublas:
+                self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            if self.options.with_cufft:
+                cufft_major = cuda_major - 1
+                self.requires(f"cufft/[^{cufft_major}]")
+            if self.options.get_safe("dnn_cuda"):
+                self.requires("cudnn/[>=8 <10]")
+            if any(self.options.get_safe(mod) for mod in ["cudaarithm", "cudaimgproc", "cudafilters", "cudawarping"]):
+                self.requires(f"npp/[^{cuda_major}]")
         if self.options.parallel == "openmp":
-            # Used in a public header:
-            # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
             self.requires("openmp/system")
         elif self.options.parallel == "tbb":
             self.requires("onetbb/[>=2021 <2023]")
@@ -1376,7 +1403,7 @@ class OpenCVConan(ConanFile):
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "4":
             raise ConanInvalidConfiguration("Clang 3.x can't build OpenCV 4.x due to an internal bug.")
         if self.options.get_safe("dnn_cuda") and \
-            (not self.options.with_cuda or not self.options.with_cublas or not self.options.with_cudnn):
+            (not self.options.with_cuda or not self.options.with_cublas):
             raise ConanInvalidConfiguration("with_cublas and with_cudnn must be enabled for dnn_cuda")
         if self.options.with_ipp == "opencv-icv" and \
            not (self.settings.arch in ["x86", "x86_64"] and self.settings.os in ["Linux", "Macos", "Windows"]):
@@ -1387,8 +1414,13 @@ class OpenCVConan(ConanFile):
             )
         if self.options.get_safe("with_jpeg2000") == "openjpeg" and Version(self.version) < "4.3.0":
             raise ConanInvalidConfiguration("openjpeg is not available for OpenCV before 4.3.0")
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
+            if Version(self.version) <= "4.12.0" and Version(self.settings.cuda.version) >= "13.0":
+                raise ConanInvalidConfiguration(f"{self.ref} does not support CUDA 13+")
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.27 <5]")
         if self.options.get_safe("with_protobuf"):
             self.tool_requires("protobuf/<host_version>")
         if self.options.get_safe("with_wayland"):
@@ -1396,8 +1428,9 @@ class OpenCVConan(ConanFile):
         if self._build_depends_on_pkgconfig and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_qt"):
-            self.tool_requires("cmake/[>=3.27 <5]")
             self.tool_requires("qt/<host_version>")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
@@ -1476,6 +1509,20 @@ class OpenCVConan(ConanFile):
         ]:
             if Version(self.version) >= min_ver and os.path.exists(path):
                 replace_in_file(self, path, "CXX_STANDARD 11", "")
+
+        # Fix propagation of CUDA deps
+        save(self, "modules/core/CMakeLists.txt",
+             "\nif(HAVE_CUDA)\n"
+             "  target_link_libraries(${the_module} PUBLIC CUDA::toolkit)\n"
+             "endif()\n",
+             append=True)
+        # Let NvccToolchain manage CUDA architecture flags
+        replace_in_file(self, "cmake/OpenCVDetectCUDA.cmake",
+                        "ocv_set_cuda_arch_bin_and_ptx(",
+                        "# ocv_set_cuda_arch_bin_and_ptx(")
+        replace_in_file(self, "cmake/OpenCVDetectCUDALanguage.cmake",
+                        "ocv_set_cuda_arch_bin_and_ptx(",
+                        "# ocv_set_cuda_arch_bin_and_ptx(")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -1694,14 +1741,12 @@ class OpenCVConan(ConanFile):
             tc.variables["OPENCL_LIBRARY"] = str(opencl_lib).replace("\\", "/")
 
         tc.variables["WITH_CUDA"] = self.options.with_cuda
-        if self.options.with_cuda:
-            # This allows compilation on older GCC/NVCC, otherwise build errors.
-            tc.variables["CUDA_NVCC_FLAGS"] = "--expt-relaxed-constexpr"
-            if self.options.cuda_arch_bin:
-                tc.variables["CUDA_ARCH_BIN"] = self.options.cuda_arch_bin
         tc.variables["WITH_CUBLAS"] = self.options.get_safe("with_cublas", False)
         tc.variables["WITH_CUFFT"] = self.options.get_safe("with_cufft", False)
-        tc.variables["WITH_CUDNN"] = self.options.get_safe("with_cudnn", False)
+        tc.variables["WITH_CUDNN"] = self.options.get_safe("dnn_cuda", False)
+        tc.variables["ENABLE_CUDA_FIRST_CLASS_LANGUAGE"] = True
+        # This allows compilation on older GCC/NVCC, otherwise build errors.
+        tc.variables["CUDA_NVCC_FLAGS"] = "--expt-relaxed-constexpr"
 
         tc.variables["ENABLE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["ENABLE_CCACHE"] = False
@@ -1725,6 +1770,10 @@ class OpenCVConan(ConanFile):
         if self._build_depends_on_pkgconfig:
             deps = PkgConfigDeps(self)
             deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def _patch_sources(self):
         ## Robust handling of wayland
