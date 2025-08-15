@@ -68,8 +68,9 @@ endif()
 
 # Set variables for compatibility with the legacy FindCUDA.cmake module
 if(CMAKE_FIND_PACKAGE_NAME STREQUAL "CUDA")
-    set(CUDA_VERSION_MAJOR "${CUDAToolkit_VERSION_MAJOR}")
-    set(CUDA_VERSION_MINOR "${CUDAToolkit_VERSION_MINOR}")
+    # major and minor are set by CMakeDeps
+    # set(CUDA_VERSION_MAJOR "${CUDAToolkit_VERSION_MAJOR}")
+    # set(CUDA_VERSION_MINOR "${CUDAToolkit_VERSION_MINOR}")
     set(CUDA_VERSION_STRING "${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}")
     set(CUDA_VERSION "${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}")
     set(CUDA_TOOLKIT_ROOT_DIR "${CUDAToolkit_ROOT}")
