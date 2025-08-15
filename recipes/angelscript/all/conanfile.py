@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
@@ -37,27 +37,27 @@ class AngelScriptConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def validate(self):
+        check_min_cppstd(self, 11)
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        # Website blocks default user agent string.
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            headers={"User-Agent": "ConanCenter"},
-            strip_root=True,
-        )
-        apply_conandata_patches(self)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["AS_NO_EXCEPTIONS"] = self.options.no_exceptions
-        if not valid_min_cppstd(self, 11):
-            tc.variables["CMAKE_CXX_STANDARD"] = 11
-        # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        tc.cache_variables["AS_NO_EXCEPTIONS"] = self.options.no_exceptions
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.generate()
 
     def build(self):
@@ -80,5 +80,5 @@ class AngelScriptConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Angelscript::angelscript")
         postfix = "d" if is_msvc(self) and self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [f"angelscript{postfix}"]
-        if self.settings.os in ("Linux", "FreeBSD", "SunOS"):
-            self.cpp_info.system_libs.extend(["m", "pthread"])
+        if self.settings.os in ["Linux", "FreeBSD", "SunOS"]:
+            self.cpp_info.system_libs = ["m", "pthread"]
