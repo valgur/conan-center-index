@@ -59,7 +59,7 @@ class CudaDriverStubsConan(ConanFile):
         # Also install the wrapper for FindCUDAToolkit.cmake as cuda-driver-stubs is the root dependency for all other CUDA toolkit packages
         self.cpp_info.set_property("cmake_find_mode", "both")
         # A hacky way to support both FindCUDAToolkit.cmake and FindCUDA.cmake
-        self.cpp_info.set_property("cmake_module_file_name", "CUDAToolkit")
-        self.cpp_info.set_property("cmake_file_name", "CUDA")
+        self.cpp_info.set_property("cmake_file_name", "CUDAToolkit")
+        self.cpp_info.set_property("cmake_module_file_name", "CUDA")
         self.cpp_info.set_property("cmake_build_modules", ["share/conan/CUDAToolkit-wrapper.cmake"])
         self.cpp_info.builddirs = ["share/conan"]
