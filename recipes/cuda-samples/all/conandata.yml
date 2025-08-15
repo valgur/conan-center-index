@@ -1,10 +1,10 @@
 sources:
-  "12.5":
-    url: "https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v12.2.tar.gz"
-    sha256: "1823cfe28e97a9230107aa72b231f78952c0f178b71a920f036d360518480bdc"
-  "12.2":
-    url: "https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v12.2.tar.gz"
-    sha256: "1823cfe28e97a9230107aa72b231f78952c0f178b71a920f036d360518480bdc"
+  "13.0":
+    url: "https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v13.0.tar.gz"
+    sha256: "63cc9d5d8280c87df3c1f4e2276234a0f42cc497c52b40dd5bdda2836607db79"
+  "12.9":
+    url: "https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v12.9.tar.gz"
+    sha256: "2e67e1f6bdb15bf11b21e07e988e2f9f60fb054eff51ef01cebdd47229788015"
   "11.8":
     url: "https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v11.8.tar.gz"
     sha256: "1bc02c0ca42a323f3c7a05b5682eae703681a91e95b135bfe81f848b2d6a2c51"
