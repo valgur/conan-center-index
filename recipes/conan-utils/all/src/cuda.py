@@ -66,7 +66,7 @@ class NvccToolchain:
         if "cudart" in self.conanfile.dependencies.host:
             runtime_type = "shared" if self.conanfile.dependencies.host["cudart"].options.shared else "static"
             self.cudaflags.append(f"--cudart={runtime_type}")
-            for pkg in ["cudart", "cuda-crt", "cuda-driver-stubs", "libcudacxx"]:
+            for pkg in ["cudart", "cuda-crt", "cuda-driver-stubs", "libcudacxx", "thrust", "cub"]:
                 if pkg in self.conanfile.dependencies.host:
                     pkg_info = self.conanfile.dependencies.host[pkg].cpp_info
                     if pkg_info.libdirs:
