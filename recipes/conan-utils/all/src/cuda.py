@@ -5,7 +5,7 @@ import stat
 from functools import cached_property
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Union
+from typing import Union, List
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -274,7 +274,7 @@ def check_min_cuda_architecture(conanfile: ConanFile, min_arch: Union[str, int])
             )
 
 
-def require_shared_deps(conanfile: ConanFile, deps: list[str]):
+def require_shared_deps(conanfile: ConanFile, deps: List[str]):
     """Checks if the given dependencies are shared, and raises a ConanInvalidConfiguration if not.
     This is needed for pre-built shared libraries to find their shared dependencies at runtime.
 
@@ -312,7 +312,7 @@ def get_version_range(package_name, cuda_version):
     if package_name == "cufile":
         if cuda_major >= 13:
             return ">=1.15"
-        elif cuda_major >= 12:
+        elif cuda_major == 12:
             return ">=1.5 <1.15"
         else:
             return "<1.5"
@@ -323,7 +323,7 @@ def get_version_range(package_name, cuda_version):
     if package_name == "cusparse":
         if cuda_major >= 13:
             return ">=12.6"
-        elif cuda_major >= 12:
+        elif cuda_major == 12:
             return ">=12 <12.6"
         else:
             return "^11"
