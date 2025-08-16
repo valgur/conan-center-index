@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -14,10 +13,8 @@ class PoselibConan(ConanFile):
     name = "poselib"
     description = "PoseLib: minimal solvers for calibrated camera pose estimation"
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/PoseLib/PoseLib"
     topics = ("pose", "camera", "estimation", "solver")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -30,19 +27,6 @@ class PoselibConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-            "msvc": "192",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -50,36 +34,23 @@ class PoselibConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 17)
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not export symbols on Windows for a shared library build."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} does not export symbols on Windows for a shared library build.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "-Werror -fPIC", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["MARCH_NATIVE"] = False
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "-march=native -Wall -Werror -fPIC", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -98,4 +69,4 @@ class PoselibConan(ConanFile):
         self.cpp_info.libs = ["PoseLib" + suffix]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
+            self.cpp_info.system_libs = ["m"]
