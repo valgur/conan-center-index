@@ -1,7 +1,0 @@
-include(CMakeFindDependencyMacro)
-find_dependency(CUDAToolkit)
-foreach(target faiss faiss_avx2 faiss_avx512 faiss_sve)
-    if(TARGET ${target})
-        target_link_libraries(${target} INTERFACE CUDA::cudart CUDA::cublas)
-    endif()
-endforeach()

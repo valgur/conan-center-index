@@ -4,27 +4,26 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library, check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
+
 
 class FaissRecipe(ConanFile):
     name = "faiss"
     description = "Faiss - a library for efficient similarity search and clustering of dense vectors"
     license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/facebookresearch/faiss"
     topics = ("approximate-nearest-neighbor", "similarity-search", "clustering", "gpu")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "opt_level": ["generic", "avx2", "avx512"],
+        "opt_level": ["generic", "avx2", "avx512", "avx512_spr", "sve"],
         "enable_c_api": [True, False],
         "enable_gpu": [False, "cuda"],
+        "lto": [True, False],
     }
     default_options = {
         "shared": False,
@@ -32,28 +31,14 @@ class FaissRecipe(ConanFile):
         "opt_level": "avx2",
         "enable_c_api": False,
         "enable_gpu": False,
+        "lto": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
+    python_requires = "conan-utils/latest"
 
     @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "9",
-            "msvc": "191",
-        }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-        copy(self, "*.cmake", self.recipe_folder, self.export_sources_folder)
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version],  strip_root=True)
-        apply_conandata_patches(self)
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -64,11 +49,12 @@ class FaissRecipe(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        # TODO: current openblas recipe does not export all below options yet
-        # self.options["openblas"].use_openmp = True
-        # self.options["openblas"].use_thread = False
-        # self.options["openblas"].use_locking = False
-        # self.options["openblas"].num_threads = 512
+        self.options["openblas"].use_openmp = True
+        self.options["openblas"].use_thread = False
+        self.options["openblas"].use_locking = False
+        self.options["openblas"].num_threads = 512
+        if self.options.enable_gpu != "cuda":
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -76,41 +62,55 @@ class FaissRecipe(ConanFile):
     def requirements(self):
         self.requires("openblas/[>=0.3.28 <1]")
         self.requires("openmp/system")
+        if self.options.enable_gpu:
+            curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            self.requires(f"curand/[{curand_range}]")
+            self.requires(f"cuda-profiler-api/[~{self.settings.cuda.version}]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
         if self.options.enable_gpu and not self.options.shared:
             raise ConanInvalidConfiguration(f"-o enable_gpu={self.options.enable_gpu} is only supported with -o shared=True")
+        if self.options.enable_gpu == "cuda":
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
+        if self.options.enable_gpu == "cuda":
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version],  strip_root=True)
+        replace_in_file(self, "faiss/CMakeLists.txt", "POSITION_INDEPENDENT_CODE ON", "")
+        # Fix a missing cuRAND dependency: faiss/gpu/impl/IcmEncoder.cu uses curand_kernel.h
+        replace_in_file(self, "faiss/gpu/CMakeLists.txt",
+                        "set(CUDA_LIBS CUDA::cudart CUDA::cublas)",
+                        "find_package(cuda-profiler-api REQUIRED)\n"
+                        "set(CUDA_LIBS CUDA::cudart CUDA::cublas CUDA::curand cuda-profiler-api::cuda-profiler-api)")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.cache_variables["FAISS_OPT_LEVEL"] = self.options.get_safe("opt_level", "generic")
         tc.cache_variables["FAISS_ENABLE_C_API"] = self.options.enable_c_api
         tc.cache_variables["FAISS_ENABLE_GPU"] = bool(self.options.enable_gpu)
-        tc.cache_variables["FAISS_ENABLE_RAFT"] = False
+        tc.cache_variables["FAISS_ENABLE_CUVS"] = False  # TODO: rapidsai/cuvs
+        tc.cache_variables["FAISS_ENABLE_MKL"] = False  # TODO
         tc.cache_variables["FAISS_ENABLE_PYTHON"] = False
+        tc.cache_variables["FAISS_ENABLE_EXTRAS"] = False
         tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["FAISS_USE_LTO"] = self.options.lto
         tc.generate()
+
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Disable irrelevant subdirs
-        save(self, os.path.join(self.source_folder, "demos", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "benchs", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "tutorial", "cpp", "CMakeLists.txt"), "")
+        if self.options.enable_gpu == "cuda":
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -120,40 +120,42 @@ class FaissRecipe(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
-        if self.options.enable_gpu:
-            copy(self, "faiss-cuda-support.cmake",
-                 self.export_sources_folder,
-                 os.path.join(self.package_folder, "lib", "cmake", "faiss"))
 
     @property
     def _enabled_opt_levels(self):
-        levels = ["generic", "avx2", "avx512", "sve"]
+        levels = ["generic", "avx2", "avx512", "avx512_spr", "sve"]
         return levels[:levels.index(self.options.get_safe("opt_level", "generic")) + 1]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "faiss")
+
 
         for level in self._enabled_opt_levels:
             lib = "faiss" if level == "generic" else f"faiss_{level}"
             component = self.cpp_info.components[lib]
             component.set_property("cmake_target_name", lib)
             component.libs = [lib]
-            component.requires = ["openblas::openblas", "openmp::openmp"]
+            component.requires = [
+                "openblas::openblas",
+                "openmp::openmp",
+            ]
+            if self.options.enable_gpu == "cuda":
+                component.requires.extend([
+                    "cudart::cudart_",
+                    "cublas::cublas_",
+                    "curand::curand",
+                    "cuda-profiler-api::cuda-profiler-api",
+                ])
             if self.settings.os in ["Linux", "FreeBSD"]:
                 component.system_libs.append("m")
-            if self.options.enable_gpu:
-                component.builddirs = [os.path.join("lib", "cmake", "faiss")]
-
-        if self.options.enable_c_api:
-            self.cpp_info.components["faiss_c"].set_property("cmake_target_name", "faiss_c")
-            self.cpp_info.components["faiss_c"].libs = ["faiss_c"]
-            self.cpp_info.components["faiss_c"].requires = ["faiss"]
-            if not self.options.shared and stdcpp_library(self):
-                self.cpp_info.components["faiss_c"].system_libs.append(stdcpp_library(self))
-
-        if self.options.enable_gpu:
-            cmake_module = os.path.join("lib", "cmake", "faiss", "faiss-cuda-support.cmake")
-            self.cpp_info.set_property("cmake_build_modules", [cmake_module])
+            if self.options.enable_c_api:
+                lib_c = "faiss_c" if level == "generic" else f"faiss_c_{level}"
+                component_c = self.cpp_info.components[lib_c]
+                component_c.set_property("cmake_target_name", lib_c)
+                component_c.libs = [lib_c]
+                component_c.requires = [lib]
+                if not self.options.shared and stdcpp_library(self):
+                    component_c.system_libs.append(stdcpp_library(self))
 
     def compatibility(self):
         return [{"options": [("opt_level", level)]} for level in self._enabled_opt_levels]
