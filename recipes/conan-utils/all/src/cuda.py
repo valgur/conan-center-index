@@ -120,10 +120,15 @@ class NvccToolchain:
 
     def environment(self):
         env = Environment()
-        env.define("NVCC_PREPEND_FLAGS", " ".join(self.cudaflags + self.extra_cudaflags).strip())
+        flags = " ".join(self.cudaflags + self.extra_cudaflags).strip()
+        env.define("NVCC_PREPEND_FLAGS", flags)
         cc = AutotoolsToolchain(self.conanfile).vars().get("CC", None)
         if cc:
             env.define_path("NVCC_CCBIN", cc)
+        # Initialize CMAKE_CUDA_FLAGS.
+        env.define("CUDAFLAGS", flags)
+        # Initialize CMAKE_CUDA_ARCHITECTURES. Requires CMake >= 3.20.
+        env.define("CUDAARCHS", ";".join(self.architectures))
         return env
 
     def generate(self, env=None, scope="build"):
@@ -317,7 +322,12 @@ def get_version_range(package_name, cuda_version):
         else:
             return "<1.5"
     if package_name == "curand":
-        return "^10"
+        if cuda_major >= 13:
+            return "~10.4"
+        elif cuda_major == 12:
+            return "~10.3"
+        else:
+            return "~10.2"
     if package_name == "cusolver":
         return "^12" if cuda_major >= 13 else "^11"
     if package_name == "cusparse":
