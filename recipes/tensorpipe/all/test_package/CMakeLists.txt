@@ -5,4 +5,7 @@ find_package(Tensorpipe REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE tensorpipe)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
+if(TARGET tensorpipe_cuda)
+    target_link_libraries(${PROJECT_NAME} PRIVATE tensorpipe_cuda)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE TP_WITH_CUDA)
+endif()

@@ -1,4 +1,7 @@
 #include <tensorpipe/tensorpipe.h>
+#ifdef TP_WITH_CUDA
+#include <tensorpipe/tensorpipe_cuda.h>
+#endif
 
 #include <memory>
 

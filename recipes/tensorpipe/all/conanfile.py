@@ -12,21 +12,19 @@ required_conan_version = ">=2.1"
 
 class TensorpipeConan(ConanFile):
     name = "tensorpipe"
-    description = "The TensorPipe project provides a tensor-aware channel to " \
-                  "transfer rich objects from one process to another while " \
-                  "using the fastest transport for the tensors contained " \
-                  "therein (e.g., CUDA device-to-device copy)."
+    description = "A tensor-aware point-to-point communication primitive for machine learning."
     license = "BSD-3-Clause"
-    topics = ("tensor", "cuda")
+    topics = ("tensor", "cuda", "machine-learning", "distributed-computing", "multi-gpu")
     homepage = "https://github.com/pytorch/tensorpipe"
     url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "cuda": [True, False],
+        "cuda_gdr": [True, False],
         "cuda_ipc": [True, False],
         "ibv": [True, False],
         "shm": [True, False],
@@ -36,11 +34,18 @@ class TensorpipeConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "cuda": False,
+        "cuda_gdr": True,
         "cuda_ipc": True,
         "ibv": True,
         "shm": True,
         "cma": True,
     }
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def config_options(self):
         if self.settings.os != "Linux":
@@ -52,6 +57,7 @@ class TensorpipeConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if not self.options.cuda:
+            del self.settings.cuda
             del self.options.cuda_ipc
 
     def layout(self):
@@ -60,50 +66,46 @@ class TensorpipeConan(ConanFile):
     def requirements(self):
         self.requires("libnop/cci.20211103")
         self.requires("libuv/[^1.45.0]")
+        if self.options.cuda:
+            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, libs=False)
+            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]", libs=False)
 
     def validate(self):
-        check_min_cppstd(self, 14)
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Windows")
+        check_min_cppstd(self, 17)
         if self.options.cuda:
-            raise ConanInvalidConfiguration("cuda recipe not yet available in CCI")
+            self._utils.validate_cuda_settings(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
+        replace_in_file(self, "tensorpipe/CMakeLists.txt",
+                        "list(APPEND TP_INCLUDE_DIRS $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/libnop/include>)",
+                        "find_package(libnop REQUIRED CONFIG)\n"
+                        "list(APPEND TP_INCLUDE_DIRS ${libnop_INCLUDE_DIRS})")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["TP_USE_CUDA"] = self.options.cuda
-        tc.variables["TP_ENABLE_IBV"] = self.options.get_safe("ibv", False)
-        tc.variables["TP_ENABLE_SHM"] = self.options.get_safe("shm", False)
-        tc.variables["TP_ENABLE_CMA"] = self.options.get_safe("cma", False)
-        tc.variables["TP_ENABLE_CUDA_IPC"] = self.options.get_safe("cuda_ipc", False)
-        tc.variables["TP_BUILD_BENCHMARK"] = False
-        tc.variables["TP_BUILD_PYTHON"] = False
-        tc.variables["TP_BUILD_TESTING"] = False
-        tc.variables["TP_BUILD_LIBUV"] = False
+        tc.cache_variables["TP_USE_CUDA"] = self.options.cuda
+        tc.cache_variables["TP_ENABLE_IBV"] = self.options.get_safe("ibv", False)
+        tc.cache_variables["TP_ENABLE_SHM"] = self.options.get_safe("shm", False)
+        tc.cache_variables["TP_ENABLE_CMA"] = self.options.get_safe("cma", False)
+        tc.cache_variables["TP_ENABLE_CUDA_IPC"] = self.options.get_safe("cuda_ipc", False)
+        tc.cache_variables["TP_ENABLE_CUDA_GDR"] = self.options.get_safe("cuda_gdr", False)
+        tc.cache_variables["TP_BUILD_BENCHMARK"] = False
+        tc.cache_variables["TP_BUILD_PYTHON"] = False
+        tc.cache_variables["TP_BUILD_TESTING"] = False
+        tc.cache_variables["TP_BUILD_LIBUV"] = False
         tc.generate()
+
         deps = CMakeDeps(self)
+        deps.set_property("libuv", "cmake_file_name", "uv")
+        deps.set_property("libuv", "cmake_target_name", "uv::uv")
         deps.generate()
 
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "tensorpipe", "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(uv REQUIRED)", "find_package(libuv REQUIRED CONFIG)")
-        replace_in_file(
-            self,
-            cmakelists,
-            "target_link_libraries(tensorpipe PRIVATE uv::uv)",
-            "target_link_libraries(tensorpipe PRIVATE $<IF:$<TARGET_EXISTS:uv>,uv,uv_a>)",
-        )
-        replace_in_file(
-            self,
-            cmakelists,
-            "target_include_directories(tensorpipe PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/libnop/include>)",
-            "find_package(libnop REQUIRED CONFIG)\ntarget_link_libraries(tensorpipe PUBLIC libnop::libnop)",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -116,7 +118,19 @@ class TensorpipeConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Tensorpipe")
-        self.cpp_info.set_property("cmake_target_name", "tensorpipe")
-        self.cpp_info.libs = ["tensorpipe"]
+
+        self.cpp_info.components["tensorpipe_"].set_property("cmake_target_name", "tensorpipe")
+        self.cpp_info.components["tensorpipe_"].libs = ["tensorpipe"]
+        self.cpp_info.components["tensorpipe_"].requires = ["libnop::libnop", "libuv::libuv"]
         if is_apple_os(self):
-            self.cpp_info.frameworks = ["CoreFoundation", "IOKit"]
+            self.cpp_info.components["tensorpipe_"].frameworks = ["CoreFoundation", "IOKit"]
+
+        if self.options.cuda:
+            self.cpp_info.components["tensorpipe_cuda"].set_property("cmake_target_name", "tensorpipe_cuda")
+            self.cpp_info.components["tensorpipe_cuda"].libs = ["tensorpipe_cuda"]
+            self.cpp_info.components["tensorpipe_cuda"].requires = [
+                "tensorpipe_",
+                "cuda-driver-stubs::cuda-driver-stubs",
+                "cudart::cudart_",
+                "nvml-stubs::nvml-stubs",
+            ]
