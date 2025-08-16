@@ -26,33 +26,36 @@ class OneMKLConan(ConanFile):
         "sdl": [True, False],
         "interface_type": ["intel", "gf"],
         "threading": ["sequential", "tbb", "intel", "gnu"],
-        "mpi": ["intelmpi", "openmpi"],
         "blas95": [True, False],
         "lapack95": [True, False],
         "sycl": [True, False],
         "omp_offload": [True, False],
+        "blacs": [True, False],
+        "mpi": ["intelmpi", "openmpi"],
     }
     default_options = {
         "interface": "lp64",
         "sdl": True,
         "interface_type": "intel",
         "threading": "tbb",
-        "mpi": "intelmpi",
         "blas95": False,
         "lapack95": False,
-        "sycl": True,
+        "sycl": False,
         "omp_offload": True,
+        "blacs": False,
+        "mpi": "intelmpi",
     }
     options_description = {
         "interface": "GNU or Intel interface to use",
         "sdl": "Use Single Dynamic Library interface for CMake targets",
         "interface_type": "Intel or GNU Fortran interface for CMake targets",
         "threading": "Threading layer for CMake targets",
-        "mpi": "BLACS interface to export",
         "blas95": "Add blas95 to MKL::MKL",
         "lapack95": "Add lapack95 to MKL::MKL",
         "sycl": "Include SYCL support. Requires intel-cc.",
         "omp_offload": "Add OpenMP offloading support to the main MKL::MKL target. Requires SYCL support.",
+        "blacs": "Export BLACS, SCALAPACK and CDFT targets",
+        "mpi": "BLACS MPI interface to use",
     }
     provides = ["blas", "lapack", "mkl"]
 
@@ -60,6 +63,7 @@ class OneMKLConan(ConanFile):
         if self.settings.compiler == "intel-cc":
             self.options.interface = "ilp64"
             self.options.threading = "intel"
+            self.options.sycl = True
         else:
             del self.options.omp_offload
 
@@ -68,17 +72,23 @@ class OneMKLConan(ConanFile):
             del self.options.sdl
         if not self.options.sycl or self.options.get_safe("sdl"):
             self.options.rm_safe("omp_offload")
+        if not self.options.blacs:
+            del self.options.mpi
 
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        # These only affect package_info() targets
-        self.info.options.rm_safe("sdl")
-        del self.info.options.mpi
+        # Only the `interface` and `sycl` options matter for the package ID.
+        # The optional components are always packaged (since they are relatively small),
+        # but only enabled in package_info depending on the option values.
+        # This also allows the SDL library (mkl_rt) to pick a suitable interface at runtime.
+        for opt in ["sdl", "interface_type", "threading", "blas95", "lapack95", "omp_offload", "blacs", "mpi"]:
+            self.info.options.rm_safe(opt)
 
     def requirements(self):
-        # Requires libonetbb.so.12
-        self.requires("onetbb/[>=2021 <2023]")
+        if self.options.threading == "tbb":
+            # Requires libonetbb.so.12
+            self.requires("onetbb/[>=2021 <2023]")
 
     def validate(self):
         # TODO: add Windows support
@@ -86,8 +96,13 @@ class OneMKLConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Only x86_64 architecture is supported")
-        if self.options.sycl and self.settings.compiler not in ["intel-cc", "clang", "apple-clang"]:
-            raise ConanInvalidConfiguration(f"{self.settings.compiler} does not support SYCL.")
+        if self.settings.compiler not in ["intel-cc", "clang", "apple-clang"]:
+            if self.options.sycl:
+                raise ConanInvalidConfiguration(f"{self.settings.compiler} does not support SYCL.")
+            if self.options.threading == "intel":
+                raise ConanInvalidConfiguration("threading=intel options is only available with an Intel or Clang compiler.")
+        if self.options.threading == "gnu" and self.settings.compiler not in ["gcc", "clang", "apple-clang"]:
+            raise ConanInvalidConfiguration("threading=gnu option is only available with GCC or Clang compilers.")
 
     @cached_property
     def _extracted_installer_dir(self):
@@ -150,33 +165,35 @@ class OneMKLConan(ConanFile):
                 if static_lib.with_suffix(".so").exists():
                     rm(self, f"{static_lib.stem}.so*", os.path.join(self.package_folder, "lib"))
 
-    def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "MKL")
-
-        interface = self.options.interface.value
+    @cached_property
+    def _mkl_lib(self):
         threading_component = {
             "sequential": "seq",
             "tbb": "tbb",
             "intel": "iomp",
             "gnu": "gomp",
         }[self.options.threading.value]
-        mkl_lib = f"mkl-{threading_component}"
+        return f"mkl-{threading_component}"
 
-        # The main target
+    def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "MKL")
         mkl_comp = self.cpp_info.components["mkl"]
         mkl_comp.set_property("cmake_target_name", "MKL::MKL")
         mkl_comp.set_property("pkg_config_name", "mkl")  # unofficial
+
         if self.options.get_safe("sdl"):
             mkl_comp.requires = ["mkl-sdl"]
         else:
-            mkl_comp.requires = [mkl_lib]
+            mkl_comp.requires = [self._mkl_lib]
         if self.options.blas95:
             mkl_comp.requires.append("blas95")
         if self.options.lapack95:
             mkl_comp.requires.append("lapack95")
 
+        interface = self.options.interface.value
+
         # Single Dynamic Library (SDL) interface
-        if self.options.get_safe("shared", True):
+        if self.options.get_safe("sdl"):
             self.cpp_info.components["mkl-sdl"].set_property("pkg_config_name", "mkl-sdl")
             self.cpp_info.components["mkl-sdl"].libs = ["mkl_rt"]
             # Configure the default interface via env vars
@@ -202,55 +219,66 @@ class OneMKLConan(ConanFile):
         # Interface libraries
         interface_lib = f"mkl-{self.options.interface_type}"
         linkage = "dynamic" if self.options.get_safe("shared", True) else "static"
-        self.cpp_info.components["mkl-gf"].libs = [f"mkl_gf_{interface}"]
-        self.cpp_info.components["mkl-gf"].requires = ["mkl-core"]
-        self.cpp_info.components["mkl-intel"].libs = [f"mkl_intel_{interface}"]
-        self.cpp_info.components["mkl-intel"].requires = ["mkl-core"]
+        if self.options.interface_type == "gf":
+            self.cpp_info.components["mkl-gf"].libs = [f"mkl_gf_{interface}"]
+            self.cpp_info.components["mkl-gf"].requires = ["mkl-core"]
+        elif self.options.interface_type == "intel":
+            self.cpp_info.components["mkl-intel"].libs = [f"mkl_intel_{interface}"]
+            self.cpp_info.components["mkl-intel"].requires = ["mkl-core"]
 
         # Threading backend libraries
-        self.cpp_info.components["mkl-seq"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-seq")
-        self.cpp_info.components["mkl-seq"].libs = ["mkl_sequential"]
-        self.cpp_info.components["mkl-seq"].requires = [interface_lib]
+        if self.options.threading == "sequential":
+            self.cpp_info.components["mkl-seq"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-seq")
+            self.cpp_info.components["mkl-seq"].libs = ["mkl_sequential"]
+            self.cpp_info.components["mkl-seq"].requires = [interface_lib]
 
-        self.cpp_info.components["mkl-tbb"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-tbb")
-        self.cpp_info.components["mkl-tbb"].libs = ["mkl_tbb_thread"]
-        self.cpp_info.components["mkl-tbb"].requires = [interface_lib, "onetbb::onetbb"]
+        if self.options.threading == "tbb":
+            self.cpp_info.components["mkl-tbb"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-tbb")
+            self.cpp_info.components["mkl-tbb"].libs = ["mkl_tbb_thread"]
+            self.cpp_info.components["mkl-tbb"].requires = [interface_lib, "onetbb::onetbb"]
 
-        self.cpp_info.components["mkl-gomp"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-gomp")
-        self.cpp_info.components["mkl-gomp"].libs = ["mkl_gnu_thread"]
-        self.cpp_info.components["mkl-gomp"].system_libs = ["gomp"]
-        self.cpp_info.components["mkl-gomp"].exelinkflags = ["-Wl,--no-as-needed"]
-        self.cpp_info.components["mkl-gomp"].sharedlinkflags = ["-Wl,--no-as-needed"]
-        self.cpp_info.components["mkl-gomp"].requires = [interface_lib]
+        if self.options.threading == "gnu":
+            self.cpp_info.components["mkl-gomp"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-gomp")
+            self.cpp_info.components["mkl-gomp"].libs = ["mkl_gnu_thread"]
+            self.cpp_info.components["mkl-gomp"].system_libs = ["gomp"]
+            self.cpp_info.components["mkl-gomp"].exelinkflags = ["-Wl,--no-as-needed"]
+            self.cpp_info.components["mkl-gomp"].sharedlinkflags = ["-Wl,--no-as-needed"]
+            self.cpp_info.components["mkl-gomp"].requires = [interface_lib]
 
-        self.cpp_info.components["mkl-iomp"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-iomp")
-        self.cpp_info.components["mkl-iomp"].libs = ["mkl_intel_thread"]
-        self.cpp_info.components["mkl-iomp"].system_libs = ["libiomp5md" if self.settings.os == "Windows" else "iomp5"]
-        self.cpp_info.components["mkl-iomp"].requires = [interface_lib]
+        if self.options.threading == "intel":
+            self.cpp_info.components["mkl-iomp"].set_property("pkg_config_name", f"mkl-{linkage}-{interface}-iomp")
+            self.cpp_info.components["mkl-iomp"].libs = ["mkl_intel_thread"]
+            self.cpp_info.components["mkl-iomp"].system_libs = ["libiomp5md" if self.settings.os == "Windows" else "iomp5"]
+            self.cpp_info.components["mkl-iomp"].requires = [interface_lib]
 
         # Cluster libraries
-        self.cpp_info.components["cdft"].set_property("cmake_target_name", "MKL::MKL_CDFT")
-        self.cpp_info.components["cdft"].libs = ["mkl_cdft_core"]
-        self.cpp_info.components["cdft"].requires = [f"blacs-{self.options.mpi}"]
-        self.cpp_info.components["cdft"].requires = [mkl_lib]
+        if self.options.blacs:
+            self.cpp_info.components["cdft"].set_property("cmake_target_name", "MKL::MKL_CDFT")
+            self.cpp_info.components["cdft"].libs = ["mkl_cdft_core"]
+            self.cpp_info.components["cdft"].requires = [f"blacs-{self.options.mpi}"]
+            self.cpp_info.components["cdft"].requires = [self._mkl_lib]
 
-        self.cpp_info.components["scalapack"].set_property("cmake_target_name", "MKL::MKL_SCALAPACK")
-        self.cpp_info.components["scalapack"].libs = [f"mkl_scalapack_{interface}"]
-        self.cpp_info.components["scalapack"].requires = [f"blacs-{self.options.mpi}"]
-        self.cpp_info.components["scalapack"].requires = [mkl_lib]
+            self.cpp_info.components["scalapack"].set_property("cmake_target_name", "MKL::MKL_SCALAPACK")
+            self.cpp_info.components["scalapack"].libs = [f"mkl_scalapack_{interface}"]
+            self.cpp_info.components["scalapack"].requires = [f"blacs-{self.options.mpi}"]
+            self.cpp_info.components["scalapack"].requires = [self._mkl_lib]
 
-        self.cpp_info.components["blacs"].set_property("cmake_target_name", "MKL::MKL_BLACS")
-        self.cpp_info.components["blacs"].requires = [f"blacs-{self.options.mpi}"]
-        self.cpp_info.components["blacs-intelmpi"].libs = [f"mkl_blacs_intelmpi_{interface}"]
-        self.cpp_info.components["blacs-intelmpi"].requires = [mkl_lib]
-        self.cpp_info.components["blacs-openmpi"].libs = [f"mkl_blacs_openmpi_{interface}"]
-        self.cpp_info.components["blacs-openmpi"].requires = [mkl_lib]
+            self.cpp_info.components["blacs"].set_property("cmake_target_name", "MKL::MKL_BLACS")
+            self.cpp_info.components["blacs"].requires = [f"blacs-{self.options.mpi}"]
+            if self.options.mpi == "intelmpi":
+                self.cpp_info.components["blacs-intelmpi"].libs = [f"mkl_blacs_intelmpi_{interface}"]
+                self.cpp_info.components["blacs-intelmpi"].requires = [self._mkl_lib]
+            if self.options.mpi == "openmpi":
+                self.cpp_info.components["blacs-openmpi"].libs = [f"mkl_blacs_openmpi_{interface}"]
+                self.cpp_info.components["blacs-openmpi"].requires = [self._mkl_lib]
 
         # Fortran95 API libraries
-        self.cpp_info.components["blas95"].libs = [f"mkl_blas95_{interface}"]
-        self.cpp_info.components["blas95"].requires = [mkl_lib]
-        self.cpp_info.components["lapack95"].libs = [f"mkl_lapack95_{interface}"]
-        self.cpp_info.components["lapack95"].requires = [mkl_lib]
+        if self.options.blas95:
+            self.cpp_info.components["blas95"].libs = [f"mkl_blas95_{interface}"]
+            self.cpp_info.components["blas95"].requires = [self._mkl_lib]
+        if self.options.lapack95:
+            self.cpp_info.components["lapack95"].libs = [f"mkl_lapack95_{interface}"]
+            self.cpp_info.components["lapack95"].requires = [self._mkl_lib]
 
         # SYCL support
         if self.options.sycl:
@@ -258,7 +286,7 @@ class OneMKLConan(ConanFile):
             sycl_comp = self.cpp_info.components["mkl-sycl"]
             sycl_comp.set_property("cmake_target_name", "MKL::MKL_SYCL")
             sycl_comp.requires = [f"mkl-sycl-{domain}" for domain in domains]
-            sycl_comp.requires.append(mkl_lib)
+            sycl_comp.requires.append(self._mkl_lib)
 
             sycl_comp.cflags = ["-fsycl"]
             sycl_comp.cxxflags = ["-fsycl"]
@@ -276,7 +304,7 @@ class OneMKLConan(ConanFile):
                 comp.set_property("cmake_target_name", f"MKL::MKL_SYCL::{domain.upper()}")
                 comp.libs = [f"mkl_sycl_{domain}"]
                 sycl_comp.system_libs = ["sycl", "OpenCL"]
-                comp.requires = [mkl_lib]
+                comp.requires = [self._mkl_lib]
                 comp.cflags = ["-fsycl"]
                 comp.cxxflags = ["-fsycl"]
                 comp.sharedlinkflags = sycl_link_flags
