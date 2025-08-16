@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library, check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import *
@@ -21,17 +20,19 @@ class FaissRecipe(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "opt_level": ["generic", "avx2", "avx512", "avx512_spr", "sve"],
-        "enable_c_api": [True, False],
-        "enable_gpu": [False, "cuda"],
+        "c_api": [True, False],
         "lto": [True, False],
+        "with_cuda": [True, False],
+        "with_mkl": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "opt_level": "avx2",
-        "enable_c_api": False,
-        "enable_gpu": False,
+        "c_api": False,
         "lto": False,
+        "with_cuda": False,
+        "with_mkl": False,
     }
 
     python_requires = "conan-utils/latest"
@@ -53,16 +54,19 @@ class FaissRecipe(ConanFile):
         self.options["openblas"].use_thread = False
         self.options["openblas"].use_locking = False
         self.options["openblas"].num_threads = 512
-        if self.options.enable_gpu != "cuda":
+        if not self.options.with_cuda:
             del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openblas/[>=0.3.28 <1]")
         self.requires("openmp/system")
-        if self.options.enable_gpu:
+        if self.options.with_mkl:
+            self.requires("onemkl/[*]")
+        else:
+            self.requires("openblas/[>=0.3.28 <1]")
+        if self.options.with_cuda:
             curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
             self.requires(f"cudart/[~{self.settings.cuda.version}]")
             self.requires(f"cublas/[~{self.settings.cuda.version}]")
@@ -71,14 +75,12 @@ class FaissRecipe(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.options.enable_gpu and not self.options.shared:
-            raise ConanInvalidConfiguration(f"-o enable_gpu={self.options.enable_gpu} is only supported with -o shared=True")
-        if self.options.enable_gpu == "cuda":
+        if self.options.with_cuda:
             self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
-        if self.options.enable_gpu == "cuda":
+        if self.options.with_cuda:
             self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
@@ -89,14 +91,16 @@ class FaissRecipe(ConanFile):
                         "set(CUDA_LIBS CUDA::cudart CUDA::cublas)",
                         "find_package(cuda-profiler-api REQUIRED)\n"
                         "set(CUDA_LIBS CUDA::cudart CUDA::cublas CUDA::curand cuda-profiler-api::cuda-profiler-api)")
+        # Use the more precise MKL::MKL target instead of everything packaged by the onemkl recipe
+        replace_in_file(self, "faiss/CMakeLists.txt", "${MKL_LIBRARIES}", "MKL::MKL")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["FAISS_OPT_LEVEL"] = self.options.get_safe("opt_level", "generic")
-        tc.cache_variables["FAISS_ENABLE_C_API"] = self.options.enable_c_api
-        tc.cache_variables["FAISS_ENABLE_GPU"] = bool(self.options.enable_gpu)
+        tc.cache_variables["FAISS_c_api"] = self.options.c_api
+        tc.cache_variables["FAISS_ENABLE_GPU"] = self.options.with_cuda
         tc.cache_variables["FAISS_ENABLE_CUVS"] = False  # TODO: rapidsai/cuvs
-        tc.cache_variables["FAISS_ENABLE_MKL"] = False  # TODO
+        tc.cache_variables["FAISS_ENABLE_MKL"] = self.options.with_mkl
         tc.cache_variables["FAISS_ENABLE_PYTHON"] = False
         tc.cache_variables["FAISS_ENABLE_EXTRAS"] = False
         tc.cache_variables["BUILD_TESTING"] = False
@@ -106,7 +110,7 @@ class FaissRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-        if self.options.enable_gpu == "cuda":
+        if self.options.with_cuda:
             nvcc_tc = self._utils.NvccToolchain(self)
             nvcc_tc.generate()
 
@@ -129,17 +133,17 @@ class FaissRecipe(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "faiss")
 
-
         for level in self._enabled_opt_levels:
             lib = "faiss" if level == "generic" else f"faiss_{level}"
-            component = self.cpp_info.components[lib]
+            component = self.cpp_info.components["faiss_" if level != "generic" else lib]
             component.set_property("cmake_target_name", lib)
             component.libs = [lib]
-            component.requires = [
-                "openblas::openblas",
-                "openmp::openmp",
-            ]
-            if self.options.enable_gpu == "cuda":
+            component.requires = ["openmp::openmp"]
+            if self.options.with_mkl:
+                component.requires.append("onemkl::mkl")
+            else:
+                component.requires.append("openblas::openblas")
+            if self.options.with_cuda:
                 component.requires.extend([
                     "cudart::cudart_",
                     "cublas::cublas_",
@@ -148,12 +152,12 @@ class FaissRecipe(ConanFile):
                 ])
             if self.settings.os in ["Linux", "FreeBSD"]:
                 component.system_libs.append("m")
-            if self.options.enable_c_api:
+            if self.options.c_api:
                 lib_c = "faiss_c" if level == "generic" else f"faiss_c_{level}"
                 component_c = self.cpp_info.components[lib_c]
                 component_c.set_property("cmake_target_name", lib_c)
                 component_c.libs = [lib_c]
-                component_c.requires = [lib]
+                component_c.requires = ["faiss_" if level != "generic" else lib]
                 if not self.options.shared and stdcpp_library(self):
                     component_c.system_libs.append(stdcpp_library(self))
 
