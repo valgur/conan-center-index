@@ -1,20 +1,17 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
 
 class LibnopConan(ConanFile):
     name = "libnop"
-    description = "libnop is a header-only library for serializing and " \
-                  "deserializing C++ data types without external code " \
-                  "generators or runtime support libraries."
+    description = ("libnop is a header-only library for serializing and deserializing"
+                   " C++ data types without external code generators or runtime support libraries.")
     license = "Apache-2.0"
     topics = ("header-only", "serializer")
     homepage = "https://github.com/google/libnop"
@@ -23,17 +20,6 @@ class LibnopConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return "14"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "5",
-        }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -41,18 +27,10 @@ class LibnopConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
-        pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

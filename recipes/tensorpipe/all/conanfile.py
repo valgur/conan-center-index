@@ -58,7 +58,7 @@ class TensorpipeConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libnop/cci.20200728")
+        self.requires("libnop/cci.20211103")
         self.requires("libuv/[^1.45.0]")
 
     def validate(self):
