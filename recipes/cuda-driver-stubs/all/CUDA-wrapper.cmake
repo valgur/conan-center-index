@@ -40,6 +40,12 @@ if(NOT CMAKE_FIND_PACKAGE_NAME STREQUAL "CUDA")
 endif()
 include_guard()
 
+set(_conan_cuda_packages
+    cudart cuda-crt CCCL libcudacxx Thrust cub nvml-stubs
+    cupti cufft cublas cusparse cusolver curand cuda-opencl npp
+    nvidia-video-codec-sdk
+)
+
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
   cmake_policy(GET CMP0147 _FindCUDA_CMP0147)
   if(_FindCUDA_CMP0147 STREQUAL "NEW")
@@ -127,9 +133,7 @@ list(REMOVE_DUPLICATES CUDA_configuration_types)
 ###############################################################################
 
 
-foreach(pkg
-        cudart cuda-crt CCCL libcudacxx Thrust cub
-        cupti cufft cublas cusparse cusolver curand cuda-opencl npp nvidia-video-codec-sdk)
+foreach(pkg ${_conan_cuda_packages})
     find_package(${pkg} QUIET)
     if(NOT ${pkg}_FOUND)
         continue()

@@ -3,11 +3,14 @@ if(NOT CMAKE_FIND_PACKAGE_NAME STREQUAL "CUDAToolkit")
 endif()
 include_guard()
 
+set(_conan_cuda_packages
+    cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
+    nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl
+    culibos cuda-crt CCCL libcudacxx Thrust cub nvml-stubs
+)
+
 # Find all packagages supported by FindCUDAToolkit.cmake as of CMake v4.0.3
-foreach(pkg
-        cudart cublas cudla cufile cufft curand cusolver cusparse cupti npp
-        nvjpeg nvml-stubs nvptxcompiler nvrtc nvjitlink nvfatbin nvtx3 cuda-opencl
-        culibos cuda-crt CCCL libcudacxx Thrust cub)
+foreach(pkg ${_conan_cuda_packages})
     find_package(${pkg} QUIET)
     if(NOT ${pkg}_FOUND)
         continue()
