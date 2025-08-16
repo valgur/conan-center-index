@@ -61,7 +61,8 @@ class FaissRecipe(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openmp/system")
+        # #include <omp.h> and #pragma omp is used in multiple public headers
+        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_mkl:
             self.requires("onemkl/[*]")
         else:
