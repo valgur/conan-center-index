@@ -60,7 +60,7 @@ class MpirConan(ConanFile):
         self.tool_requires("libtool/[^2.4.7]")
         self.tool_requires("yasm/1.3.0")
         if not is_msvc(self):
-            self.tool_requires("m4/1.4.19")
+            self.tool_requires("m4/[^1.4.20]")
             if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

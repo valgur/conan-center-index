@@ -80,7 +80,7 @@ class ElfutilsConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
-        self.tool_requires("m4/1.4.19")
+        self.tool_requires("m4/[^1.4.20]")
         self.tool_requires("flex/[^2.6.4]")
         self.tool_requires("bison/[^3.8.2]")
         if self.options.i18n:

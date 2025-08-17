@@ -46,7 +46,7 @@ class XcbUtilCursorConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC is not supported.")
 
     def build_requirements(self):
-        self.tool_requires("m4/1.4.19")
+        self.tool_requires("m4/[^1.4.20]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings_build.os == "Windows":

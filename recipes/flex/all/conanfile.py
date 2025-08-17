@@ -42,7 +42,7 @@ class FlexConan(ConanFile):
     def requirements(self):
         # Flex requires M4 to be compiled. If consumer does not have M4
         # installed, Conan will need to know that Flex requires it.
-        self.requires("m4/1.4.19")
+        self.requires("m4/[^1.4.20]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -50,7 +50,7 @@ class FlexConan(ConanFile):
                                             "Consider using winflexbison instead.")
 
     def build_requirements(self):
-        self.tool_requires("m4/1.4.19")
+        self.tool_requires("m4/[^1.4.20]")
         if self.options.i18n:
             self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         if cross_building(self):
