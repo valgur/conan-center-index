@@ -8,6 +8,7 @@ from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -24,13 +25,16 @@ class LibfabricConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "dmabuf_peer_mem": [True, False],
         "cuda": [True, False],
+        "dmabuf_peer_mem": [True, False],
         "efa": [True, False],
         "gdrcopy": [True, False],
         "hook_debug": [True, False],
         "hook_hmem": [True, False],
+        "lnx": [True, False],
+        "lpp": [True, False],
         "lttng": [True, False],
+        "monitor": [True, False],
         "mrail": [True, False],
         "numa": [True, False],
         "opx": [True, False],
@@ -56,7 +60,10 @@ class LibfabricConan(ConanFile):
         "gdrcopy": False,
         "hook_debug": True,
         "hook_hmem": True,
+        "lnx": True,
+        "lpp": True,
         "lttng": False,
+        "monitor": True,
         "mrail": True,
         "numa": True,
         "opx": False,
@@ -81,6 +88,12 @@ class LibfabricConan(ConanFile):
     @property
     def _utils(self):
         return self.python_requires["conan-utils"].module
+
+    def config_options(self):
+        if Version(self.version) < "2.0":
+            del self.options.lpp
+            del self.options.monitor
+            del self.options.lnx
 
     def configure(self):
         if self.options.shared:
@@ -180,6 +193,10 @@ class LibfabricConan(ConanFile):
         tc.configure_args["--with-uring"] = root_no("liburing", self.options.uring)
         tc.configure_args["--with-valgrind"] = root_no("valgrind", False)
         tc.configure_args["--with-ze"] = root_no("level-zero", self.options.ze)
+        if Version(self.version) >= "2.0":
+            tc.configure_args["--enable-lpp"] = yes_no(self.options.lpp)
+            tc.configure_args["--enable-monitor"] = yes_no(self.options.monitor)
+            tc.configure_args["--enable-lnx"] = yes_no(self.options.lnx)
         tc.generate()
 
         deps = AutotoolsDeps(self)
