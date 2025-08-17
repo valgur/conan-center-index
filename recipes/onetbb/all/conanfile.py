@@ -60,6 +60,8 @@ class OneTBBConan(ConanFile):
     def configure(self):
         if self.options.tbbproxy:
             self.options.tbbmalloc.value = True
+        if self._tbbbind_explicit_hwloc:
+            self.options["hwloc"].shared = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -71,8 +73,6 @@ class OneTBBConan(ConanFile):
     def validate(self):
         if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "11.0":
             raise ConanInvalidConfiguration(f"{self.ref} couldn't be built by apple-clang < 11.0")
-
-        # Old versions used to have shared option before hwloc dependency was moved to shared only
         if self._tbbbind_explicit_hwloc and not self.dependencies["hwloc"].options.get_safe("shared", True):
             raise ConanInvalidConfiguration(f"{self.ref} requires hwloc:shared=True to be built.")
 
