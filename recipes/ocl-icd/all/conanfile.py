@@ -29,9 +29,12 @@ class OclIcdConan(ConanFile):
     }
     implements = ["auto_header_only"]
 
+    provides = ["opencl-icd-loader"]
+
     def configure(self):
         if self.options.header_only:
             self.package_type = "header-library"
+            self.provides = None
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -87,6 +90,9 @@ class OclIcdConan(ConanFile):
         self.cpp_info.components["ocl-icd_"].requires = ["opencl-headers::opencl-headers"]
 
         if not self.options.header_only:
+            self.cpp_info.set_property("cmake_find_mode", "both")
+            self.cpp_info.set_property("cmake_module_file_name", "OpenCL")
+            self.cpp_info.components["OpenCL"].set_property("cmake_module_target_name", "OpenCL::OpenCL")
             self.cpp_info.components["OpenCL"].set_property("pkg_config_name", "OpenCL")
             self.cpp_info.components["OpenCL"].libs = ["OpenCL"]
             self.cpp_info.components["OpenCL"].includedirs = []
