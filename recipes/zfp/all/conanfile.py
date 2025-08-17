@@ -17,7 +17,7 @@ class ZfpConan(ConanFile):
     topics = ("compression", "arrays")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -44,6 +44,18 @@ class ZfpConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -51,13 +63,21 @@ class ZfpConan(ConanFile):
         if self.options.with_openmp:
             # https://github.com/LLNL/zfp/blob/1.0.1/include/zfp/internal/array/store.hpp#L130
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
     def validate(self):
         if self.options.with_cuda:
-            self.output.warning("Conan package for CUDA is not available, this package will be used from system.")
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Let cudart manage the stdc++ dependency
+        replace_in_file(self, "src/CMakeLists.txt", " stdc++", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -80,13 +100,11 @@ class ZfpConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) < "1.0":
-            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                            "target_compile_options(zfp PRIVATE ${OpenMP_C_FLAGS})", "")
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -99,20 +117,20 @@ class ZfpConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "zfp")
-        # to avoid to create an unwanted target, since we can't allow zfp::zfp to be the global target here
-        self.cpp_info.set_property("cmake_target_name", "zfp::cfp")
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["ZFP", "CFP"])
 
-        # zfp
         self.cpp_info.components["_zfp"].set_property("cmake_target_name", "zfp::zfp")
         self.cpp_info.components["_zfp"].libs = ["zfp"]
 
-        # cfp
         self.cpp_info.components["cfp"].set_property("cmake_target_name", "zfp::cfp")
         self.cpp_info.components["cfp"].libs = ["cfp"]
         self.cpp_info.components["cfp"].requires = ["_zfp"]
 
         if self.options.with_openmp:
             self.cpp_info.components["_zfp"].requires.append("openmp::openmp")
+
+        if self.options.with_cuda:
+            self.cpp_info.components["_zfp"].requires.append("cudart::cudart_")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_zfp"].system_libs.append("m")
