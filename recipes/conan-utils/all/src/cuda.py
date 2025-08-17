@@ -73,7 +73,7 @@ class NvccToolchain:
                         self.cudaflags.append(f"-L{path}")
                     for path in pkg_info.includedirs:
                         self.cudaflags.append(f"-I{path}")
-        self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", "").split())
+        self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", check_type=list, default=[]))
         self.extra_cudaflags = []
 
     @cached_property
