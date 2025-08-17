@@ -15,10 +15,8 @@ class CCTagConan(ConanFile):
     topics = ("cctag", "computer-vision", "detection", "image-processing",
               "markers", "fiducial-markers", "concentric-circles")
     homepage = "https://github.com/alicevision/CCTag"
-    url = "https://github.com/conan-io/conan-center-index"
-
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -27,7 +25,6 @@ class CCTagConan(ConanFile):
         "visual_debug": [True, False],
         "no_cout": [True, False],
         "with_cuda": [True, False],
-        "cuda_cc_list": [None, "ANY"],
     }
     default_options = {
         "shared": False,
@@ -37,23 +34,30 @@ class CCTagConan(ConanFile):
         "visual_debug": False,
         "no_cout": True,
         "with_cuda": False,
-        "cuda_cc_list": None, # e.g. "5.2;7.5;8.2", builds all up to 7.5 by default
     }
     implements = ["auto_shared_fpic"]
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def package_id(self):
-        if not self.info.options.with_cuda:
-            del self.info.options.cuda_cc_list
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     @property
     def _boost_components(self):
-        return ["atomic", "chrono", "date_time", "exception", "filesystem", "math_c99", "random", "serialization", "system", "thread", "timer"]
+        return ["atomic", "chrono", "date_time", "exception", "filesystem", "math_c99", "program_options", "random", "serialization", "system", "thread", "timer"]
 
     @property
     def _apps_opencv_components(self):
@@ -66,13 +70,26 @@ class CCTagConan(ConanFile):
         self.requires("onetbb/[>=2021 <2023]")
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True,
                       options={comp: True for comp in self._apps_opencv_components} if self.options.apps else {})
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
     def validate(self):
         check_min_cppstd(self, 14)
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
+            self.tool_requires("cmake/[>=3.18]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Let Conan and CMake manage the C++ and CUDA standard flags
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD", "# set(CMAKE_CXX_STANDARD")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CUDA_STANDARD", "# set(CMAKE_CUDA_STANDARD")
+        replace_in_file(self, "CMakeLists.txt", ";-std=c++${CCTAG_CXX_STANDARD}", "")
         # Non-core components are only used for apps
         replace_in_file(self, "CMakeLists.txt",
                         "find_package(OpenCV REQUIRED core videoio imgproc imgcodecs)",
@@ -81,6 +98,12 @@ class CCTagConan(ConanFile):
         replace_in_file(self, os.path.join("src", "CMakeLists.txt"), "${OpenCV_LIBS}", "opencv_core")
         # Cleanup RPATH if Apple in shared lib of install tree
         replace_in_file(self, "CMakeLists.txt", "SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        # Fix handling of cudadevrt
+        replace_in_file(self, "CMakeLists.txt",
+                        "cuda_find_library_local_first(CUDA_CUDADEVRT_LIBRARY ",
+                        "set(CUDA_CUDADEVRT_LIBRARY CUDA::cudadevrt) #")
+        # Let NvccToolchain manage the CUDA arch flags
+        replace_in_file(self, "CMakeLists.txt", "if(CCTAG_CUDA_CC_CURRENT_ONLY)", "if(1)\nelseif(0)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,16 +116,19 @@ class CCTagConan(ConanFile):
         tc.variables["CCTAG_ENABLE_SIMD_AVX2"] = False
         tc.variables["CCTAG_BUILD_TESTS"] = False
         tc.variables["CCTAG_BUILD_DOC"] = False
-
         tc.variables["CCTAG_WITH_CUDA"] = self.options.with_cuda
         tc.variables["CCTAG_CUDA_CC_CURRENT_ONLY"] = False
         tc.variables["CCTAG_NVCC_WARNINGS"] = False
-        if self.options.cuda_cc_list:
-            tc.variables["CCTAG_CUDA_CC_LIST_INIT"] = self.options.cuda_cc_list
+        tc.variables["CCTAG_CUDA_CC_LIST_INIT"] = ""  # managed by NvccToolchain
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0177"] = "NEW"
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -134,6 +160,5 @@ class CCTagConan(ConanFile):
             self.cpp_info.requires.append("boost::stacktrace_windbg")
         else:
             self.cpp_info.requires.append("boost::stacktrace_basic")
-
-        # CCTag links against shared CUDA runtime by default and does not use it in headers,
-        # so we don't need to explicitly link against it.
+        if self.options.with_cuda:
+            self.cpp_info.requires.append("cudart::cudart")
