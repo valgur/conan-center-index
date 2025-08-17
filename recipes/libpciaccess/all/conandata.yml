@@ -1,7 +1,4 @@
 sources:
-  "0.17":
-    url: "https://www.x.org/archive//individual/lib/libpciaccess-0.17.tar.xz"
-    sha256: "74283ba3c974913029e7a547496a29145b07ec51732bbb5b5c58d5025ad95b73"
-  "0.16":
-    url: "https://www.x.org/archive//individual/lib/libpciaccess-0.16.tar.gz"
-    sha256: "84413553994aef0070cf420050aa5c0a51b1956b404920e21b81e96db6a61a27"
+  "0.18.1":
+    url: "https://www.x.org/archive//individual/lib/libpciaccess-0.18.1.tar.xz"
+    sha256: "4af43444b38adb5545d0ed1c2ce46d9608cc47b31c2387fc5181656765a6fa76"
