@@ -14,12 +14,12 @@ required_conan_version = ">=2.1"
 
 class M4Conan(ConanFile):
     name = "m4"
-    package_type = "application"
     description = "GNU M4 is an implementation of the traditional Unix macro processor"
-    topics = ("macro", "preprocessor")
+    license = "GPL-3.0-only"
     homepage = "https://www.gnu.org/software/m4/"
     url = "https://github.com/conan-io/conan-center-index"
-    license = "GPL-3.0-only"
+    package_type = "application"
+    topics = ("macro", "preprocessor")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "i18n": [True, False],
@@ -30,6 +30,7 @@ class M4Conan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "ar-lib", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -48,6 +49,16 @@ class M4Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # This requires linking to ssp on some systems, which might not always present.
+        # If this is really desired:
+        # * add `-lssp` to LDFLAGS, and
+        # * add `-D_FORTIFY_SOURCE=2` to CPPFLAGS/CFLAGS
+        replace_in_file(self, "lib/config.hin",
+                        "#  define _FORTIFY_SOURCE 2",
+                        "// #  define _FORTIFY_SOURCE 2")
+        # Disable tests and examples
+        save(self, "tests/Makefile.in", "all:;\ninstall:;\n")
+        save(self, "examples/Makefile.in", "all:;\ninstall:;\n")
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -104,15 +115,17 @@ class M4Conan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        # Disable tests and examples
-        save(self, os.path.join(self.source_folder, "tests", "Makefile.in"), "all:\n\t\ninstall:\n\t\n")
-        save(self, os.path.join(self.source_folder, "examples", "Makefile.in"), "all:\n\t\ninstall:\n\t\n")
         if shutil.which("help2man") is None:
             # dummy file for configure
             help2man = os.path.join(self.source_folder, "help2man")
             save(self, help2man, "#!/usr/bin/env bash\n:")
             if os.name == "posix":
                 os.chmod(help2man, os.stat(help2man).st_mode | 0o111)
+        if self.settings_build.os == "Windows":
+            # ar-lib is needed for building m4 with Visual Studio.
+            # Re-use the one from m4/1.4.18.
+            # We can't use automake here to avoid a build cycle (m4 -> automake -> autoconf -> m4)
+            copy(self, "ar-lib", self.export_sources_folder, os.path.join(self.source_folder, "build-aux"))
 
     def build(self):
         self._patch_sources()
