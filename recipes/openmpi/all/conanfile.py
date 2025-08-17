@@ -69,7 +69,9 @@ class OpenMPIConan(ConanFile):
         if is_apple_os(self):
             # Unavailable due to dependency on libnl
             self.options.rm_safe("with_verbs")
-        if not self.options.with_cuda:
+        if self.options.with_cuda:
+            self.options["hwloc"].with_cuda = True
+        else:
             del self.settings.cuda
 
     def layout(self):
