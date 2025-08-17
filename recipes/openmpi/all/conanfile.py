@@ -102,7 +102,7 @@ class OpenMPIConan(ConanFile):
         if self.settings.os == "Linux":
             self.requires("libnl/[^3.8.0]")
         if self.options.get_safe("with_libfabric"):
-            self.requires("libfabric/1.21.0")
+            self.requires("libfabric/[^1.21.0]")
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/[*]")
         if self.options.with_ucx:
