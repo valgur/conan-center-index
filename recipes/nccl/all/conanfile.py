@@ -72,11 +72,16 @@ class NcclConan(ConanFile):
         for _, dep in self.dependencies.host.items():
             copy(self, "*", dep.package_folder, fake_cuda_home)
 
-        incflags = " ".join(f"-I{dep.cpp_info.includedir}" for _, dep in self.dependencies.host.items())
-        incflags += f" -I{self.source_folder}/src/include"
-        incflags += f" -I{self.source_folder}/src/device"
-        incflags += f" -I{self.source_folder}/build/include"
-        ldflags = " ".join(f"-L{dep.cpp_info.libdirs[0]}" for _, dep in self.dependencies.host.items() if dep.cpp_info.libdirs)
+        incflags = []
+        ldflags = []
+        for _, dep in self.dependencies.host.items():
+            incflags += [f"-I{p}" for p in dep.cpp_info.includedirs]
+            ldflags += [f"-L{p}" for p in dep.cpp_info.libdirs]
+        incflags.append(f"-I{self.source_folder}/src/include")
+        incflags.append(f"-I{self.source_folder}/src/device")
+        incflags.append(f"-I{self.source_folder}/build/include")
+        incflags = " ".join(incflags)
+        ldflags = " ".join(ldflags)
 
         tc = AutotoolsToolchain(self)
         tc_vars = tc.vars()
