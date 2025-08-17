@@ -2,11 +2,11 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
+from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
@@ -17,164 +17,177 @@ class LibfabricConan(ConanFile):
     description = ("Libfabric, also known as Open Fabrics Interfaces (OFI), "
                    "defines a communication API for high-performance parallel and distributed applications.")
     license = ("BSD-2-Clause", "GPL-2.0-or-later")
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libfabric.org"
-    topics = ("fabric", "communication", "framework", "service")
-
+    topics = ("fabric", "rdma", "communication", "distributed-computing", "hpc")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
-    _providers = [
-        "dmabuf_peer_mem",
-        "efa",
-        "hook_debug",
-        "hook_hmem",
-        "mrail",
-        "perf",
-        "profile",
-        "rxd",
-        "rxm",
-        "shm",
-        "sm2",
-        "sockets",
-        "tcp",
-        "trace",
-        "ucx",
-        "udp",
-        "usnic",
-        "verbs",
-    ]
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        **{ p: [None, "ANY"] for p in _providers },
+        "dmabuf_peer_mem": [True, False],
+        "cuda": [True, False],
+        "efa": [True, False],
+        "gdrcopy": [True, False],
+        "hook_debug": [True, False],
+        "hook_hmem": [True, False],
+        "lttng": [True, False],
+        "mrail": [True, False],
+        "numa": [True, False],
+        "opx": [True, False],
+        "perf": [True, False],
+        "profile": [True, False],
+        "rxd": [True, False],
+        "rxm": [True, False],
+        "shm": [True, False],
+        "sm2": [True, False],
+        "trace": [True, False],
+        "ucx": [True, False],
+        "uring": [True, False],
+        "verbs": [True, False],
+        "xpmem": [True, False],
+        "ze": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "dmabuf_peer_mem": "yes",
-        "efa": "yes",
-        "hook_debug": "yes",
-        "hook_hmem": "yes",
-        "mrail": "yes",
-        "perf": "no",
-        "profile": "yes",
-        "rxd": "yes",
-        "rxm": "yes",
-        "shm": "yes",
-        "sm2": "yes",
-        "sockets": "yes",
-        "tcp": "yes",
-        "trace": "yes",
-        "ucx": "no",
-        "udp": "yes",
-        "usnic": "no",
-        "verbs": "yes"
+        "cuda": False,
+        "dmabuf_peer_mem": True,
+        "efa": True,
+        "gdrcopy": False,
+        "hook_debug": True,
+        "hook_hmem": True,
+        "lttng": False,
+        "mrail": True,
+        "numa": True,
+        "opx": False,
+        "perf": True,
+        "profile": True,
+        "rxd": True,
+        "rxm": True,
+        "shm": True,
+        "sm2": True,
+        "trace": True,
+        "ucx": False,
+        "uring": True,
+        "verbs": True,
+        "xpmem": True,
+        "ze": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
-    def config_options(self):
-        if is_apple_os(self):
-            # Requires libnl, which is not available on macOS
-            del self.options.usnic
-            # Require Linux-specific process_vm_readv syscall
-            del self.options.shm
-            del self.options.sm2
-            # rdma-core is not available on macOS
-            del self.options.efa
-            del self.options.verbs
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
-    def _is_enabled(self, opt):
-        return str(self.options.get_safe(opt)) == "yes" or str(self.options.get_safe(opt)).startswith("dl")
+        if not self.options.cuda:
+            del self.settings.cuda
+            del self.options.gdrcopy
+        if not self.options.opx:
+            del self.options.numa
+        if self.options.ucx:
+            if self.options.cuda:
+                self.options["openucx"].cuda = True
+            if self.options.get_safe("gdrcopy"):
+                self.options["openucx"].gdrcopy = True
+            if self.options.xpmem:
+                self.options["openucx"].xpmem = True
+            if self.options.ze:
+                self.options["openucx"].ze = True
 
     def requirements(self):
-        if self._is_enabled("usnic"):
-            self.requires("libnl/[^3.8.0]")
-        if self._is_enabled("efa") or self._is_enabled("usnic") or self._is_enabled("verbs"):
+        if self.options.efa or self.options.verbs:
             self.requires("rdma-core/[*]")
+        if self.options.cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+            if self.options.gdrcopy:
+                self.requires("gdrcopy/[^2.5]")
+        if self.options.lttng:
+            self.requires("lttng-ust/[^2.13]")
+        if self.options.get_safe("numa"):
+            self.requires("libnuma/[^2.0.14]")
+        if self.options.ucx:
+            self.requires("openucx/[^1.19.0]")
+        if self.options.uring:
+            self.requires("liburing/[^2.4]")
+        if self.options.xpmem:
+            self.requires("xpmem/[^2.6.5]")
+        if self.options.ze:
+            self.requires("level-zero/[^1.17]")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os == "Windows":
-            # FIXME: libfabric provides msbuild project files.
-            raise ConanInvalidConfiguration(f"{self.ref} Conan recipes is not supported on Windows. Contributions are welcome.")
-
-        for provider in self._providers:
-            provider = str(self.options.get_safe(provider))
-            if provider.lower() not in ["yes", "no", "dl", "none"] and \
-                    not os.path.isdir(provider) and \
-                    (not provider.startswith("dl:") and not os.path.isdir(provider[3:])):
-                raise ConanInvalidConfiguration(f"{self.ref} provider option '{provider}' is not valid. It must be 'yes', 'no', 'dl', 'dl:<dir_path>' or a directory path.")
-
-        if self._is_enabled("verbs"):
-            if not self.dependencies["rdma-core"].options.build_librdmacm:
-                raise ConanInvalidConfiguration(f"{self.ref} '-o rdma-core/*:build_librdmacm=True' is required when '-o &:verbs=True'")
+        if self.settings.os != "Linux":
+            # TODO: libfabric provides msbuild project files for Windows
+            raise ConanInvalidConfiguration("Only Linux is supported")
 
     def build_requirements(self):
-        # Used in ./configure tests and build
         self.tool_requires("libtool/[^2.4.7]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        for p in self._providers:
-            if p == "verbs" and self.options.get_safe(p, "no") != "no":
-                path = self.dependencies["rdma-core"].package_folder
-                if self.options.get_safe("verbs") == "dl":
-                    tc.configure_args.append(f"--enable-verbs=dl:{path}")
-                else:
-                    tc.configure_args.append(f"--enable-verbs={path}")
-            else:
-                tc.configure_args.append(f"--enable-{p}={self.options.get_safe(p, 'no')}")
-        if self.settings.build_type == "Debug":
-            tc.configure_args.append("--enable-debug")
-        tc.configure_args.append(f"--with-bgq-progress=no")
-        tc.configure_args.append(f"--with-bgq-mr=no")
-        tc.configure_args.append("--with-cassin-headers=no")
-        tc.configure_args.append("--with-cuda=no")  # TODO
-        tc.configure_args.append("--with-curl=no")  # TODO
-        tc.configure_args.append("--with-cxi-uapi-headers=no")
-        tc.configure_args.append("--with-dsa=no")
-        tc.configure_args.append("--with-gdrcopy=no")
-        tc.configure_args.append("--with-json-c=no")  # TODO
-        if self._is_enabled("usnic"):
-            tc.configure_args.append(f"--with-libnl={self.dependencies['libnl'].package_folder}")
-        else:
-            tc.configure_args.append("--with-libnl=no")
-        tc.configure_args.append("--with-lttng=no")
-        tc.configure_args.append("--with-neuron=no")
-        tc.configure_args.append(f"--with-numa=no")
-        tc.configure_args.append("--with-psm2-src=no")
-        tc.configure_args.append("--with-psm3-rv=no")
-        tc.configure_args.append("--with-rocr=no")
-        tc.configure_args.append("--with-synapseai=no")
-        tc.configure_args.append("--with-uring=no")  # TODO
-        tc.configure_args.append("--with-ze=no")
-        tc.configure_args.append("-enable-psm=no")
-        tc.configure_args.append("--enable-psm2=no")
-        tc.configure_args.append("--enable-psm3=no")
-        tc.configure_args.append("--enable-xpmem=no")
-        tc.configure_args.append("--enable-cxi=no")
-        tc.configure_args.append("--enable-opx=no")
-        tc.configure_args.append("--enable-bgq=no")
+        if not cross_building(self):
+            VirtualRunEnv(self).generate(scope="build")
+
+        yes_no = lambda val: "yes" if val else "no"
+        root_no = lambda pkg, val: self.dependencies[pkg].package_folder if val else "no"
+        tc = GnuToolchain(self)
+        tc.configure_args["--enable-option-checking"] = "yes"
+        tc.configure_args["--enable-debug"] = yes_no(self.settings.build_type == "Debug")
+        tc.configure_args["--enable-cxi"] = "no"
+        tc.configure_args["--enable-dmabuf_peer_mem"] = yes_no(self.options.dmabuf_peer_mem)
+        tc.configure_args["--enable-efa"] = yes_no(self.options.efa)
+        tc.configure_args["--enable-hook_debug"] = yes_no(self.options.hook_debug)
+        tc.configure_args["--enable-hook_hmem"] = yes_no(self.options.hook_hmem)
+        tc.configure_args["--enable-mrail"] = yes_no(self.options.mrail)
+        tc.configure_args["--enable-opx"] = yes_no(self.options.opx)
+        tc.configure_args["--enable-perf"] = yes_no(self.options.perf)
+        tc.configure_args["--enable-profile"] = yes_no(self.options.profile)
+        tc.configure_args["--enable-psm2"] = "no"
+        tc.configure_args["--enable-psm3"] = "no"
+        tc.configure_args["--enable-rxd"] = yes_no(self.options.rxd)
+        tc.configure_args["--enable-rxm"] = yes_no(self.options.rxm)
+        tc.configure_args["--enable-shm"] = yes_no(self.options.shm)
+        tc.configure_args["--enable-sm2"] = yes_no(self.options.sm2)
+        tc.configure_args["--enable-sockets"] = "yes"
+        tc.configure_args["--enable-tcp"] = "yes"
+        tc.configure_args["--enable-trace"] = yes_no(self.options.trace)
+        tc.configure_args["--enable-ucx"] = yes_no(self.options.ucx)
+        tc.configure_args["--enable-udp"] = "yes"
+        tc.configure_args["--enable-usnic"] = "no"  # requires infiniband driver headers
+        tc.configure_args["--enable-verbs"] = yes_no(self.options.verbs)
+        tc.configure_args["--enable-xpmem"] = root_no("xpmem", self.options.xpmem)
+        tc.configure_args["--with-cuda"] = root_no("cudart", self.options.cuda)
+        tc.configure_args["--with-curl"] = root_no("libcurl", False)  # cxi dependency
+        tc.configure_args["--with-dsa"] = root_no("dsa", False)
+        tc.configure_args["--with-gdrcopy"] = root_no("gdrcopy", self.options.get_safe("gdrcopy"))
+        tc.configure_args["--with-json-c"] = root_no("json-c", False)  # cxi dependency
+        tc.configure_args["--with-libnl"] = root_no("libnl", False)  # usnic dependency
+        tc.configure_args["--with-lttng"] = root_no("lttng-ust", self.options.lttng)
+        tc.configure_args["--with-neuron"] = root_no("neuron", False)
+        tc.configure_args["--with-numa"] = root_no("libnuma", self.options.get_safe("numa"))  # only used with opx, dsa, psm2, psm3
+        tc.configure_args["--with-rocr"] = root_no("rocr", False)
+        tc.configure_args["--with-uring"] = root_no("liburing", self.options.uring)
+        tc.configure_args["--with-valgrind"] = root_no("valgrind", False)
+        tc.configure_args["--with-ze"] = root_no("level-zero", self.options.ze)
         tc.generate()
 
         deps = AutotoolsDeps(self)
         deps.generate()
 
-        VirtualBuildEnv(self).generate()
-        if not cross_building(self):
-            VirtualRunEnv(self).generate(scope="build")
-
     def build(self):
+        if self.options.cuda and not self.dependencies["cudart"].options.shared:
+            replace_in_file(self, os.path.join(self.source_folder, "configure"), "cudart", "cudart_static")
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -191,7 +204,5 @@ class LibfabricConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libfabric")
         self.cpp_info.libs = ["fabric"]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread", "m", "rt", "dl"]
-        if self.settings.compiler in ["gcc", "clang"]:
+        if  self.settings.get_safe("compiler.libcxx") == "libstdc++":
             self.cpp_info.system_libs.append("atomic")
