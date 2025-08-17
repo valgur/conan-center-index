@@ -22,11 +22,13 @@ class CpuinfoConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "log_level": ["default", "debug", "info", "warning", "error", "fatal", "none"],
+        "tools": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "log_level": "default",
+        "tools": False,
     }
 
     def config_options(self):
@@ -64,7 +66,7 @@ class CpuinfoConan(ConanFile):
         tc.cache_variables["CPUINFO_LIBRARY_TYPE"] = "default"
         tc.cache_variables["CPUINFO_RUNTIME_TYPE"] = "default"
         tc.cache_variables["CPUINFO_LOG_LEVEL"] = self.options.log_level
-        tc.cache_variables["CPUINFO_BUILD_TOOLS"] = False
+        tc.cache_variables["CPUINFO_BUILD_TOOLS"] = self.options.tools
         tc.cache_variables["CPUINFO_BUILD_UNIT_TESTS"] = False
         tc.cache_variables["CPUINFO_BUILD_MOCK_TESTS"] = False
         tc.cache_variables["CPUINFO_BUILD_BENCHMARKS"] = False
