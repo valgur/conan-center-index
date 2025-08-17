@@ -11,12 +11,14 @@ required_conan_version = ">=2.1"
 
 class CudaOpenCLConan(ConanFile):
     name = "cuda-opencl"
-    description = "NVIDIA Open Computing Language (OpenCL) library"
+    description = "NVIDIA Open Computing Language (OpenCL) ICD loader library"
     license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
     homepage = "https://developer.nvidia.com/opencl"
-    topics = ("cuda", "nvidia", "opencl")
+    topics = ("cuda", "nvidia", "opencl", "icd-loader")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
+
+    provides = ["opencl-icd-loader", "opencl-headers"]
 
     python_requires = "conan-utils/latest"
 
@@ -62,7 +64,10 @@ class CudaOpenCLConan(ConanFile):
 
     def package_info(self):
         v = self._cuda_version
-        self.cpp_info.set_property("pkg_config_name", f"opencl-{v.major}.{v.minor}")
+        self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_target_name", "CUDA::OpenCL")
+        self.cpp_info.set_property("cmake_module_file_name", "OpenCL")
+        self.cpp_info.set_property("cmake_module_target_name", "OpenCL::OpenCL")
+        self.cpp_info.set_property("pkg_config_name", f"opencl-{v.major}.{v.minor}")
         self.cpp_info.libs = ["OpenCL"]
         self.cpp_info.bindirs = []
