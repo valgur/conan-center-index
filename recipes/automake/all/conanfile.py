@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -12,15 +11,11 @@ required_conan_version = ">=2.4"
 
 class AutomakeConan(ConanFile):
     name = "automake"
-    description = (
-        "Automake is a tool for automatically generating Makefile.in files"
-        " compliant with the GNU Coding Standards."
-    )
-    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
+    description = "Automake is a tool for automatically generating Makefile.in files compliant with the GNU Coding Standards."
+    license = "GPL-2.0-or-later AND GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/automake/"
     topics = ("autotools", "configure", "build")
-
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     languages = ["C"]
@@ -31,8 +26,8 @@ class AutomakeConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def requirements(self):
-        self.requires("autoconf/2.72")
+    def build_requirements(self):
+        self.tool_requires("autoconf/2.72", visible=True)
         # automake requires perl-Thread-Queue package
 
     def package_id(self):
@@ -50,6 +45,17 @@ class AutomakeConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # help2man: don't discard stderr
+        replace_in_file(self, "Makefile.in",
+                        "$(PERL) $(srcdir)/doc/help2man",
+                        "$(PERL) $(srcdir)/doc/help2man --no-discard-stderr")
+        # no perl path in shebang
+        for f in [
+            "bin/aclocal.in",
+            "bin/automake.in",
+            "t/ax/test-defs.in",
+        ]:
+            replace_in_file(self, f, "@PERL@", "/usr/bin/env perl")
 
     def generate(self):
         tc = AutotoolsToolchain(self)

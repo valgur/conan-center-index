@@ -1,17 +1,21 @@
 sources:
+  "1.18.1":
+    url:
+      - "https://ftpmirror.gnu.org/gnu/automake/automake-1.18.1.tar.gz"
+      - "https://ftp.gnu.org/gnu/automake/automake-1.18.1.tar.gz"
+    sha256: "63e585246d0fc8772dffdee0724f2f988146d1a3f1c756a3dc5cfbefa3c01915"
   "1.16.5":
     url:
       - "https://ftpmirror.gnu.org/gnu/automake/automake-1.16.5.tar.gz"
       - "https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz"
     sha256: "07bd24ad08a64bc17250ce09ec56e921d6343903943e99ccf63bbf0705e34605"
 patches:
-  "1.16.5":
-    - patch_file: "patches/0001-help2man-no-discard-stderr-1.16.5.patch"
-      patch_description: "help2man no discard stderr"
-      patch_type: "portability"
-    - patch_file: "patches/0002-no-perl-path-in-shebang-1.16.5.patch"
-      patch_description: "no perl path in shebang"
-      patch_type: "portability"
-    - patch_file: "patches/0003-relocatable-automake-1.16.5.patch"
+  "1.18.1":
+    - patch_file: "patches/1.18.1-0003-relocatable-automake.patch"
       patch_description: "relocatable automake"
       patch_type: "portability"
+  "1.16.5":
+    - patch_file: "patches/1.16.5-0003-relocatable-automake.patch"
+      patch_description: "relocatable automake"
+      patch_type: "portability"
+
