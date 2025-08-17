@@ -2,11 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -17,7 +15,7 @@ class UserspaceRCUConan(ConanFile):
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://liburcu.org/"
-    topics = "urcu"
+    topics = ("rcu", "read-copy-update")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,10 +41,13 @@ class UserspaceRCUConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Fix a build error due to a missing assert.h
+        replace_in_file(self, "src/urcu-bp.c",
+                        "#include <stdio.h>",
+                        "#include <assert.h>\n"
+                        "#include <stdio.h>")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
 
@@ -66,7 +67,7 @@ class UserspaceRCUConan(ConanFile):
 
     def package_info(self):
         for lib_type in ["", "-bp", "-cds", "-mb", "-memb", "-qsbr", "-signal"]:
-            if Version(self.version) >= "0.15" and lib_type == "-signal":
+            if lib_type == "-signal":
                 continue
             component_name = f"urcu{lib_type}"
             self.cpp_info.components[component_name].set_property("pkg_config_name", f"lib{component_name}")
