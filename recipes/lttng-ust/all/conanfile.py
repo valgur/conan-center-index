@@ -18,17 +18,8 @@ class LTTngUSTConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://lttng.org/"
     topics = ("lttng", "tracing", "ust", "userspace")
-    package_type = "library"
+    package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
-    implements = ["auto_shared_fpic"]
     languages = ["C"]
 
     def layout(self):
