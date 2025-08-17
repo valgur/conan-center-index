@@ -35,6 +35,7 @@ class OpenMPIConan(ConanFile):
         "enable_cxx": [True, False],
         "enable_cxx_exceptions": [True, False],
         "with_verbs": [True, False],
+        "with_xpmem": [True, False],
     }
     default_options = {
         "shared": False,
@@ -48,6 +49,7 @@ class OpenMPIConan(ConanFile):
         "enable_cxx": False,
         "enable_cxx_exceptions": False,
         "with_verbs": False,
+        "with_xpmem": False,
     }
 
     def config_options(self):
@@ -56,6 +58,7 @@ class OpenMPIConan(ConanFile):
         if Version(self.version) >= "5.0":
             # No longer used in v5.0
             del self.options.with_verbs
+            del self.options.with_xpmem
             # The C++ bindings were deprecated in v2.2, removed from the standard in v3.0
             # and were removed from the implementation in v5.0.
             del self.options.enable_cxx
@@ -105,6 +108,8 @@ class OpenMPIConan(ConanFile):
             self.requires("libfabric/[^1.21.0]")
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/[*]")
+        if self.options.get_safe("with_xpmem"):
+            self.requires("xpmem/[^2.6.5]")
         if self.options.with_ucx:
             self.requires("openucx/[^1.19.0]")
         if self.options.with_cuda:
@@ -173,12 +178,12 @@ class OpenMPIConan(ConanFile):
             tc.configure_args["--enable-mpi-cxx"] = yes_no(self.options.enable_cxx)
             tc.configure_args["--enable-cxx-exceptions"] = yes_no(self.options.get_safe("enable_cxx_exceptions"))
             tc.configure_args["--with-verbs"] = root("rdma-core") if self.options.get_safe("with_verbs") else "no"
+            tc.configure_args["--with-xpmem"] = root("xpmem") if self.options.with_xpmem else "no"
             tc.configure_args["--with-alps"] = "no"  # ALPS
             tc.configure_args["--with-fca"] = "no"  # FCA
             tc.configure_args["--with-mxm"] = "no"  # Mellanox MXM
             tc.configure_args["--with-pmi"] = "no"  # PMI
             tc.configure_args["--with-psm"] = "no"  # PSM
-            tc.configure_args["--with-xpmem"] = "no"  # XPMEM
             tc.configure_args["--with-x"] = "no"  # X11
         if is_apple_os(self):
             if self.settings.arch == "armv8":
@@ -251,6 +256,8 @@ class OpenMPIConan(ConanFile):
             requires.append("libfabric::libfabric")
         if self.options.get_safe("with_verbs"):
             requires.extend(["rdma-core::libibverbs", "rdma-core::librdmacm"])
+        if self.options.get_safe("with_xpmem"):
+            requires.append("xpmem::xpmem")
         if self.options.with_ucx:
             requires.append("openucx::openucx")
         if self.options.with_cuda:
