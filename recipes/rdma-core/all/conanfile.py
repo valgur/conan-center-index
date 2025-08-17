@@ -4,11 +4,11 @@ import re
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
+
 
 class PackageConan(ConanFile):
     name = "rdma-core"
@@ -39,10 +39,7 @@ class PackageConan(ConanFile):
         "build_libmlx5": True,
         "build_librdmacm": True,
     }
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -64,8 +61,6 @@ class PackageConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
         tc = CMakeToolchain(self)
         # Shared libraries are built by default and even if ENABLE_STATIC is turned on,
         # the static libraries still have dependencies on the shared libraries.
