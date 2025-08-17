@@ -54,7 +54,7 @@ class ImakeConan(ConanFile):
         self.requires("xorg-proto/2024.1")
 
     def build_requirements(self):
-        self.tool_requires("automake/1.16.5")
+        self.tool_requires("automake/[^1.18.1]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings_build.os == "Windows":

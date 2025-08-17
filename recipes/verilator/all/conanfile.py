@@ -53,14 +53,14 @@ class VerilatorConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-            self.tool_requires("automake/1.16.5")
+            self.tool_requires("automake/[^1.18.1]")
             self.tool_requires("strawberryperl/<host_version>")
             self.tool_requires("winflexbison/[^2.5.25]")
         else:
             self.tool_requires("flex/[^2.6.4]")
             self.tool_requires("bison/[^3.8.2]")
         if Version(self.version) >= "4.224":
-            self.tool_requires("autoconf/2.72")
+            self.tool_requires("autoconf/[^2.72]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

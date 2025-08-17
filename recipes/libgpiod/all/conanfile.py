@@ -11,10 +11,10 @@ required_conan_version = ">=2.1"
 
 class LibgpiodConan(ConanFile):
     name = "libgpiod"
+    description = "C library and tools for interacting with the linux GPIO character device"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/"
-    license = "LGPL-2.1-or-later"
-    description = "C library and tools for interacting with the linux GPIO character device"
     topics = ("gpio", "libgpiodcxx", "linux")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -50,7 +50,7 @@ class LibgpiodConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("libtool/[^2.4.7]")
-        self.tool_requires("autoconf-archive/2022.09.03")
+        self.tool_requires("autoconf-archive/[*]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
@@ -60,8 +60,8 @@ class LibgpiodConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.append("--enable-bindings-cxx={}".format(yes_no(self.options.enable_bindings_cxx)))
-        tc.configure_args.append("--enable-tools={}".format(yes_no(self.options.enable_tools)))
+        tc.configure_args.append(f"--enable-bindings-cxx={yes_no(self.options.enable_bindings_cxx)}")
+        tc.configure_args.append(f"--enable-tools={yes_no(self.options.enable_tools)}")
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
@@ -80,9 +80,9 @@ class LibgpiodConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.components["gpiod"].libs = ["gpiod"]
         self.cpp_info.components["gpiod"].set_property("pkg_config_name", "libgpiod")
+        self.cpp_info.components["gpiod"].libs = ["gpiod"]
         if self.options.enable_bindings_cxx:
-            self.cpp_info.components["gpiodcxx"].libs = ["gpiodcxx"]
             self.cpp_info.components["gpiodcxx"].set_property("pkg_config_name", "libgpiodcxx")
+            self.cpp_info.components["gpiodcxx"].libs = ["gpiodcxx"]
             self.cpp_info.components["gpiodcxx"].requires = ["gpiod"]

@@ -40,7 +40,7 @@ class LibmodbusConan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self):
-            self.tool_requires("automake/1.16.5")
+            self.tool_requires("automake/[^1.18.1]")
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

@@ -80,7 +80,7 @@ class PackageConan(ConanFile):
             # For MSVC support to get compile & ar-lib scripts (may be avoided if shipped in source code of the library).
             # Not needed if libtool already in build requirements.
             if is_msvc(self):
-                self.tool_requires("automake/[^1.16.5]")
+                self.tool_requires("automake/[^1.18.1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

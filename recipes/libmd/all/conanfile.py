@@ -40,7 +40,7 @@ class LibMDConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.tool_requires("automake/1.16.5")
+            self.tool_requires("automake/[^1.18.1]")
 
     def generate(self):
         tc = AutotoolsToolchain(self)

@@ -19,7 +19,7 @@ class TestPackageConan(ConanFile):
         if self.settings_build.os == "Windows":
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        self.tool_requires("automake/1.16.5")
+        self.tool_requires("automake/[^1.18.1]")
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)

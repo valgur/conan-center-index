@@ -44,7 +44,7 @@ class LibtoolConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("automake/[^1.16.5]", visible=True)
+        self.tool_requires("automake/[^1.18.1]", visible=True)
         self.tool_requires("m4/[^1.4.20]", visible=True)
 
         self.tool_requires("gnu-config/cci.20210814")

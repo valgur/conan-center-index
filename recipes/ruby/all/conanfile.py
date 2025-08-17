@@ -89,7 +89,7 @@ class RubyConan(ConanFile):
 
     def build_requirements(self):
         # Makefile calls autoconf
-        self.tool_requires("autoconf/2.72")
+        self.tool_requires("autoconf/[^2.72]")
         if not can_run(self):
             self.tool_requires(f"ruby/{self.version}")
 

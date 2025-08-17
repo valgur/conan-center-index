@@ -27,7 +27,7 @@ class XorgProtoConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("automake/1.16.5")
+        self.tool_requires("automake/[^1.18.1]")
         self.tool_requires("xorg-macros/1.20.2")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

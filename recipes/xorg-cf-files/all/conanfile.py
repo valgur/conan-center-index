@@ -56,7 +56,7 @@ class XorgCfFilesConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("xorg-macros/1.20.2")
         if is_msvc(self):
-            self.tool_requires("automake/1.16.5")
+            self.tool_requires("automake/[^1.18.1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

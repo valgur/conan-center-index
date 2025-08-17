@@ -58,7 +58,7 @@ class LibffiConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.settings_build.os == "Windows" and self.settings.get_safe("compiler.runtime"):
-            self.tool_requires("automake/1.16.5")
+            self.tool_requires("automake/[^1.18.1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

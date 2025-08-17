@@ -54,7 +54,7 @@ class LibelfConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("libtool/[^2.4.7]")
         if self.settings.os != "Windows":
-            self.tool_requires("autoconf/2.72")
+            self.tool_requires("autoconf/[^2.72]")
             self.tool_requires("gnu-config/cci.20210814")
             if self.settings_build.os == "Windows":
                 self.win_bash = True
