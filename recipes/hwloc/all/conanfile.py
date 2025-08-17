@@ -4,36 +4,81 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
-# INFO: In order to prevent OneTBB missing package error, we build only shared library for hwloc.
 
 class HwlocConan(ConanFile):
     name = "hwloc"
     description = "Portable Hardware Locality (hwloc)"
-    topics = ("hardware", "topology")
     license = "BSD-3-Clause"
     homepage = "https://www.open-mpi.org/projects/hwloc/"
     url = "https://github.com/conan-io/conan-center-index"
-    package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    topics = ("hardware", "topology")
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
-        "with_libxml2": [True, False]
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "tools": [True, False],
+        "with_cairo": [True, False],
+        "with_libxml2": [True, False],
+        "with_cuda": [True, False],
+        "with_opencl": [True, False],
+        "with_oneapi": [True, False],
+        "with_pci": [True, False],
+        "with_udev": [True, False],
     }
     default_options = {
-        "with_libxml2": False
+        "shared": False,
+        "fPIC": True,
+        "tools": False,
+        "with_cairo": False,  # only needed for topology visualization tools
+        "with_libxml2": False,  # uses an internal simpler writer/parser if disabled
+        "with_cuda": False,
+        "with_opencl": False,
+        "with_oneapi": False,
+        "with_pci": False,
+        "with_udev": False,  # uses an internal udev parser if disabled
     }
+    languages = ["C"]
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+        if not self.options.with_cuda:
+            del self.settings.cuda
+        else:
+            self.options.with_opencl.value = True
+        if not self.options.tools:
+            del self.options.with_cairo
 
     def requirements(self):
+        if self.options.get_safe("with_cairo"):
+            self.requires("cairo/[^1.17.8]")
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+        if self.options.with_opencl:
+            self.requires("opencl-icd-loader/[*]")
+        if self.options.with_oneapi:
+            self.requires("level-zero/[^1.17.39]")
+        if self.options.with_pci:
+            self.requires("libpciaccess/[>=0.17 <1]")
+        if self.options.with_udev:
+            self.requires("libudev/[^255]")
+
+    def validate(self):
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -41,6 +86,7 @@ class HwlocConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        save(self, "doc/Makefile.in", "all:;\ninstall:;\n")
 
     def layout(self):
         if self.settings.os == "Windows":
@@ -50,32 +96,47 @@ class HwlocConan(ConanFile):
 
     def generate(self):
         if self.settings.os == "Windows":
-            deps = CMakeDeps(self)
-            deps.generate()
             tc = CMakeToolchain(self)
-            tc.cache_variables["HWLOC_ENABLE_TESTING"] = 'OFF'
-            tc.cache_variables["HWLOC_SKIP_LSTOPO"] = 'ON'
-            tc.cache_variables["HWLOC_SKIP_TOOLS"] = 'ON'
-            tc.cache_variables["HWLOC_SKIP_INCLUDES"] = 'OFF'
-            tc.cache_variables["HWLOC_WITH_OPENCL"] = 'OFF'
-            tc.cache_variables["HWLOC_WITH_CUDA"] = 'OFF'
-            tc.cache_variables["HWLOC_BUILD_SHARED_LIBS"] = True
+            tc.cache_variables["HWLOC_ENABLE_TESTING"] = False
+            tc.cache_variables["HWLOC_SKIP_LSTOPO"] = True
+            tc.cache_variables["HWLOC_SKIP_TOOLS"] = True
+            tc.cache_variables["HWLOC_SKIP_INCLUDES"] = False
+            tc.cache_variables["HWLOC_WITH_OPENCL"] = False
+            tc.cache_variables["HWLOC_WITH_CUDA"] = self.options.with_cuda
+            tc.cache_variables["HWLOC_BUILD_SHARED_LIBS"] = self.options.shared
             tc.cache_variables["HWLOC_WITH_LIBXML2"] = self.options.with_libxml2
             tc.generate()
+            deps = CMakeDeps(self)
+            deps.generate()
         else:
+            enable_disable = lambda opt, val: f"--enable-{opt}" if val else f"--disable-{opt}"
+            tc = AutotoolsToolchain(self)
+            tc.configure_args.extend([
+                enable_disable("libxml2", self.options.with_libxml2),
+                enable_disable("cairo", self.options.get_safe("with_cairo")),
+                enable_disable("cuda", self.options.with_cuda),
+                enable_disable("nvml", self.options.with_cuda),
+                enable_disable("opencl", self.options.with_opencl),
+                enable_disable("rsmi", self.options.get_safe("with_rocm")),
+                enable_disable("levelzero", self.options.with_oneapi),
+                enable_disable("pci", self.options.with_pci),
+                enable_disable("libudev", self.options.with_udev),
+                enable_disable("gl", False),  # Only for NVIDIA devices, requires NVCtrl library from nvidia-settings
+                enable_disable("plugins", False),  # Keep it simple with a monolithic build
+                enable_disable("doxygen", False),
+                enable_disable("readme", False),
+            ])
+            tc.generate()
             deps = PkgConfigDeps(self)
             deps.generate()
-            tc = AutotoolsToolchain(self)
-            if not self.options.with_libxml2:
-                tc.configure_args.extend(["--disable-libxml2"])
-            tc.configure_args.extend(["--disable-io", "--disable-cairo"])
-            tc.configure_args.extend(["--enable-shared", "--disable-static"])
-            tc.generate()
+            if self.options.with_cuda:
+                tc = AutotoolsDeps(self)
+                tc.generate()
 
     def build(self):
         if self.settings.os == "Windows":
             cmake = CMake(self)
-            cmake.configure(build_script_folder=os.path.join("contrib", "windows-cmake"))
+            cmake.configure(build_script_folder="contrib/windows-cmake")
             cmake.build()
         else:
             autotools = Autotools(self)
@@ -87,21 +148,19 @@ class HwlocConan(ConanFile):
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()
-            # remove PDB files
             rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         else:
             autotools = Autotools(self)
             autotools.install()
+            rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
             fix_apple_shared_install_name(self)
-            # remove tools
-            rmdir(self, os.path.join(self.package_folder, "bin"))
-
+            if not self.options.tools:
+                rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "hwloc")
         self.cpp_info.libs = ["hwloc"]
         if is_apple_os(self):
-            self.cpp_info.frameworks = ['IOKit', 'Foundation', 'CoreFoundation']
+            self.cpp_info.frameworks = ["IOKit", "Foundation", "CoreFoundation"]
