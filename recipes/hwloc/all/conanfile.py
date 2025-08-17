@@ -139,6 +139,8 @@ class HwlocConan(ConanFile):
             cmake.configure(build_script_folder="contrib/windows-cmake")
             cmake.build()
         else:
+            if not self.options.tools:
+                save(self, os.path.join(self.source_folder, "utils", "Makefile.in"), "all:;\ninstall:;\n")
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
