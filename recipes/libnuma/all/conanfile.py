@@ -28,9 +28,6 @@ class LibnumaConan(ConanFile):
         "fPIC": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
@@ -46,7 +43,6 @@ class LibnumaConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
