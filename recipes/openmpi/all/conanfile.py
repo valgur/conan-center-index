@@ -42,7 +42,7 @@ class OpenMPIConan(ConanFile):
         "fPIC": True,
         "fortran": "no",
         "with_cuda": False,
-        "with_libfabric": False,
+        "with_libfabric": True,
         "with_ucx": False,
         "with_oneapi": False,
         # Removed in v5.0
@@ -84,6 +84,13 @@ class OpenMPIConan(ConanFile):
             self.options["hwloc"].with_oneapi = True
             if self.options.with_ucx:
                 self.options["openucx"].ze = True
+        if self.options.with_libfabric:
+            if self.options.with_cuda:
+                self.options["libfabric"].cuda = True
+            if self.options.with_ucx:
+                self.options["libfabric"].ucx = True
+            if self.options.with_oneapi:
+                self.options["libfabric"].ze = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -104,8 +111,8 @@ class OpenMPIConan(ConanFile):
             self.requires("prrte/[<5]")
         if self.settings.os == "Linux":
             self.requires("libnl/[^3.8.0]")
-        if self.options.get_safe("with_libfabric"):
-            self.requires("libfabric/[^1.21.0]")
+        if self.options.with_libfabric:
+            self.requires("libfabric/[>=1.21.0 <3]")
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/[*]")
         if self.options.get_safe("with_xpmem"):
@@ -148,7 +155,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-hwloc"] = root("hwloc")
         tc.configure_args["--with-libevent"] = root("libevent")
         tc.configure_args["--with-libnl"] = root("libnl") if not is_apple_os(self) else "no"
-        tc.configure_args["--with-ofi"] = root("libfabric") if self.options.get_safe("with_libfabric") else "no"
+        tc.configure_args["--with-ofi"] = root("libfabric") if self.options.with_libfabric else "no"
         tc.configure_args["--with-ucx"] = root("openucx") if self.options.with_ucx else "no"
         tc.configure_args["--with-zlib"] = root("zlib-ng")
         tc.configure_args["--with-pmix"] = root("openpmix")
@@ -252,7 +259,7 @@ class OpenMPIConan(ConanFile):
         ]
         if self.settings.os == "Linux":
             requires.append("libnl::libnl")
-        if self.options.get_safe("with_libfabric"):
+        if self.options.with_libfabric:
             requires.append("libfabric::libfabric")
         if self.options.get_safe("with_verbs"):
             requires.extend(["rdma-core::libibverbs", "rdma-core::librdmacm"])
