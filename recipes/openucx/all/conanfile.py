@@ -143,6 +143,8 @@ class OpenUCXConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Disable -Werror
+        replace_in_file(self, "config/m4/compiler.m4", ' -Werror"', '"')
 
     def generate(self):
         if not cross_building(self):

@@ -30,6 +30,7 @@ class OpenMPIConan(ConanFile):
         "with_cuda": [True, False],
         "with_libfabric": [True, False],
         "with_ucx": [True, False],
+        "with_oneapi": [True, False],
         # Removed in v5.0
         "enable_cxx": [True, False],
         "enable_cxx_exceptions": [True, False],
@@ -42,6 +43,7 @@ class OpenMPIConan(ConanFile):
         "with_cuda": False,
         "with_libfabric": False,
         "with_ucx": False,
+        "with_oneapi": False,
         # Removed in v5.0
         "enable_cxx": False,
         "enable_cxx_exceptions": False,
@@ -71,8 +73,14 @@ class OpenMPIConan(ConanFile):
             self.options.rm_safe("with_verbs")
         if self.options.with_cuda:
             self.options["hwloc"].with_cuda = True
+            if self.options.with_ucx:
+                self.options["openucx"].with_cuda = True
         else:
             del self.settings.cuda
+        if self.options.with_oneapi:
+            self.options["hwloc"].with_oneapi = True
+            if self.options.with_ucx:
+                self.options["openucx"].ze = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -101,6 +109,8 @@ class OpenMPIConan(ConanFile):
             self.requires("openucx/[^1.19.0]")
         if self.options.with_cuda:
             self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
+        if self.options.with_oneapi:
+            self.requires("level-zero/[1.17.39]", force=True)
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -142,7 +152,6 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--enable-wrapper-runpath"] = "no"
         tc.configure_args["--exec-prefix"] = "/"
         # Disable other external libraries explicitly
-        tc.configure_args["--with-alps"] = "no"  # ALPS
         tc.configure_args["--with-gpfs"] = "no"  # Gpfs
         tc.configure_args["--with-hcoll"] = "no"  # hcoll
         tc.configure_args["--with-ime"] = "no"  # IME
@@ -157,15 +166,14 @@ class OpenMPIConan(ConanFile):
             tc.configure_args["--with-prrte"] = root("prrte")  # PMIx runtime
             tc.configure_args["--enable-sphinx"] = "no"  # only used for docs
             tc.configure_args["--with-argobots"] = "no"  # argobots
-            tc.configure_args["--with-cxi"] = "no"  # CXI
             tc.configure_args["--with-libev"] = "no"  # not compatible with libevent, which cannot be disabled as of v5.0.5
             tc.configure_args["--with-munge"] = "no"  # munge
             tc.configure_args["--with-qthreads"] = "no"  # QThreads
-            tc.configure_args["--with-rocm"] = "no"  # ROCm
         else:
             tc.configure_args["--enable-mpi-cxx"] = yes_no(self.options.enable_cxx)
             tc.configure_args["--enable-cxx-exceptions"] = yes_no(self.options.get_safe("enable_cxx_exceptions"))
             tc.configure_args["--with-verbs"] = root("rdma-core") if self.options.get_safe("with_verbs") else "no"
+            tc.configure_args["--with-alps"] = "no"  # ALPS
             tc.configure_args["--with-fca"] = "no"  # FCA
             tc.configure_args["--with-mxm"] = "no"  # Mellanox MXM
             tc.configure_args["--with-pmi"] = "no"  # PMI
@@ -247,6 +255,8 @@ class OpenMPIConan(ConanFile):
             requires.append("openucx::openucx")
         if self.options.with_cuda:
             requires.append("cuda-driver-stubs::cuda-driver-stubs")
+        if self.options.with_oneapi:
+            requires.append("level-zero::level-zero")
 
         # The components are modelled based on OpenMPI's pkg-config files
         self.cpp_info.components["ompi"].set_property("pkg_config_name", "ompi")
