@@ -1,23 +1,13 @@
 sources:
-  "3.6.1":
-    url: "https://github.com/shibatch/sleef/archive/3.6.1.tar.gz"
-    sha256: "441dcf98c0f22e5d5e553d007f3b93e89eb58e4c66e340da8af5e7f67d1dc24c"
-  "3.6":
-    url: "https://github.com/shibatch/sleef/archive/3.6.tar.gz"
-    sha256: "de4f3d992cf2183a872cd397f517c1defcd3ee6cafa2ce5fa36963bd7e562446"
-  "3.5.1":
-    url: "https://github.com/shibatch/sleef/archive/3.5.1.tar.gz"
-    sha256: "415ee9b1bcc5816989d3d4d92afd0cd3f9ee89cbd5a33eb008e69751e40438ab"
+  "3.9.0":
+    "sleef":
+      url: "https://github.com/shibatch/sleef/archive/3.9.0.tar.gz"
+      sha256: "af60856abac08a3b5e72a8d156dd71fec1f7ac23de8ee67793f45f9edcdf0908"
+    "tlfloat":
+      url: "https://github.com/shibatch/tlfloat/archive/refs/tags/v1.15.0.tar.gz"
+      sha256: "f96a19273111de3c8818965dc3d68cbd66edaba62f03bcd2c06525a22197c97b"
 patches:
-  "3.6.1":
-    - patch_file: "patches/3.6.1-use-openmp-target.patch"
-      patch_description: "Use OpenMP target instead of plain compiler flags"
-      patch_type: "portability"
-  "3.6":
-    - patch_file: "patches/3.6-use-openmp-target.patch"
-      patch_description: "Use OpenMP target instead of plain compiler flags"
-      patch_type: "portability"
-  "3.5.1":
-    - patch_file: "patches/3.5.1-use-openmp-target.patch"
+  "3.9.0":
+    - patch_file: "patches/3.9.0-use-openmp-target.patch"
       patch_description: "Use OpenMP target instead of plain compiler flags"
       patch_type: "portability"
