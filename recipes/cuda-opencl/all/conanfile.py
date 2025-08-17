@@ -42,15 +42,19 @@ class CudaOpenCLConan(ConanFile):
         url = self.conan_data["sources"][self.version]["url"]
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
+    @property
+    def _package_name(self):
+        return "cuda_opencl" if self._cuda_version >= 12 else "cuda_cudart"
+
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_opencl")
+        self._utils.validate_cuda_package(self, self._package_name)
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_opencl")
+        self._utils.download_cuda_package(self, self._package_name)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(self, "*", os.path.join(self.source_folder, "include", "CL"), os.path.join(self.package_folder, "include", "CL"))
         if self.settings.os == "Linux":
             copy(self, "libOpenCL.so*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:

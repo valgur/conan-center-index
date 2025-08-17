@@ -41,10 +41,11 @@ conanfile_policies = {
 }
 nv_packages = {
     "cuda-crt": ["cuda_crt", "cuda_nvcc"],
-    "nvvm": ["libnvvm", "cuda_nvcc"],
-    "nvptxcompiler": ["libnvptxcompiler", "cuda_nvcc"],
-    "culibos": ["cuda_culibos", "cuda_cudart"],
+    "cuda-opencl": ["cuda_opencl", "cuda_cudart"],
     "cudnn": ["cudnn"],
+    "culibos": ["cuda_culibos", "cuda_cudart"],
+    "nvptxcompiler": ["libnvptxcompiler", "cuda_nvcc"],
+    "nvvm": ["libnvvm", "cuda_nvcc"],
 }
 
 

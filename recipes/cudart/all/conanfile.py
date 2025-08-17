@@ -60,6 +60,9 @@ class CudartConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        if Version(self.version) < "12.0":
+            # cuda-opencl is packaged separately
+            rmdir(self, os.path.join(self.package_folder, "include", "CL"))
         if self.settings.os == "Linux":
             if self.options.shared:
                 copy(self, "libcudart.so*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
