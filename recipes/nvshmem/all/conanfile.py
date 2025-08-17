@@ -38,7 +38,7 @@ class NvshmemConan(ConanFile):
         "build_hydra_launcher": False,
         "build_ibrc_transport": False,
         "with_gdrcopy": True,
-        "with_libfabric": False,
+        "with_libfabric": True,
         "with_mlx5": False,
         "with_mpi": False,
         "with_nccl": True,
@@ -64,6 +64,12 @@ class NvshmemConan(ConanFile):
             self.options.with_ucx,
         ]):
             self.options.with_gdrcopy.value = False
+        if self.options.with_libfabric:
+            self.options["libfabric"].cuda = True
+            if self.options.with_gdrcopy:
+                self.options["libfabric"].gdrcopy = True
+            if self.options.with_ucx:
+                self.options["libfabric"].ucx = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -82,7 +88,7 @@ class NvshmemConan(ConanFile):
         if self.options.with_mlx5:
             self.requires("rdma-core/[*]", transitive_headers=True, options={"build_libmlx5": True})
         if self.options.with_libfabric:
-            self.requires("libfabric/[^1.21.0]")
+            self.requires("libfabric/[>=1.21.0 <3]")
         if self.options.with_ucx:
             self.requires("openucx/[^1.19.0]", options={
                 "cuda": True,
