@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanException
@@ -9,21 +10,21 @@ from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.4"
 
 
 class LibtoolConan(ConanFile):
     name = "libtool"
+    description = "GNU libtool is a generic library support script. "
+    license = "GPL-2.0-or-later AND LGPL-2.0-or-later"
     # most common use is as "application", but library traits
     # are a superset of application so this should cover all cases
     package_type = "library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/libtool/"
-    description = "GNU libtool is a generic library support script. "
     topics = ("configure", "library", "shared", "static")
-    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -42,16 +43,9 @@ class LibtoolConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def requirements(self):
-        self.requires("automake/1.16.5")
-
-        #TODO: consider adding m4 as direct dependency, perhaps when we start using version ranges.
-        # https://github.com/conan-io/conan-center-index/pull/16248#discussion_r1116332095
-        #self.requires("m4/1.4.19")
-
     def build_requirements(self):
-        self.tool_requires("automake/<host_version>")
-        self.tool_requires("m4/1.4.19")               # Needed by configure
+        self.tool_requires("automake/[^1.16.5]", visible=True)
+        self.tool_requires("m4/[^1.4.19]", visible=True)
 
         self.tool_requires("gnu-config/cci.20210814")
         if self.settings_build.os == "Windows":
@@ -124,9 +118,9 @@ class LibtoolConan(ConanFile):
             return "a"
 
     def _rm_binlib_files_containing(self, ext_inclusive, ext_exclusive=None):
-        regex_in = re.compile(r".*\.({})($|\..*)".format(ext_inclusive))
+        regex_in = re.compile(fr".*\.({ext_inclusive})($|\..*)")
         if ext_exclusive:
-            regex_out = re.compile(r".*\.({})($|\..*)".format(ext_exclusive))
+            regex_out = re.compile(fr".*\.({ext_exclusive})($|\..*)")
         else:
             regex_out = re.compile("^$")
         for directory in (
@@ -146,30 +140,29 @@ class LibtoolConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
-        os.unlink(os.path.join(self.package_folder, "lib", "libltdl.la"))
+        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         if self.options.shared:
             self._rm_binlib_files_containing(self._static_ext, self._shared_ext)
         else:
             self._rm_binlib_files_containing(self._shared_ext)
 
-        files = (
-            os.path.join(self.package_folder, "bin", "libtool"),
-            os.path.join(self.package_folder, "bin", "libtoolize"),
-        )
         replaces = {
             "GREP": "/usr/bin/env grep",
             "EGREP": "/usr/bin/env grep -E",
             "FGREP": "/usr/bin/env grep -F",
             "SED": "/usr/bin/env sed",
         }
-        for file in files:
-            contents = open(file).read()
+        for file in [
+            Path(self.package_folder, "bin", "libtool"),
+            Path(self.package_folder, "bin", "libtoolize"),
+        ]:
+            contents = file.read_text(encoding="utf-8")
             for key, repl in replaces.items():
-                contents, nb1 = re.subn("^{}=\"[^\"]*\"".format(key), "{}=\"{}\"".format(key, repl), contents, flags=re.MULTILINE)
-                contents, nb2 = re.subn("^: \\$\\{{{}=\"[^$\"]*\"\\}}".format(key), ": ${{{}=\"{}\"}}".format(key, repl), contents, flags=re.MULTILINE)
+                contents, nb1 = re.subn('^%s="[^"]*"' % key, '%s="%s"' % (key, repl), contents, flags=re.MULTILINE)
+                contents, nb2 = re.subn(r'^: \$\{%s="[^$"]*"}' % key, ': ${%s="%s"}' % (key, repl), contents, flags=re.MULTILINE)
                 if nb1 + nb2 == 0:
-                    raise ConanException("Failed to find {} in {}".format(key, repl))
-            open(file, "w").write(contents)
+                    raise ConanException(f"Failed to find {key} in {repl}")
+            file.write_text(contents, encoding="utf-8")
 
         binpath = os.path.join(self.package_folder, "bin")
         if self.settings.os == "Windows":
@@ -182,16 +175,6 @@ class LibtoolConan(ConanFile):
             rename(self, os.path.join(self.package_folder, "lib", "ltdl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "ltdl.lib"))
 
-        # allow libtool to link static libs into shared for more platforms
-        libtool_m4 = os.path.join(self.package_folder, "share", "aclocal", "libtool.m4")
-        method_pass_all = "lt_cv_deplibs_check_method=pass_all"
-        replace_in_file(self, libtool_m4,
-                              "lt_cv_deplibs_check_method='file_magic ^x86 archive import|^x86 DLL'",
-                              method_pass_all)
-        replace_in_file(self, libtool_m4,
-                              "lt_cv_deplibs_check_method='file_magic file format (pei*-i386(.*architecture: i386)?|pe-arm-wince|pe-x86-64)'",
-                              method_pass_all)
-
     def package_info(self):
         self.cpp_info.libs = ["ltdl"]
 
@@ -199,7 +182,7 @@ class LibtoolConan(ConanFile):
             if self.settings.os == "Windows":
                 self.cpp_info.defines = ["LIBLTDL_DLL_IMPORT"]
         else:
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs = ["dl"]
 
         # Define environment variables such that libtool m4 files are seen by Automake
