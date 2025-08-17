@@ -42,6 +42,7 @@ class OpenUCXConan(ConanFile):
         "tuning": [True, False],
         "ud": [True, False],
         "verbs": [True, False],
+        "xpmem": [True, False],
         "ze": [True, False],
     }
     default_options = {
@@ -63,6 +64,7 @@ class OpenUCXConan(ConanFile):
         "tuning": False,
         "ud": False,
         "verbs": False,
+        "xpmem": False,
         "ze": False,
     }
     options_description = {
@@ -84,11 +86,11 @@ class OpenUCXConan(ConanFile):
         "tuning":         "Enable parameter tuning in run-time",
         "ud":             "Compile with IB Unreliable Datagram support",
         "verbs":          "Build OpenFabrics support",
+        "xpmem":          "Enable the use of Cray XPMEM",
         "ze":             "Enable the use of ZE (oneAPI Level Zero)",
         # "knem":           "Enable the use of KNEM",
         # "rocm":           "Enable the use of ROCm",
         # "ugni":           "Build Cray UGNI support",
-        # "xpmem":          "Enable the use of Cray XPMEM",
     }
     implements = ["auto_shared_fpic"]
 
@@ -125,6 +127,8 @@ class OpenUCXConan(ConanFile):
             self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
             self.requires(f"cudart/[~{self.settings.cuda.version}]")
             self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+        if self.options.xpmem:
+            self.requires("xpmem/[^2.6.5]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -183,7 +187,7 @@ class OpenUCXConan(ConanFile):
             with_without("knem", False),  # No Conan package
             with_without("rocm", False),  # TODO
             with_without("ugni", False),  # No Conan package
-            with_without("xpmem", False),  # No Conan package
+            with_without("xpmem", self.options.xpmem, "xpmem"),
             with_without("go", False),
             with_without("java", False),
         ])
@@ -279,6 +283,8 @@ class OpenUCXConan(ConanFile):
             _define_component("rdmacm", "uct_rdmacm", ["uct", "rdma-core::librdmacm"], "uct_rdmacm_init")
         if self.options.verbs:
             _define_component("ib", "uct_ib", ["uct", "rdma-core::libibverbs"], "uct_ib_init")
+        if self.options.xpmem:
+            _define_component("ucx-xpmem", "uct_xpmem", ["uct", "xpmem::xpmem"], "uct_xpmem_init")
         if self.options.ze:
             _define_component("ze", "ucm_ze", ["ucm", "level-zero::level-zero"], "ucm_ze_init")
 
