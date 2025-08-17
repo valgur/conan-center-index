@@ -51,7 +51,7 @@ class GDCMConan(ConanFile):
             self.requires("util-linux-libuuid/2.41")
             self.requires("libiconv/[^1.17]")
         if self.options.with_json:
-            self.requires("json-c/[^0.17]")
+            self.requires("json-c/[>=0.17 <1]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
