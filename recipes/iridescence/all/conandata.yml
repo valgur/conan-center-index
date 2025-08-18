@@ -1,9 +1,9 @@
 sources:
-  "0.1.3":
-    url: "https://github.com/koide3/iridescence/archive/refs/tags/v0.1.3.tar.gz"
-    sha256: "986305710ba7903f9106cd3fadd82661a1f16300a18a5be4014a185ef17f637f"
+  "0.1.6":
+    url: "https://github.com/koide3/iridescence/archive/refs/tags/v0.1.6.tar.gz"
+    sha256: "39ef9e4f231bd8459677836006f2a149cd086e19986597d224491218b55e865b"
 patches:
-  "0.1.3":
+  "0.1.6":
     - patch_file: "patches/001-unvendor-deps.patch"
       patch_description: "Use dependencies from Conan"
       patch_type: "conan"
