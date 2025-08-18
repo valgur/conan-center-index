@@ -28,6 +28,8 @@ class GtsamPointsPackage(ConanFile):
         "openmp": True,
         "tbb": False,
         "cuda": False,
+        "boost/*:with_filesystem": True,
+        "boost/*:with_graph": True,
     }
 
     python_requires = "conan-utils/latest"
@@ -39,8 +41,6 @@ class GtsamPointsPackage(ConanFile):
     def configure(self):
         if not self.options.cuda:
             del self.settings.cuda
-        self.options["boost"].with_filesystem = True
-        self.options["boost"].with_graph = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -58,7 +58,7 @@ class GtsamPointsPackage(ConanFile):
         if self.options.tbb:
             self.requires("onetbb/[>=2021 <2023]")
         if self.options.cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -66,6 +66,9 @@ class GtsamPointsPackage(ConanFile):
             raise ConanInvalidConfiguration("Cannot enable both openmp and tbb options at the same time.")
         if self.options.cuda:
             self._utils.validate_cuda_settings(self)
+        for comp in ["filesystem", "graph"]:
+            if not self.dependencies["boost"].options.get_safe(f"with_{comp}"):
+                raise ConanInvalidConfiguration(f"-o boost/*:with_{comp}=True is required")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
