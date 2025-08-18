@@ -14,7 +14,7 @@ required_conan_version = ">=2.1"
 class OnnxRuntimeConan(ConanFile):
     name = "onnxruntime"
     description = "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator"
-    license = "MIT"
+    license = "MIT AND Apache-2.0 AND MPL-2.0 AND BSD-3-clause"
     homepage = "https://onnxruntime.ai"
     topics = ("deep-learning", "onnx", "neural-networks", "machine-learning", "ai-framework", "hardware-acceleration")
     package_type = "library"
