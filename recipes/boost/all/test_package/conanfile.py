@@ -24,7 +24,7 @@ class TestPackageConan(ConanFile):
         tc.cache_variables["WITH_JSON"] = opts.get_safe("with_json", False)
         tc.cache_variables["WITH_LOCALE"] = opts.with_locale
         tc.cache_variables["WITH_NOWIDE"] = opts.get_safe("with_nowide", False)
-        tc.cache_variables["WITH_NUMPY"] = opts.numpy
+        tc.cache_variables["WITH_NUMPY"] = opts.get_safe("with_numpy", False)
         tc.cache_variables["WITH_PROCESS"] = opts.get_safe("with_process", False)
         tc.cache_variables["WITH_PYTHON"] = opts.with_python
         tc.cache_variables["WITH_RANDOM"] = opts.with_random
