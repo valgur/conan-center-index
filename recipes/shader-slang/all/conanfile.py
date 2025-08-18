@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -22,20 +21,20 @@ class ShaderSlangConan(ConanFile):
     homepage = "https://github.com/shader-slang/slang"
     topics = ("shaders", "vulkan", "glsl", "cuda", "hlsl", "d3d12")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "enable_gfx": [True, False],
-        "with_x11": [True, False],
         "with_cuda": [True, False],
+        "with_x11": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "enable_gfx": False,
-        "with_x11": True,
         "with_cuda": False,
+        "with_x11": True,
     }
 
     def export_sources(self):
@@ -50,6 +49,10 @@ class ShaderSlangConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.enable_gfx or self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_x11
+        if not self.options.enable_gfx:
+            del self.options.with_cuda
+        if not self.options.get_safe("with_cuda"):
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -68,6 +71,8 @@ class ShaderSlangConan(ConanFile):
                 self.requires("metal-cpp/14.2")
             if self.options.get_safe("with_x11"):
                 self.requires("xorg/system")
+            if self.options.with_cuda:
+                self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -94,7 +99,6 @@ class ShaderSlangConan(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         # Everything except dxc/dxcapi.h is unvendored
@@ -159,7 +163,7 @@ class ShaderSlangConan(ConanFile):
             if self.options.get_safe("with_x11"):
                 self.cpp_info.components["gfx"].requires.append("xorg::x11")
             if self.options.with_cuda:
-                self.cpp_info.components["gfx"].system_libs.append("cuda")
+                self.cpp_info.components["gfx"].requires.append("cuda-driver-stubs::cuda-driver-stubs")
 
         if self.options.enable_gfx:
             self.cpp_info.components["_tools"].requires = ["imgui::imgui"]
