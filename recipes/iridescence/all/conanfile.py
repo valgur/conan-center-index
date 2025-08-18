@@ -48,6 +48,7 @@ class IridescenceConan(ConanFile):
         self.requires("portable-file-dialogs/0.1.0", transitive_headers=True)
         # Upstream uses -docking version of imgui, but it would cause version conflicts on CCI
         self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
+        self.requires("imgui/[^1.90.5]", transitive_headers=True, transitive_libs=True)
         self.requires("imguizmo/cci.20231114")
         self.requires("implot/0.16")
         self.requires("glfw/[^3.4]", transitive_headers=True, transitive_libs=True)

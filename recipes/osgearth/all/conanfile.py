@@ -108,7 +108,7 @@ class OsgearthConan(ConanFile):
     def requirements(self):
         self.requires("gdal/[^3.10.0]")
         self.requires("glew/2.2.0")
-        self.requires("imgui/1.90.9")
+        self.requires("imgui/[^1.90.9]")
         self.requires("lerc/[^4.0.1]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("libzip/[^1.11.1]")
@@ -134,7 +134,7 @@ class OsgearthConan(ConanFile):
             self.requires("geos/[^3.12.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_imgui:
             # TODO: unvendor
-            # self.requires("imgui/1.90.2")
+            # self.requires("imgui/[^1.90.2]")
             # self.requires("portable-file-dialogs/cci.20221111")
             pass
         if self.options.with_protobuf:

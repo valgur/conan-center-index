@@ -65,7 +65,7 @@ class DiligentEngineConan(ConanFile):
         # TODO: unvendor DXBCChecksum from FidelityFX-SDK?
 
         # DiligentTools
-        self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
+        self.requires("imgui/[^1]", transitive_headers=True, transitive_libs=True)
         self.requires("imguizmo/cci.20231114")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")

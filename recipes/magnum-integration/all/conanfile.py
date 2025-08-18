@@ -56,7 +56,7 @@ class MagnumIntegrationConan(ConanFile):
             self.requires("glm/cci.20230113", transitive_headers=True, transitive_libs=True)
         if self.options.with_imgui:
             # Used in Magnum/ImGuiIntegration/Integration.h
-            self.requires("imgui/1.90", transitive_headers=True, transitive_libs=True)
+            self.requires("imgui/[^1.90]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.options.with_dart:

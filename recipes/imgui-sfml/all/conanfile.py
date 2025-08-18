@@ -35,7 +35,7 @@ class ImGuiSFMLConan(ConanFile):
 
     def requirements(self):
         self.requires("sfml/[^2.6.2]", transitive_headers=True)
-        self.requires("imgui/1.91.8", transitive_headers=True, transitive_libs=True)
+        self.requires("imgui/[^1.91.8 <1.92]", transitive_headers=True, transitive_libs=True)
         self.requires("opengl/system")
 
     def validate(self):

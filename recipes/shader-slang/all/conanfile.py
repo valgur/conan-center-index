@@ -63,7 +63,7 @@ class ShaderSlangConan(ConanFile):
         self.requires("unordered_dense/4.4.0")
         if self.options.enable_gfx:
             self.requires("vulkan-headers/[^1.3.239.0]")
-            self.requires("imgui/1.91.0")
+            self.requires("imgui/[^1.91.0]")
             if is_apple_os(self):
                 self.requires("metal-cpp/14.2")
             if self.options.get_safe("with_x11"):

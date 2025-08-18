@@ -31,14 +31,21 @@ class ImplotConan(ConanFile):
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
-    def requirements(self):
-        if Version(self.version) >= "0.14":
-            self.requires("imgui/1.90.5", transitive_headers=True)
-        elif Version(self.version) >= "0.13":
+    @property
+    def _version_range(self):
+        v = Version(self.version)
+        if v >= "0.15":
+            return "^1 <1.92"
+        if v >= "0.14":
+            return "^1 <1.91"
+        elif v >= "0.13":
             # imgui 1.89 renamed ImGuiKeyModFlags_* to  ImGuiModFlags_*
-            self.requires("imgui/1.88", transitive_headers=True)
+            return "^1 <1.90"
         else:
-            self.requires("imgui/1.86", transitive_headers=True)
+            return "^1 <1.87"
+
+    def requirements(self):
+        self.requires(f"imgui/[{self._version_range}]", transitive_headers=True)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
