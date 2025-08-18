@@ -113,6 +113,7 @@ class CeresSolverConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.get_safe("use_cuda"):
             del self.settings.cuda
+        self.options["eigen"].MPL2_only = False
 
     def layout(self):
         cmake_layout(self, src_folder="src")

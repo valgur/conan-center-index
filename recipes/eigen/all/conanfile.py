@@ -28,7 +28,7 @@ class EigenConan(ConanFile):
         #   Eigen/src/SparseCholesky/SimplicialCholesky.h
         #   Eigen/src/OrderingMethods/Amd.h
         #   unsupported/Eigen/src/IterativeSolvers/*
-        "MPL2_only": False,
+        "MPL2_only": True,
     }
 
     @property
