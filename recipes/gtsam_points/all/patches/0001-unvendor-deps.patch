@@ -1,57 +1,45 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -28,6 +28,7 @@
+@@ -31,8 +31,8 @@
+ 
+ find_package(Boost REQUIRED COMPONENTS graph filesystem)
  find_package(GTSAM REQUIRED)
- find_package(OpenMP REQUIRED)
+-find_package(GTSAM_UNSTABLE REQUIRED)
  find_package(Eigen3 REQUIRED)
 +find_package(nanoflann REQUIRED)
  
- if(${BUILD_WITH_CUDA} AND ${EIGEN3_VERSION_STRING} AND ${EIGEN3_VERSION_STRING} VERSION_LESS "3.3.90")
-   message(WARNING "Detected Eigen ${EIGEN3_VERSION_STRING} is not compatible with CUDA")
-@@ -157,7 +158,6 @@
+ if(BUILD_WITH_TBB)
+   find_package(TBB REQUIRED)
+@@ -202,7 +202,6 @@
  )
  target_include_directories(gtsam_points PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 -  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nanoflann/include>
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
    $<INSTALL_INTERFACE:include>
  )
- target_link_libraries(gtsam_points
-@@ -166,6 +166,7 @@
-   Eigen3::Eigen
-   GTSAM::GTSAM
-   OpenMP::OpenMP_CXX
+@@ -215,6 +214,7 @@
+   gtsam_unstable
+   $<TARGET_NAME_IF_EXISTS:TBB::tbb>
+   $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
 +  nanoflann::nanoflann
  )
  
  # GPU-related
-@@ -205,12 +206,14 @@
-     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-     $<INSTALL_INTERFACE:include>
-   )
-+  find_package(thrust REQUIRED CONFIG)
-   target_link_libraries(gtsam_points_cuda
-     Boost::boost
-     Eigen3::Eigen
-     GTSAM::GTSAM
-     OpenMP::OpenMP_CXX
-+    thrust::thrust
-     CUDA::cudart
+@@ -262,6 +262,7 @@
+     gtsam_unstable
+     $<TARGET_NAME_IF_EXISTS:TBB::tbb>
+     $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
++    nanoflann::nanoflann
    )
  
    target_link_libraries(gtsam_points
-@@ -274,7 +277,7 @@
- #############
+@@ -355,7 +356,7 @@
  
  include(GNUInstallDirs)
--install(DIRECTORY include/ thirdparty/nanoflann/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
- 
- list(APPEND GTSAM_POINTS_LIBRARIES gtsam_points)
- if(BUILD_WITH_CUDA)
-@@ -310,6 +313,5 @@
- install(FILES
-   "${CMAKE_CURRENT_BINARY_DIR}/gtsam_points-config.cmake"
-   "${CMAKE_CURRENT_BINARY_DIR}/gtsam_points-config-version.cmake"
--  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindGTSAM.cmake"
-   DESTINATION ${CMAKE_CONFIG_INSTALL_DIR}
+ install(
+-  DIRECTORY include/ thirdparty/nanoflann/include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
++  DIRECTORY include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
+   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
  )
+ 

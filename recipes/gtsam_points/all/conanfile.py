@@ -1,9 +1,9 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -18,17 +18,32 @@ class GtsamPointsPackage(ConanFile):
     topics = ("localization", "mapping", "gpu", "cuda", "point-cloud", "registration", "slam", "factor-graph")
 
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
+        "openmp": [True, False],
+        "tbb": [True, False],
         "cuda": [True, False],
     }
     default_options = {
+        "openmp": True,
+        "tbb": False,
         "cuda": False,
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    def configure(self):
+        if not self.options.cuda:
+            del self.settings.cuda
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_graph = True
+
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "conan-cuda-wrapper.cmake", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -36,27 +51,45 @@ class GtsamPointsPackage(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
-        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
-        self.requires("nanoflann/1.3.2", transitive_headers=True, transitive_libs=True)
+        self.requires("nanoflann/[~1.3]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        if self.options.openmp:
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self.options.tbb:
+            self.requires("onetbb/[>=2021 <2023]")
         if self.options.cuda:
-            self.requires("thrust/2.7.0", transitive_headers=True, transitive_libs=True, options={"device_system": "cuda"})
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={"with_filesystem": True})
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
     def validate(self):
         check_min_cppstd(self, 17)
+        if self.options.openmp and self.options.tbb:
+            raise ConanInvalidConfiguration("Cannot enable both openmp and tbb options at the same time.")
+        if self.options.cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
+        if self.options.cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Unvendor nanoflann
         rmdir(self, os.path.join(self.source_folder, "thirdparty"))
-        rm(self, "FindGTSAM.cmake", os.path.join(self.source_folder, "cmake"))
+        # Let Conan manage the C++ standard and also the CUDA standard indirectly
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
+        # Let NvccToolchain manage the CUDA architecture
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CUDA_ARCHITECTURES", "# set(CMAKE_CUDA_ARCHITECTURES")
+        # Don't build utility functions for cusparse and curand that are not used anywhere
+        replace_in_file(self, "CMakeLists.txt", " src/gtsam_points/cuda/check_error_cusolver.cu", "")
+        replace_in_file(self, "CMakeLists.txt", " src/gtsam_points/cuda/check_error_curand.cu", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_WITH_MARCH_NATIVE"] = False
+        tc.variables["BUILD_WITH_OPENMP"] = self.options.openmp
+        tc.variables["BUILD_WITH_TBB"] = self.options.tbb
         tc.variables["BUILD_WITH_CUDA"] = self.options.cuda
         tc.generate()
 
@@ -64,7 +97,9 @@ class GtsamPointsPackage(ConanFile):
         deps.set_property("gtsam", "cmake_target_name", "GTSAM::GTSAM")
         deps.generate()
 
-        VirtualBuildEnv(self).generate()
+        if self.options.cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -76,32 +111,30 @@ class GtsamPointsPackage(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        if self.options.cuda:
-            copy(self, "conan-cuda-wrapper.cmake", self.export_sources_folder, os.path.join(self.package_folder, "lib", "cmake", "gtsam_points"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "gtsam_points")
 
-        self.cpp_info.components["libgtsam_points"].set_property("cmake_target_name", "gtsam_points::gtsam_points")
-        self.cpp_info.components["libgtsam_points"].libs = ["gtsam_points"]
+        gtsam_points = self.cpp_info.components["libgtsam_points"]
+        gtsam_points.set_property("cmake_target_name", "gtsam_points::gtsam_points")
+        gtsam_points.libs = ["gtsam_points"]
         requires = [
             "boost::headers",
             "boost::filesystem",
+            "boost::graph",
             "eigen::eigen",
             "gtsam::gtsam",
-            "openmp::openmp",
             "nanoflann::nanoflann",
         ]
-        self.cpp_info.components["libgtsam_points"].requires += requires
+        if self.options.openmp:
+            requires.append("openmp::openmp")
+        if self.options.tbb:
+            requires.append("onetbb::libtbb")
+        gtsam_points.requires += requires
 
         if self.options.cuda:
-            self.cpp_info.components["libgtsam_points_cuda"].set_property("cmake_target_name", "gtsam_points::gtsam_points_cuda")
-            self.cpp_info.components["libgtsam_points_cuda"].libs = ["gtsam_points_cuda"]
-            self.cpp_info.components["libgtsam_points_cuda"].requires += requires
-            self.cpp_info.components["libgtsam_points_cuda"].requires.append("thrust::thrust")
-            self.cpp_info.components["libgtsam_points"].requires.append("libgtsam_points_cuda")
-
-            # Add cudart dependency
-            cmake_module_dir = os.path.join("lib", "cmake", "gtsam_points")
-            self.cpp_info.builddirs.append(cmake_module_dir)
-            self.cpp_info.set_property("cmake_build_modules", [os.path.join(cmake_module_dir, "conan-cuda-wrapper.cmake")])
+            gtsam_points_cuda = self.cpp_info.components["gtsam_points_cuda"]
+            gtsam_points_cuda.set_property("cmake_target_name", "gtsam_points::gtsam_points_cuda")
+            gtsam_points_cuda.libs = ["gtsam_points_cuda"]
+            gtsam_points_cuda.requires = requires + ["cudart::cudart_"]
+            gtsam_points.requires.append("gtsam_points_cuda")
