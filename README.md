@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-08-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-08-25:
 
 - abseil/20250512.1
 - adaptivecpp/24.10.0
@@ -33,10 +33,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - autoconf-archive/2024.10.16
+- automake/1.18.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
+- binutils/2.41
 - binutils/2.44
+- bison/3.5.3
 - blis/0.9.0
 - bluez/5.83
 - boost/1.71.0
@@ -97,6 +100,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.9.23
 - crashpad/cci.20231107
 - criterion/2.4.2
+- crossdb/0.10.0
+- crossdb/0.11.0
+- crossdb/0.9.0
 - crow/1.1.0
 - crow/1.2.0
 - crow/1.2.1
@@ -123,10 +129,26 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - directx-headers/1.602.0
 - directx-headers/1.615.0
 - directx-shader-compiler/1.8.2502
+- doctest/2.3.5
+- doctest/2.3.6
+- doctest/2.3.7
+- doctest/2.3.8
+- doctest/2.4.0
+- doctest/2.4.1
+- doctest/2.4.10
+- doctest/2.4.3
+- doctest/2.4.4
+- doctest/2.4.5
+- doctest/2.4.6
+- doctest/2.4.8
+- doctest/2.4.9
 - dotconf/1.4.1
 - dpdk/24.07
 - egl-headers/20220525
 - egl-headers/20250527
+- eigen/3.3.7
+- eigen/3.3.8
+- eigen/3.3.9
 - eigenpy/3.11.0
 - elfutils/0.191
 - elfutils/0.192
@@ -137,6 +159,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - emsdk/4.0.6
 - f2c/20240312
 - faiss/1.8.0
+- fastgltf/0.7.2
 - fbgemm/1.1.0
 - fenster/0.1.0
 - ffmpeg/4.4.5
@@ -200,6 +223,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glslang/1.3.296.0
 - glslang/1.4.309.0
 - gm2calc/2.3.1
+- gmp/6.2.0
 - gn/qt-6.9.0
 - gnsstk/14.3.0
 - gnu-getopt/2.40
@@ -231,6 +255,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gst-plugins-ugly/1.26.0
 - gstreamer/1.24.12
 - gstreamer/1.26.0
+- gtest/1.10.0
+- gtest/1.12.1
+- gtest/1.13.0
+- gtest/1.14.0
+- gtest/1.15.0
+- gtest/1.8.1
 - gtk/3.24.49
 - gtk/4.18.6
 - gtkmm/3.24.9
@@ -240,8 +270,24 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.6
 - gumbo-parser/0.13.0
 - half/2.2.1
+- harfbuzz/10.4.0
+- harfbuzz/11.2.1
+- harfbuzz/11.3.2
+- harfbuzz/6.0.0
+- harfbuzz/7.3.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- hdf5/1.10.5
+- hdf5/1.10.6
+- hdf5/1.12.0
+- hdf5/1.12.2
+- hdf5/1.13.1
+- hdf5/1.14.0
+- hdf5/1.14.1
+- hdf5/1.14.2
+- hdf5/1.14.4.3
+- hdf5/1.14.5
+- hdf5/1.8.21
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -256,6 +302,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - iridescence/0.1.3
 - isl/0.27
 - ittapi/3.26.1
+- jasper/4.1.2
 - jrl-cmakemodules/cci.20250623
 - json-glib/1.10.6
 - jsonifier/0.9.98
@@ -295,6 +342,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libmng/2.0.3
 - libmount/2.41
 - libmysqlclient/8.2.0
+- libnghttp2/1.53.0
+- libnghttp2/1.54.0
+- libnghttp2/1.55.1
+- libnghttp2/1.56.0
+- libnghttp2/1.57.0
+- libnghttp2/1.58.0
+- libnghttp2/1.59.0
+- libnghttp2/1.60.0
 - libosmium/2.20.0
 - libpng/1.6.49
 - libpq/17.0
@@ -360,6 +415,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/18.1.8
 - llvm-openmp/19.1.7
 - lttng-ust/2.13.9
+- m4/1.4.20
 - manifold/3.0.1
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -402,7 +458,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onemkl/2025.1.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
-- openblas/0.3.30
 - opencl-clhpp-headers/2024.10.24
 - opencl-headers/2024.10.24
 - opencl-icd-loader/2024.10.24
@@ -438,6 +493,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.46.4
 - pangomm/2.54.0
 - partio/1.19.0
+- patchelf/0.12
+- patchelf/0.13
 - pcl/1.14.1
 - pcre2/10.45
 - pcsc-lite/2.3.3
@@ -468,6 +525,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qtkeychain/0.15.0
 - rapidjson/cci.20250205
 - re2/20220601
+- readline/8.0
+- redis-plus-plus/1.2.3
+- redis-plus-plus/1.3.10
+- redis-plus-plus/1.3.11
+- redis-plus-plus/1.3.12
+- redis-plus-plus/1.3.13
+- redis-plus-plus/1.3.2
+- redis-plus-plus/1.3.3
+- redis-plus-plus/1.3.7
+- redis-plus-plus/1.3.8
 - reduct-cpp/1.14.0
 - renderdoc/1.37
 - rmlui/5.1
@@ -483,12 +550,22 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sdl/3.2.14
 - sdl/3.2.18
 - sdl/3.2.6
+- sdl_ttf/2.0.15
+- sdl_ttf/2.0.18
+- sdl_ttf/2.20.1
+- sdl_ttf/2.20.2
+- sdl_ttf/2.22.0
 - secsipidx/1.3.2
 - serf/1.3.10
 - sfcgal/1.5.0
 - shader-conductor/0.3.0-post.20221128
 - shader-slang/2024.11.1
 - shaderc/2025.2
+- simdjson/3.10.1
+- simdjson/3.11.5
+- simdjson/3.12.2
+- simdjson/3.12.3
+- simdjson/3.9.3
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
@@ -573,7 +650,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - torch-mlir/cci.20250203
 - tpl/cci.20210302
 - tsid/1.8.0
-- tslib/1.23
 - tz/2024b
 - ufbx/0.18.2
 - usearch/2.9.1
