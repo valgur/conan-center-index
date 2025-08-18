@@ -10,6 +10,10 @@ patches:
     - patch_file: "patches/1.22.2-0005-fix-cutlass-cuda-provider.patch"
       patch_description: "use cutlass from Conan"
       patch_type: "portability"
+    - patch_file: "patches/1.22.2-0006-cutlass-3.9.2-compatibility.patch"
+      patch_description: "[CUDA] Upgrade cutlass to 3.9.2 (#24794)"
+      patch_type: "backport"
+      patch_source: "https://github.com/microsoft/onnxruntime/commit/8983424d9a8d0a39d065b0e353d6fd3f2b2a638c"
   "1.18.2":
     - patch_file: "patches/1.17.3-0002-missing-include.patch"
       patch_description: "add missing '<optional>' include when abseil is built without c++17 support"

@@ -109,5 +109,13 @@ if(onnxruntime_USE_SNPE)
     list(APPEND onnxruntime_EXTERNAL_LIBRARIES ${SNPE_NN_LIBS})
 endif()
 
+if(onnxruntime_USE_CUDA)
+  find_package(CUDAToolkit REQUIRED)
+  if(NOT onnxruntime_CUDA_MINIMAL)
+    find_package(cuDNN REQUIRED)
+    find_package(cudnn_frontend REQUIRED)
+  endif()
+endif()
+
 file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}  ORT_BINARY_DIR)
 file(TO_NATIVE_PATH ${PROJECT_SOURCE_DIR}  ORT_SOURCE_DIR)

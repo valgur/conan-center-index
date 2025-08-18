@@ -1,0 +1,137 @@
+diff --git a/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/fmha_launch_template.h b/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/fmha_launch_template.h
+index 8d8f735e3ed34..5aeda0f74e92b 100644
+--- a/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/fmha_launch_template.h
++++ b/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/fmha_launch_template.h
+@@ -142,15 +142,16 @@ template <typename T, typename ArchTag, bool is_aligned, int queries_per_block,
+ void LaunchCutlassFmha(const MemoryEfficientAttentionParams& params) {
+   constexpr bool dropout = false;
+   using Attention = AttentionKernel<T, ArchTag, is_aligned, queries_per_block, keys_per_block, max_head_size, dropout>;
++
+   typename Attention::Params p;
+   {  // set parameters
+     p.query_ptr = const_cast<T*>(reinterpret_cast<const T*>(params.query));
+     p.key_ptr = const_cast<T*>(reinterpret_cast<const T*>(params.key));
+     p.value_ptr = const_cast<T*>(reinterpret_cast<const T*>(params.value));
+     p.attn_bias_ptr = const_cast<T*>(reinterpret_cast<const T*>(params.attn_bias));
+-    p.seqstart_q_ptr = params.seqstart_q_ptr;
+-    p.seqstart_k_ptr = params.seqstart_k_ptr;
+-    p.seqlen_k_ptr = params.seqlen_k_ptr;
++    p.seqstart_q_ptr = const_cast<int32_t*>(params.seqstart_q_ptr);
++    p.seqstart_k_ptr = const_cast<int32_t*>(params.seqstart_k_ptr);
++    p.seqlen_k_ptr = const_cast<int32_t*>(params.seqlen_k_ptr);
+ 
+     p.logsumexp_ptr = nullptr;  // [num_heads, num_queries] for backward or nullptr for forward
+     p.output_ptr = reinterpret_cast<T*>(params.output);
+@@ -260,7 +261,7 @@ void DispatchIsAligned(const MemoryEfficientAttentionParams& params) {
+                     params.v_head_size % AlignedAK::kAlignmentV == 0;
+ 
+   DISPATCH_BOOL(is_aligned, kIsAligned, ([&]() {
+-                  LaunchCutlassFmha<T, ArchTag, kIsAligned, queries_per_block, keys_per_block, max_head_size>(params);
++                  LaunchCutlassFmha<T, ArchTag, kIsAligned::value, queries_per_block, keys_per_block, max_head_size>(params);
+                 }));
+ 
+ #if defined(_MSC_VER) && !defined(__clang__)
+diff --git a/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/kernel_forward.h b/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/kernel_forward.h
+index f35d6c2e6c8dc..41691d823f528 100644
+--- a/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/kernel_forward.h
++++ b/onnxruntime/contrib_ops/cuda/bert/cutlass_fmha/kernel_forward.h
+@@ -38,6 +38,7 @@
+ 
+ #include <curand_kernel.h>
+ #include <cmath>
++#include <cinttypes>
+ #include <vector>
+ 
+ #include "cutlass/fast_math.h"
+@@ -71,8 +72,6 @@
+ #include "41_fused_multi_head_attention/gemm_kernel_utils.h"
+ #include "41_fused_multi_head_attention/transform/tile_smem_loader.h"
+ 
+-#include <inttypes.h>
+-
+ using namespace gemm_kernel_utils;
+ 
+ namespace {
+@@ -174,9 +173,10 @@ struct AttentionKernel {
+     scalar_t* key_ptr = nullptr;        // [num_keys, num_heads, head_dim]
+     scalar_t* value_ptr = nullptr;      // [num_keys, num_heads, head_dim_value]
+     scalar_t* attn_bias_ptr = nullptr;  // [num_heads, num_queries, num_keys]
+-    const int32_t* seqstart_q_ptr = nullptr;
+-    const int32_t* seqstart_k_ptr = nullptr;
+-    const int32_t* seqlen_k_ptr = nullptr;
++    int32_t* seqstart_q_ptr = nullptr;
++    int32_t* seqstart_k_ptr = nullptr;
++
++    int32_t* seqlen_k_ptr = nullptr;
+     uint32_t causal_diagonal_offset = 0;
+ 
+     // Output tensors
+@@ -1105,15 +1105,15 @@ struct AttentionKernel {
+                       using EpilogueOutputOp = typename cutlass::epilogue::
+                           thread::MemoryEfficientAttentionNormalize<
+                               typename cutlass::platform::conditional<
+-                                  kIsLast,
++                                  kIsLast::value,
+                                   output_t,
+                                   output_accum_t>::type,
+                               output_accum_t,
+                               DefaultOp::kCount,
+                               typename DefaultOp::ElementAccumulator,
+                               ElementCompute,
+-                              kIsFirst,
+-                              kIsLast,
++                              kIsFirst::value,
++                              kIsLast::value,
+                               cutlass::Array<ElementCompute, kQueriesPerBlock>>;
+                       using Epilogue = typename cutlass::epilogue::threadblock::
+                           EpiloguePipelined<
+@@ -1121,7 +1121,7 @@ struct AttentionKernel {
+                               typename MM1::Mma::Operator,
+                               DefaultEpilogue::kPartitionsK,
+                               typename cutlass::platform::conditional<
+-                                  kIsLast,
++                                  kIsLast::value,
+                                   typename MM1::OutputTileIterator,
+                                   typename MM1::OutputTileIteratorAccum>::type,
+                               typename DefaultEpilogue::
+@@ -1139,7 +1139,7 @@ struct AttentionKernel {
+                       int col = blockN * MM1::Mma::Shape::kN;
+                       auto source_iter = createOutputAccumIter(col);
+                       auto dest_iter = call_conditional<
+-                          kIsLast,
++                          kIsLast::value,
+                           decltype(createOutputIter),
+                           decltype(createOutputAccumIter)>::
+                           apply(createOutputIter, createOutputAccumIter, col);
+diff --git a/onnxruntime/contrib_ops/cuda/moe/cutlass_extensions/epilogue/thread/fused_activations.h b/onnxruntime/contrib_ops/cuda/moe/cutlass_extensions/epilogue/thread/fused_activations.h
+index da8cb6d294efd..644caa950e5a4 100644
+--- a/onnxruntime/contrib_ops/cuda/moe/cutlass_extensions/epilogue/thread/fused_activations.h
++++ b/onnxruntime/contrib_ops/cuda/moe/cutlass_extensions/epilogue/thread/fused_activations.h
+@@ -67,27 +67,6 @@ __forceinline__ __device__ float tanh_opt(float x) {
+ #endif
+ }
+ 
+-/////////////////////////////////////////////////////////////////////////////////////////////////
+-template <>
+-struct GELU_taylor<float> {
+-  static bool const kIsHeavy = true;
+-
+-  CUTLASS_DEVICE
+-  float operator()(float const& z) const {
+-    float k0 = static_cast<float>(0.7978845608028654);
+-    float k1 = static_cast<float>(0.044715);
+-
+-    return static_cast<float>(
+-        cutlass::constants::half<float>() * z *
+-        (cutlass::constants::one<float>() + tanh_opt(k0 * z * (cutlass::constants::one<float>() + k1 * z * z))));
+-  }
+-
+-  using Params = LinearCombinationGenericParams<float>;
+-
+-  CUTLASS_DEVICE
+-  float operator()(float const& scalar, Params const& params_) const { return this->operator()(scalar); }
+-};
+-
+ }  // namespace thread
+ }  // namespace epilogue
+ }  // namespace cutlass

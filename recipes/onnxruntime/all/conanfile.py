@@ -18,12 +18,12 @@ class OnnxRuntimeConan(ConanFile):
     homepage = "https://onnxruntime.ai"
     topics = ("deep-learning", "onnx", "neural-networks", "machine-learning", "ai-framework", "hardware-acceleration")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "with_xnnpack": [True, False],
-        "with_cuda": [True, False],
+        "with_cuda": ["full", "minimal", False],
     }
     default_options = {
         "shared": False,
@@ -35,9 +35,23 @@ class OnnxRuntimeConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
+            del self.options.cuda_minimal
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -66,7 +80,14 @@ class OnnxRuntimeConan(ConanFile):
         if self.options.with_xnnpack:
             self.requires("xnnpack/[>=cci.20230715]")
         if self.options.with_cuda:
-            self.requires("cutlass/[^3.5.0]")
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.requires("cutlass/[^3.9.2]", options={"install_examples_headers": True})
+            if self.options.with_cuda == "full":
+                self.requires("cudnn-frontend/[^1]")
+                self.requires("cudnn/[^9]")
+                self._utils.cuda_requires(self, "cublas")
+                self._utils.cuda_requires(self, "curand")
+                self._utils.cuda_requires(self, "cufft")
 
     def validate(self):
         # https://github.com/microsoft/onnxruntime/blob/8f5c79cb63f09ef1302e85081093a3fe4da1bc7d/cmake/CMakeLists.txt#L43-L47
@@ -75,7 +96,9 @@ class OnnxRuntimeConan(ConanFile):
             raise ConanInvalidConfiguration("ONNX must be built with `-o onnx/*:disable_static_registration=True`.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.26 <5]")
+        self.tool_requires("cmake/[>=3.27 <5]")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -83,10 +106,13 @@ class OnnxRuntimeConan(ConanFile):
         copy(self, "onnxruntime_external_deps.cmake",
              src=os.path.join(self.export_sources_folder, "cmake"),
              dst=os.path.join(self.source_folder, "cmake", "external"))
+        save(self, "cmake/external/cudnn_frontend.cmake", "")
         # Let Conan manage the C++ standard
         replace_in_file(self, "cmake/CMakeLists.txt", "set(CMAKE_CXX_STANDARD ", "# set(CMAKE_CXX_STANDARD ")
         # Don't try to parse Git info
         replace_in_file(self, "cmake/CMakeLists.txt", "if (Git_FOUND)", "if (0)")
+        # Remove an unused cuSPARSE include
+        replace_in_file(self, "onnxruntime/core/providers/cuda/cuda_pch.h", "#include <cusparse.h>", "")
         if "1.17" <= Version(self.version) < "1.19":
             # https://github.com/microsoft/onnxruntime/commit/5bfca1dc576720627f3af8f65e25af408271079b
             replace_in_file(self, "cmake/onnxruntime_providers_cuda.cmake",
@@ -100,19 +126,28 @@ class OnnxRuntimeConan(ConanFile):
         tc.cache_variables["onnxruntime_ENABLE_CUDA_EP_INTERNAL_TESTS"] = False
         tc.cache_variables["onnxruntime_USE_FULL_PROTOBUF"] = not self.dependencies["protobuf"].options.lite
         tc.cache_variables["onnxruntime_USE_XNNPACK"] = self.options.with_xnnpack
-        tc.cache_variables["onnxruntime_USE_CUDA"] = self.options.with_cuda
+        tc.cache_variables["onnxruntime_USE_CUDA"] = bool(self.options.with_cuda)
+        tc.cache_variables["onnxruntime_CUDA_MINIMAL"] = self.options.with_cuda == "minimal"
 
-        tc.cache_variables["onnxruntime_ARMNN_BN_USE_CPU"] = False
-        tc.cache_variables["onnxruntime_ARMNN_RELU_USE_CPU"] = False
-        tc.cache_variables["onnxruntime_DISABLE_CONTRIB_OPS"] = False
-        tc.cache_variables["onnxruntime_DISABLE_EXCEPTIONS"] = False
-        tc.cache_variables["onnxruntime_DISABLE_RTTI"] = False
-        tc.cache_variables["onnxruntime_ENABLE_CPU_FP16_OPS"] = False
-        tc.cache_variables["onnxruntime_ENABLE_EAGER_MODE"] = False
-        tc.cache_variables["onnxruntime_ENABLE_LAZY_TENSOR"] = False
-        tc.cache_variables["onnxruntime_USE_FLASH_ATTENTION"] = False
-        tc.cache_variables["onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION"] = False
-        tc.cache_variables["onnxruntime_USE_NEURAL_SPEED"] = False
+        # TODO:  https://onnxruntime.ai/docs/execution-providers/
+        #  onnxruntime_USE_MIMALLOC
+        #  onnxruntime_ENABLE_DLPACK
+        #  onnxruntime_ENABLE_TRAINING
+        #  onnxruntime_USE_WEBGPU
+        #  onnxruntime_USE_COREML
+        #  onnxruntime_USE_SNPE
+        #  onnxruntime_ENABLE_CUDA_PROFILING (cupti)
+        #  onnxruntime_ENABLE_NVTX_PROFILE
+        #  onnxruntime_USE_NCCL
+        #  onnxruntime_ENABLE_TRAINING_OPS (MPI)
+        #  onnxruntime_USE_MIGRAPHX: migraphx / HIP
+        #  onnxruntime_USE_KLEIDIAI
+        #  onnxruntime_USE_TENSORRT
+        #  onnxruntime_BUILD_WEBASSEMBLY_STATIC_LIB
+        #  onnxruntime_USE_DNNL
+        #  onnxruntime_USE_VITISAI
+        #  onnxruntime_USE_OPENVINO
+        #  onnxruntime_USE_QNN
 
         tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
 
@@ -123,7 +158,12 @@ class OnnxRuntimeConan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("boost::headers", "cmake_target_name", "Boost::mp11")
         deps.set_property("flatbuffers", "cmake_target_name", "flatbuffers::flatbuffers")
+        deps.set_property("cudnn", "cmake_target_name", "CUDNN::cudnn_all")
         deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -151,6 +191,8 @@ class OnnxRuntimeConan(ConanFile):
             onnxruntime_libs = ["session", "optimizer", "providers", "framework", "graph", "util", "mlas", "common", "flatbuffers"]
             if self.options.with_xnnpack:
                 onnxruntime_libs.append("providers_xnnpack")
+            if self.options.with_cuda:
+                onnxruntime_libs.append("providers_cuda")
             self.cpp_info.libs = [f"onnxruntime_{lib}" for lib in onnxruntime_libs]
 
         if self.options.shared:
