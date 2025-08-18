@@ -35,6 +35,7 @@ class KokkosConan(ConanFile):
         "enable_openmp": False,
         "enable_serial": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -53,14 +54,6 @@ class KokkosConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -147,13 +140,3 @@ class KokkosConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "dl"])
-
-        # To export additional CMake variables, such as upper-case variables otherwise set by the project's *-config.cmake,
-        # you can copy or save a .cmake file under <prefix>/lib/cmake/ with content like
-        #     set(XYZ_VERSION ${${CMAKE_FIND_PACKAGE_NAME}_VERSION})
-        #     set(XYZ_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS})
-        #     ...
-        # and set the following fields:
-        # self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        # cmake_module = os.path.join("lib", "cmake", "conan-official-variables.cmake")
-        # self.cpp_info.set_property("cmake_build_modules", [cmake_module])
