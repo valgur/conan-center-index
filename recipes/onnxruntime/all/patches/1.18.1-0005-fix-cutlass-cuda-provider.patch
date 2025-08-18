@@ -8,7 +8,7 @@ index 1346a9ce96..f40661d4bd 100644
  
 -    include(cutlass)
 -    target_include_directories(${target} PRIVATE ${cutlass_SOURCE_DIR}/include ${cutlass_SOURCE_DIR}/examples ${cutlass_SOURCE_DIR}/tools/util/include)
-+    find_package(NvidiaCutlass)
++    find_package(NvidiaCutlass REQUIRED)
 +    target_link_libraries(${target} PRIVATE nvidia::cutlass::cutlass)
  
      target_include_directories(${target} PRIVATE ${ONNXRUNTIME_ROOT} ${CMAKE_CURRENT_BINARY_DIR}  ${eigen_INCLUDE_DIRS} ${TVM_INCLUDES}
