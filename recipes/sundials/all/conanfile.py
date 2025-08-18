@@ -5,13 +5,11 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SundialsConan(ConanFile):
@@ -21,9 +19,8 @@ class SundialsConan(ConanFile):
                    " and nonlinear solvers that can easily be incorporated into existing simulation codes.")
     topics = ("integrators", "ode", "non-linear-solvers")
     homepage = "https://github.com/LLNL/sundials"
-    url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -60,31 +57,23 @@ class SundialsConan(ConanFile):
         "index_size": 64,
         "precision": "double",
     }
+    implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        copy(self, "*.cmake", self.recipe_folder, self.export_sources_folder)
+    python_requires = "conan-utils/latest"
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if Version(self.version) < "5.5.0":
-            del self.options.with_cuda
-            del self.options.with_ginkgo
-            del self.options.with_klu
-            del self.options.with_lapack
-            del self.options.with_mpi
-            del self.options.with_openmp
         elif Version(self.version) < "6.0":
             del self.options.with_ginkgo
-        if not self.options.get_safe("with_cuda"):
-            self.settings.rm_safe("compiler.cppstd")
-            self.settings.rm_safe("compiler.libcxx")
-        if self.options.get_safe("with_mpi"):
-            self.options["openmpi"].enable_cxx = True
+        if not self.options.with_cuda:
+            del self.settings.cuda
+        if not self.options.with_cuda and not self.options.with_mpi:
+            self.languages = ["C"]
 
     def package_id(self):
         # Ginkgo is only used in an INTERFACE component
@@ -102,17 +91,22 @@ class SundialsConan(ConanFile):
         # - mpi: sundials/sundials_types.h, sundials/priv/sundials_mpi_errors_impl.h
         if self.options.get_safe("with_ginkgo"):
             self.requires("ginkgo/1.8.0", transitive_headers=True, transitive_libs=True)
-        if self.options.get_safe("with_klu"):
+        if self.options.with_klu:
             self.requires("suitesparse-klu/[^2.3.5]", transitive_headers=True, transitive_libs=True)
-        if self.options.get_safe("with_lapack"):
+        if self.options.with_lapack:
             self.requires("openblas/[>=0.3.28 <1]")
-        if self.options.get_safe("with_mpi"):
-            self.requires("openmpi/[^4.1.6]", transitive_headers=True, transitive_libs=True)
-        if self.options.get_safe("with_openmp"):
+        if self.options.with_mpi:
+            self.requires("openmpi/[^4.1.6]", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})
+        if self.options.with_openmp:
             self.requires("openmp/system")
+        if self.options.with_cuda:
+            self._utils.cuda_requires(self, "cudart")
+            if self.options.index_size == 32:
+                self._utils.cuda_requires(self, "cusparse")
+                self._utils.cuda_requires(self, "cusolver")
 
     def validate(self):
-        if self.options.get_safe("with_klu") and self.options.precision != "double":
+        if self.options.with_klu and self.options.precision != "double":
             # https://github.com/LLNL/sundials/blob/v7.1.1/cmake/tpl/SundialsKLU.cmake#L40
             raise ConanInvalidConfiguration("-o sundials/*:with_klu=True is only compatible with -o sundials/*:precision=double")
         if self.options.precision == "extended":
@@ -121,15 +115,19 @@ class SundialsConan(ConanFile):
             for opt in ["with_cuda", "with_ginkgo", "with_lapack"]:
                 if self.options.get_safe(opt):
                     raise ConanInvalidConfiguration(f"-o sundials/*:{opt}=True is not compatible with -o sundials/*:precision=extended")
-        if self.options.get_safe("with_mpi") and not self.dependencies["openmpi"].options.get_safe("enable_cxx"):
+        if self.options.with_mpi and not self.dependencies["openmpi"].options.enable_cxx:
             raise ConanInvalidConfiguration("-o openmpi/*:enable_cxx=True is required for -o sundials/*:with_mpi=True")
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
-        if Version(self.version) >= "7.0":
-            self.tool_requires("cmake/[>=3.18 <5]")
+        self.tool_requires("cmake/[>=3.18 <5]")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        save(self, "examples/CMakeLists.txt", "")
 
     @property
     def _ginkgo_backends(self):
@@ -143,8 +141,6 @@ class SundialsConan(ConanFile):
         return backends
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_Fortran_COMPILER"] = ""
         tc.variables["EXAMPLES_ENABLE_C"] = False
@@ -152,8 +148,6 @@ class SundialsConan(ConanFile):
         tc.variables["EXAMPLES_INSTALL"] = False
         tc.variables["BUILD_BENCHMARKS"] = False
         tc.variables["SUNDIALS_TEST_UNITTESTS"] = False
-        if Version(self.version) <= "5.4.0":
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
 
         # https://github.com/LLNL/sundials/blob/v7.1.1/cmake/SundialsBuildOptionsPre.cmake
@@ -168,12 +162,12 @@ class SundialsConan(ConanFile):
         tc.variables["BUILD_KINSOL"] = self.options.build_kinsol
 
         # https://github.com/LLNL/sundials/blob/v7.1.1/cmake/SundialsTPLOptions.cmake
-        tc.variables["ENABLE_MPI"] = self.options.get_safe("with_mpi", False)
-        tc.variables["ENABLE_OPENMP"] = self.options.get_safe("with_openmp", False)
-        tc.variables["ENABLE_CUDA"] = self.options.get_safe("with_cuda", False)
+        tc.variables["ENABLE_MPI"] = self.options.with_mpi
+        tc.variables["ENABLE_OPENMP"] = self.options.with_openmp
+        tc.variables["ENABLE_CUDA"] = self.options.with_cuda
         tc.variables["ENABLE_HIP"] = False
         tc.variables["ENABLE_SYCL"] = False
-        tc.variables["ENABLE_LAPACK"] = self.options.get_safe("with_lapack", False)
+        tc.variables["ENABLE_LAPACK"] = self.options.with_lapack
         tc.variables["LAPACK_WORKS"] = True
         tc.variables["ENABLE_GINKGO"] = self.options.get_safe("with_ginkgo", False)
         tc.variables["SUNDIALS_GINKGO_BACKENDS"] = ";".join(self._ginkgo_backends)
@@ -181,7 +175,7 @@ class SundialsConan(ConanFile):
         tc.variables["ENABLE_MAGMA"] = False
         tc.variables["ENABLE_SUPERLUDIST"] = False
         tc.variables["ENABLE_SUPERLUMT"] = False
-        tc.variables["ENABLE_KLU"] = self.options.get_safe("with_klu", False)
+        tc.variables["ENABLE_KLU"] = self.options.with_klu
         tc.variables["KLU_WORKS"] = True
         tc.variables["ENABLE_HYPRE"] = False
         tc.variables["ENABLE_PETSC"] = False
@@ -203,18 +197,24 @@ class SundialsConan(ConanFile):
         tc.variables["SUNDIALS_LAPACK_CASE"] = "lower"
         tc.variables["SUNDIALS_LAPACK_UNDERSCORES"] = "one"
 
+        if self.options.with_cuda:
+            tc.cache_variables["CMAKE_CUDA_ARCHITECTURES"] = str(self.settings.cuda.architectures).replace(",", ";")
+
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.set_property("suitesparse-klu", "cmake_target_name", "SUNDIALS::KLU")
         deps.generate()
 
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
+
     def _patch_sources(self):
-        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
         if self.options.get_safe("with_ginkgo"):
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "tpl", "SundialsGinkgo.cmake"),
                             "NO_DEFAULT_PATH", "")
-        if self.options.get_safe("with_mpi"):
+        if self.options.with_mpi:
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "tpl", "SundialsMPI.cmake"),
                             "find_package(MPI 2.0.0 REQUIRED)", "find_package(MPI REQUIRED)")
 
@@ -234,8 +234,6 @@ class SundialsConan(ConanFile):
                 shutil.move(dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path)))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         fix_apple_shared_install_name(self)
-        if self.options.get_safe("with_cuda"):
-            copy(self, "conan-cuda-support.cmake", self.export_sources_folder, os.path.join(self.package_folder, "lib", "cmake", "sundials"))
 
     def package_info(self):
         # https://github.com/LLNL/sundials/blob/v7.1.1/cmake/SUNDIALSConfig.cmake.in
@@ -272,7 +270,7 @@ class SundialsConan(ConanFile):
 
         if core_lib:
             _add_lib(core_lib)
-            if self.options.get_safe("with_mpi"):
+            if self.options.with_mpi:
                 self.cpp_info.components[core_lib].requires.append("openmpi::openmpi")
 
         if self.options.build_arkode:
@@ -289,9 +287,9 @@ class SundialsConan(ConanFile):
             _add_lib("kinsol")
 
         _add_lib("nvecserial")
-        if self.options.get_safe("with_mpi"):
+        if self.options.with_mpi:
             _add_lib("nvecmanyvector", requires=["openmpi::openmpi"])
-        if self.options.get_safe("with_openmp"):
+        if self.options.with_openmp:
             _add_lib("nvecopenmp", requires=["openmp::openmp"])
 
         _add_lib("sunmatrixband")
@@ -310,27 +308,17 @@ class SundialsConan(ConanFile):
         if self.options.get_safe("with_ginkgo"):
             _add_lib("sunmatrixginkgo", interface=True, requires=["ginkgo::ginkgo"])
             _add_lib("sunlinsolginkgo", interface=True, requires=["ginkgo::ginkgo"])
-        if self.options.get_safe("with_klu"):
+        if self.options.with_klu:
             _add_lib("sunlinsolklu", requires=["sunmatrixsparse", "suitesparse-klu::suitesparse-klu"])
-        if self.options.get_safe("with_lapack"):
+        if self.options.with_lapack:
             _add_lib("sunlinsollapackband", requires=["sunmatrixband", "openblas::openblas"])
             _add_lib("sunlinsollapackdense", requires=["sunmatrixdense", "openblas::openblas"])
 
         _add_lib("sunnonlinsolfixedpoint")
         _add_lib("sunnonlinsolnewton")
 
-        if self.options.get_safe("with_cuda"):
-            system_libs = []
-            if self.settings.os in ["Linux", "FreeBSD"]:
-                system_libs.extend(["rt", "pthread", "dl"])
-            if stdcpp_library(self):
-                system_libs.append(stdcpp_library(self))
-
-            _add_lib("nveccuda", system_libs=system_libs)
+        if self.options.with_cuda:
+            _add_lib("nveccuda", requires=["cudart::cudart_"])
             if self.options.index_size == 32:
-                _add_lib("sunmatrixcusparse", system_libs=system_libs) # + cusparse
-                _add_lib("sunlinsolcusolversp", requires=["sunmatrixcusparse"], system_libs=system_libs) # + cusolver
-
-            self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "sundials"))
-            cmake_module = os.path.join("lib", "cmake", "sundials", "conan-cuda-support.cmake")
-            self.cpp_info.set_property("cmake_build_modules", [cmake_module])
+                _add_lib("sunmatrixcusparse", requires=["cusparse::cusparse"])
+                _add_lib("sunlinsolcusolversp", requires=["sunmatrixcusparse", "cusolver::cusolver_"])
