@@ -17,19 +17,25 @@ class CrossDBConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/crossdb-org/crossdb"
     topics = ("database", "oltp", "embedded")
-    package_type = "shared-library"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"${self.ref} does not support MSVC")
+            raise ConanInvalidConfiguration("MSVC is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,5 +61,5 @@ class CrossDBConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["crossdb"]
 
-        if Version(self.version) >= "0.10.0" and self.settings.os in ["Linux", "FreeBSD"]:
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
