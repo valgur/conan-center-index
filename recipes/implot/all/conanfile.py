@@ -29,20 +29,22 @@ class ImplotConan(ConanFile):
     implements = ["auto_shared_fpic"]
 
     def export_sources(self):
+        export_conandata_patches(self)
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     @property
     def _version_range(self):
         v = Version(self.version)
+        if v >= "0.17":
+            return "^1"
         if v >= "0.15":
             return "^1 <1.92"
         if v >= "0.14":
             return "^1 <1.91"
-        elif v >= "0.13":
+        if v >= "0.13":
             # imgui 1.89 renamed ImGuiKeyModFlags_* to  ImGuiModFlags_*
             return "^1 <1.90"
-        else:
-            return "^1 <1.87"
+        return "^1 <1.87"
 
     def requirements(self):
         self.requires(f"imgui/[{self._version_range}]", transitive_headers=True)
@@ -56,6 +58,7 @@ class ImplotConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)

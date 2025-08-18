@@ -1,4 +1,7 @@
 sources:
+  "0.17.cci.20250319":
+    url: "https://github.com/epezent/implot/archive/3da8bd34299965d3b0ab124df743fe3e076fa222.zip"
+    sha256: "e9b439a94aa6f09fcf12ed9c2cd784efe5e99e96242122aa683e690b29f7a59f"
   "0.16":
     url: "https://github.com/epezent/implot/archive/v0.16.tar.gz"
     sha256: "961df327d8a756304d1b0a67316eebdb1111d13d559f0d3415114ec0eb30abd1"
