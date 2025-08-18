@@ -20,20 +20,23 @@ class GlimPackage(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "march_native": [True, False],
         "cuda": [True, False],
         "viewer": [True, False],
     }
     default_options = {
-        "march_native": False,
         "cuda": False,
-        "viewer": True,
+        "viewer": False,
+        "boost/*:with_serialization": True,
+        "boost/*:with_filesystem": True,
+        "boost/*:with_graph": True,
     }
 
     def configure(self):
         # Make OpenCV a bit more lightweight
         self.options["opencv"].with_ffmpeg = False
         self.options["opencv"].with_tesseract = False
+        if self.options.cuda:
+            self.options["gtsam_points"].cuda = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -45,20 +48,21 @@ class GlimPackage(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/[~4.2]", transitive_headers=True, transitive_libs=True)
-        self.requires("gtsam_points/[^1.0.6]", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
+        self.requires("gtsam_points/[^1.0.6]", transitive_headers=True, transitive_libs=True)
         self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
-        self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[^1.8 <1.15]", transitive_headers=True, transitive_libs=True)
         self.requires("fmt/[<11]", transitive_headers=True, transitive_libs=True)
         if self.options.viewer:
             self.requires("iridescence/[>=0.1.3 <1]", transitive_headers=True, transitive_libs=True)
-        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, options={"with_serialization": True})
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
-
         if self.options.cuda and not self.dependencies["gtsam_points"].options.cuda:
             raise ConanInvalidConfiguration("-o glim/*:cuda=True requires -o gtsam_points/*:cuda=True")
+        if not self.dependencies["boost"].options.with_serialization:
+            raise ConanInvalidConfiguration("-o boost/*:with_serialization=True is required")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <5]")
@@ -72,12 +76,17 @@ class GlimPackage(ConanFile):
         replace_in_file(self, "CMakeLists.txt", "DEFINED ENV{ROS_VERSION}", "FALSE")
         # Avoid overlinking of OpenCV
         replace_in_file(self, "CMakeLists.txt", "${OpenCV_LIBRARIES}", "opencv_core")
+        # GTSAM from Conan does not vendor Eigen
+        replace_in_file(self, "src/glim/util/debug.cpp",
+                        'logger->debug("GTSAM_EIGEN_VERSION=',
+                        '// logger->debug("GTSAM_EIGEN_VERSION=')
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_WITH_MARCH_NATIVE"] = self.options.march_native
         tc.variables["BUILD_WITH_CUDA"] = self.options.cuda
         tc.variables["BUILD_WITH_VIEWER"] = self.options.viewer
+        tc.variables["BUILD_WITH_MARCH_NATIVE"] = False
+        tc.variables["GTSAM_POINTS_USE_CUDA"] = self.options.cuda
         tc.generate()
 
         deps = CMakeDeps(self)
