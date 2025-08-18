@@ -132,11 +132,17 @@ class LibpqConan(ConanFile):
             for dep in host_deps:
                 system_libs.extend(dep.cpp_info.aggregated_components().system_libs)
 
-            linked_system_libs = ", ".join(["'{}.lib'".format(lib) for lib in system_libs])
+            linked_libs = ", ".join([f"'{lib}.lib'" for lib in system_libs])
+            if "openssl" in self.dependencies.direct_host and "zlib" in self.dependencies.host["openssl"].dependencies \
+                and not self.dependencies.host['openssl'].options.shared:
+                zlib_cpp_info = self.dependencies["zlib"].cpp_info.aggregated_components()
+                zlib_link_lib = os.path.join(zlib_cpp_info.libdir, f"{zlib_cpp_info.libs[0]}.lib")
+                linked_libs += f",'{zlib_link_lib}'"
+
             libraries_pattern = "libraries             => []," if Version(self.version) < '16' else "libraries => [],"
             replace_in_file(self,os.path.join(self.source_folder, "src", "tools", "msvc", "Project.pm"),
                                   libraries_pattern,
-                                  "libraries             => [{}],".format(linked_system_libs))
+                                  "libraries             => [{}],".format(linked_libs))
             runtime = {
                 "MT": "MultiThreaded",
                 "MTd": "MultiThreadedDebug",
@@ -174,7 +180,7 @@ class LibpqConan(ConanFile):
                                       "openssl   => '%s'" % openssl.package_folder.replace("\\", "/"))
             if self.options.with_icu:
                 libicu = self.dependencies["icu"]
-                iculibdir = libicu.cpp_info.components["icu"].libdirs[0]
+                iculibdir = libicu.cpp_info.components["icu"].libdir
                 replace_in_file(self, solution_pm, "\\lib64\\icu", f"\\{iculibdir}\\icu")
                 icu_undef = "icu => undef" if Version(self.version) >= "16.0" else "icu       => undef"
                 replace_in_file(self,config_default_pl,
@@ -310,4 +316,3 @@ class LibpqConan(ConanFile):
             self.cpp_info.components["pgcommon"].system_libs = ["m"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["pq"].system_libs = ["ws2_32", "secur32", "advapi32", "shell32", "crypt32", "wldap32"]
-
