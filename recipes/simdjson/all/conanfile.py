@@ -31,21 +31,17 @@ class SimdjsonConan(ConanFile):
         "threads": True,
     }
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        if Version(self.version) < "3.12.0":
-            self.license = "Apache-2.0"
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def validate(self):
+    def validate_build(self):
         check_min_cppstd(self, 17)
+
+    def validate(self):
+        # https://github.com/simdjson/simdjson/blob/0c0ce1bd48baa0677dc7c0945ea7cd1e8b52b297/CMakeLists.txt#L103
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
