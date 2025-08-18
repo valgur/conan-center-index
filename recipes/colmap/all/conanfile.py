@@ -100,9 +100,8 @@ class ColmapConan(ConanFile):
             self.requires("glew/2.2.0")
             self.requires("opengl/system")
         if self.options.cuda:
-            curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-            self.requires(f"curand/[{curand_range}]", transitive_headers=True, transitive_libs=True)
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+            self._utils.cuda_requires(self, "curand", transitive_headers=True, transitive_libs=True)
         # TODO: unvendor VLFeat, PoissonRecon, LSD, SiftGPU
         # self.requires("vlfeat/0.9.21", transitive_headers=True, transitive_libs=True)
 

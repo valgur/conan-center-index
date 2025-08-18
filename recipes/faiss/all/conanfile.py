@@ -68,10 +68,9 @@ class FaissRecipe(ConanFile):
         else:
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_cuda:
-            curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"cublas/[~{self.settings.cuda.version}]")
-            self.requires(f"curand/[{curand_range}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "cublas")
+            self._utils.cuda_requires(self, "curand")
             self.requires(f"cuda-profiler-api/[~{self.settings.cuda.version}]")
 
     def validate(self):

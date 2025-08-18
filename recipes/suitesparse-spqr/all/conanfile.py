@@ -57,9 +57,9 @@ class SuiteSparseSpqrConan(ConanFile):
         self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
 
         if self.options.cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
-            self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True)
-            self.requires(f"nvrtc/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
+            self._utils.cuda_requires(self, "cublas", transitive_headers=True)
+            self._utils.cuda_requires(self, "nvrtc")
 
     def validate(self):
         if not self.dependencies["openblas"].options.build_lapack:

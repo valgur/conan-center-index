@@ -117,8 +117,8 @@ class LibfabricConan(ConanFile):
         if self.options.efa or self.options.verbs:
             self.requires("rdma-core/[*]")
         if self.options.cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "nvml-stubs")
             if self.options.gdrcopy:
                 self.requires("gdrcopy/[^2.5]")
         if self.options.lttng:

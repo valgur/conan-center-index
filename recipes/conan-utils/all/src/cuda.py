@@ -22,7 +22,7 @@ cuda_supported_arch_ranges = {
     13: (75, None),
 }
 
-packages_following_ctk_major_version = {
+packages_following_ctk_minor_version = {
     "cublas",
     "cuda-crt",
     "cuda-driver-stubs",
@@ -37,11 +37,14 @@ packages_following_ctk_major_version = {
     "npp",
     "nvcc",
     "nvfatbin",
-    "nvjpeg",
     "nvml-stubs",
     "nvptxcompiler",
     "nvrtc",
     "nvvm",
+}
+packages_following_ctk_major_version = {
+    "npp",
+    "nvjpeg",
 }
 
 
@@ -200,7 +203,7 @@ def validate_cuda_package(conanfile: ConanFile, package_name: str):
             suff = "s" if len(package_info['cuda_variant']) > 1 else ""
             raise ConanInvalidConfiguration(f"{conanfile.ref} only supports CUDA major version{suff} {supported} and"
                                             f" is not compatible with cuda.version={conanfile.settings.cuda.version}")
-    if conanfile.name in packages_following_ctk_major_version:
+    if conanfile.name in packages_following_ctk_minor_version or package_name in packages_following_ctk_major_version:
         if Version(conanfile.version).major != Version(str(conanfile.settings.cuda.version)).major:
             raise ConanInvalidConfiguration(
                 f"Package version is not compatible with cuda.version={conanfile.settings.cuda.version}"
@@ -301,10 +304,12 @@ def get_version_range(package_name, cuda_version):
     """Returns the version range that is compatible with the given CUDA (major) version for a CUDA Toolkit package."""
     cuda_version = Version(str(cuda_version))
     cuda_major = int(cuda_version.major.value)
-    if package_name in packages_following_ctk_major_version:
+    if package_name in packages_following_ctk_minor_version:
         if cuda_version.minor is None:
-            return f"~{cuda_major}"
+            return f"^{cuda_major}"
         return f"~{cuda_version.major}.{cuda_version.minor}"
+    if package_name in packages_following_ctk_major_version:
+        return f"^{cuda_major}"
     if package_name == "cuda-cccl":
         if cuda_major >= 13:
             return "^3"
@@ -340,6 +345,18 @@ def get_version_range(package_name, cuda_version):
     raise ConanException(f"Unknown CUDA package name: {package_name}")
 
 
+def cuda_requires(conanfile: ConanFile, package_name: str, **kwargs):
+    """A convenience function to require a CUDA package with the correct version range.
+    It will automatically determine the version range based on the cuda.version setting.
+
+    :param conanfile: The current recipe object. Always use ``self``.
+    :param package_name: Name of the CUDA package, e.g. "cudart", "cublas", etc.
+    :param kwargs: Additional keyword arguments to pass to `conanfile.requires()`.
+    """
+    version_range = get_version_range(package_name, conanfile.settings.cuda.version)
+    conanfile.requires(f"{package_name}/[{version_range}]", **kwargs)
+
+
 __all__ = [
     "NvccToolchain",
     "validate_cuda_settings",
@@ -352,5 +369,6 @@ __all__ = [
     "check_min_cuda_architecture",
     "cuda_supported_arch_ranges",
     "require_shared_deps",
-    "get_version_range"
+    "get_version_range",
+    "cuda_requires",
 ]

@@ -72,9 +72,9 @@ class SuiteSparseCholmodConan(ConanFile):
         # but it has been modified to not conflict with the general version
 
         if self.options.cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
-            self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True)
-            self.requires(f"nvrtc/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
+            self._utils.cuda_requires(self, "cublas", transitive_headers=True)
+            self._utils.cuda_requires(self, "nvrtc")
 
     def validate(self):
         if self.options.build_supernodal and not self.dependencies["openblas"].options.build_lapack:

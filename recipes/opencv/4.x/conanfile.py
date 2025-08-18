@@ -1263,18 +1263,16 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_clp"):
             self.requires("coin-clp/[^1.17.6]")
         if self.options.with_cuda:
-            cuda_major = int(Version(self.settings.cuda.version).major.value)
             # Used in opencv2/cudev/ public headers
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True)
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
             if self.options.with_cublas:
-                self.requires(f"cublas/[~{self.settings.cuda.version}]")
+                self._utils.cuda_requires(self, "cublas")
             if self.options.with_cufft:
-                cufft_range = self._utils.get_version_range("cufft", self.settings.cuda.version)
-                self.requires(f"cufft/[{cufft_range}]")
+                self._utils.cuda_requires(self, "cufft")
             if self.options.get_safe("dnn_cuda"):
                 self.requires("cudnn/[>=8 <10]")
             if any(self.options.get_safe(mod) for mod in ["cudaarithm", "cudaimgproc", "cudafilters", "cudawarping"]):
-                self.requires(f"npp/[^{cuda_major}]")
+                self._utils.cuda_requires(self, "npp")
         if self.options.parallel == "openmp":
             self.requires("openmp/system")
         elif self.options.parallel == "tbb":

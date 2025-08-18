@@ -142,12 +142,10 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_OpenMP"):
             self.requires("openmp/system")
         if self.options.get_safe("use_cuda"):
-            cusparse_range = self._utils.get_version_range("cusparse", self.settings.cuda.version)
-            cusolver_range = self._utils.get_version_range("cusolver", self.settings.cuda.version)
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"cublas/[~{self.settings.cuda.version}]")
-            self.requires(f"cusparse/[{cusparse_range}]")
-            self.requires(f"cusolver/[{cusolver_range}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "cublas")
+            self._utils.cuda_requires(self, "cusparse")
+            self._utils.cuda_requires(self, "cusolver")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

@@ -65,8 +65,8 @@ class HwlocConan(ConanFile):
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "nvml-stubs")
         if self.options.with_opencl:
             self.requires("opencl-icd-loader/[*]")
         if self.options.with_oneapi:

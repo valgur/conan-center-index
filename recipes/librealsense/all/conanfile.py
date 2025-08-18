@@ -68,10 +68,9 @@ class LibrealsenseConan(ConanFile):
         # Used only in .cpp files
         self.requires("openmp/system")
         if self.options.with_cuda:
-            cusparse_range = self._utils.get_version_range("cusparse", self.settings.cuda.version)
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"cublas/[~{self.settings.cuda.version}]")
-            self.requires(f"cusparse/[{cusparse_range}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "cublas")
+            self._utils.cuda_requires(self, "cusparse")
 
     def validate(self):
         check_min_cppstd(self, 14)

@@ -67,9 +67,9 @@ class TensorpipeConan(ConanFile):
         self.requires("libnop/cci.20211103")
         self.requires("libuv/[^1.45.0]")
         if self.options.cuda:
-            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, libs=False)
-            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]", libs=False)
+            self._utils.cuda_requires(self, "cuda-driver-stubs")
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, libs=False)
+            self._utils.cuda_requires(self, "nvml-stubs", libs=False)
 
     def validate(self):
         if self.settings.os == "Windows":

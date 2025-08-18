@@ -78,8 +78,8 @@ class NvshmemConan(ConanFile):
         del self.info.settings.cuda.version
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "nvml-stubs")
         self.requires("nvtx/[^3]")
         if self.options.with_nccl:
             self.requires("nccl/[^2]")

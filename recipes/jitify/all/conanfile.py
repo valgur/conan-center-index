@@ -29,7 +29,7 @@ class JitifyConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        self.requires(f"nvrtc/[~{self.settings.cuda.version}]")
+        self._utils.cuda_requires(self, "nvrtc")
 
     def validate(self):
         self._utils.validate_cuda_settings(self)

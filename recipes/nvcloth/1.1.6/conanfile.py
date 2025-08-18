@@ -58,7 +58,7 @@ class NvclothConan(ConanFile):
 
     def requirements(self):
         if self.options.use_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os not in ["Windows", "Linux", "FreeBSD", "Macos", "Android", "iOS"]:

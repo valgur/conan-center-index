@@ -60,8 +60,8 @@ class CuDssConan(ConanFile):
         return self.dependencies["cudart"].ref.version
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"cublas/[~{self.settings.cuda.version}]")
+        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cublas")
         if self.options.commlayer_nccl:
             self.requires("nccl/[^2]")
         if self.options.commlayer_mpi:

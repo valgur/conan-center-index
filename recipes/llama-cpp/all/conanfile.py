@@ -72,8 +72,8 @@ class LlamaCppConan(ConanFile):
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"cublas/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "cublas")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

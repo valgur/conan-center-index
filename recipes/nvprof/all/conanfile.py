@@ -36,8 +36,7 @@ class NvprofConan(ConanFile):
         self._utils.validate_cuda_package(self, "cuda_nvprof")
 
     def requirements(self):
-        v = Version(self.version)
-        self.requires(f"cupti/[~{v.major}.{v.minor}]", run=True, visible=True, options={"shared": True})
+        self._utils.cuda_requires(self, "cupti", run=True, visible=True, options={"shared": True})
 
     def build(self):
         self._utils.download_cuda_package(self, "cuda_nvprof")

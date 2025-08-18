@@ -124,9 +124,9 @@ class OpenUCXConan(ConanFile):
         if self.options.openmp:
             self.requires("openmp/system")
         if self.options.cuda:
-            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cuda-driver-stubs")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "nvml-stubs")
         if self.options.xpmem:
             self.requires("xpmem/[^2.6.5]")
 

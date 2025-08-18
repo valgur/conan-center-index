@@ -87,13 +87,11 @@ class DlibConan(ConanFile):
             self.requires("openblas/[>=0.3.28 <1]")
 
         if self.options.with_cuda:
-            cusolver_range = self._utils.get_version_range("cusolver", self.settings.cuda.version)
-            curand_range = self._utils.get_version_range("curand", self.settings.cuda.version)
             # Used in public dlib/cuda/cuda_utils.h
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-            self.requires(f"cublas/[~{self.settings.cuda.version}]")
-            self.requires(f"cusolver/[{cusolver_range}]")
-            self.requires(f"curand/[{curand_range}]")
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+            self._utils.cuda_requires(self, "cublas")
+            self._utils.cuda_requires(self, "cusolver")
+            self._utils.cuda_requires(self, "curand")
             self.requires("cudnn/[>=8 <10]")
 
     def validate(self):

@@ -64,12 +64,11 @@ class CuSolverConan(ConanFile):
         return Version(url.rsplit("_")[1].replace(".json", ""))
 
     def requirements(self):
-        cusparse_range = self._utils.get_version_range("cusparse", self.settings.cuda.version)
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"cusparse/[{cusparse_range}]", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cublas", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "culibos")
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusolver")

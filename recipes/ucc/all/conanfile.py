@@ -70,9 +70,9 @@ class UccConan(ConanFile):
             "verbs": self.options.mlx5,
         })
         if self.options.cuda:
-            self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]")
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
-            self.requires(f"nvml-stubs/[~{self.settings.cuda.version}]")
+            self._utils.cuda_requires(self, "cuda-driver-stubs")
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "nvml-stubs")
         if self.options.nccl:
             self.requires("nccl/[^2]")
         if self.options.mlx5:
