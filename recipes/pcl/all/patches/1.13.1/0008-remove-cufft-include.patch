@@ -1,0 +1,27 @@
+--- a/cuda/common/include/pcl/cuda/cutil_inline_runtime.h
++++ b/cuda/common/include/pcl/cuda/cutil_inline_runtime.h
+@@ -24,8 +24,6 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+-
+-#include <cufft.h>
+ 
+ // We define these calls here, so the user doesn't need to include __FILE__ and __LINE__
+ // The advantage is the developers gets to use the inline function so they can debug
+@@ -266,15 +264,6 @@
+     if ( cudaSuccess != err) {
+         FPRINTF((stderr, "%s(%i) : cudaDeviceSynchronize() Runtime API error : %s.\n",
+                 file, line, cudaGetErrorString( err) ));
+-        exit(-1);
+-    }
+-}
+-
+-inline void __cufftSafeCall( cufftResult err, const char *file, const int line )
+-{
+-    if( CUFFT_SUCCESS != err) {
+-        FPRINTF((stderr, "%s(%i) : cufftSafeCall() CUFFT error.\n",
+-                file, line));
+         exit(-1);
+     }
+ }

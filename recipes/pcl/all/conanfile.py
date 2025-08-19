@@ -20,7 +20,7 @@ class PclConan(ConanFile):
     homepage = "https://github.com/PointCloudLibrary/pcl"
     topics = ("computer vision", "point cloud", "pointcloud", "3d", "pcd", "ply", "stl", "ifs", "vtk")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -155,6 +155,12 @@ class PclConan(ConanFile):
         "use_sse": True,
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     # The component details have been extracted from their CMakeLists.txt files using
     # https://gist.github.com/valgur/e54e39b6a8931b58cc1776515104c828
     @property
@@ -209,7 +215,7 @@ class PclConan(ConanFile):
             return []
         return {
             "boost": ["boost::headers", "boost::filesystem", "boost::iostreams"],
-            "cuda": [],
+            "cuda": ["cudart::cudart_", "cuda-cccl::cuda-cccl"],
             "davidsdk": [],
             "dssdk": [],
             "eigen": ["eigen::eigen"],
@@ -332,6 +338,8 @@ class PclConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
         self.options["boost"].with_filesystem = True
         self.options["boost"].with_iostreams = True
 
@@ -413,9 +421,17 @@ class PclConan(ConanFile):
             })
         if self._is_enabled("rssdk2"):
             self.requires("librealsense/[^2.49.0]")
+        if self._is_enabled("cuda"):
+            if Version(self.version) < "1.15.1" and Version(self.settings.cuda.version).major == 12:
+                self.requires("cuda-cccl/[^2 <2.8]")
+            self._utils.cuda_requires(self, "cudart")
+            if self.options.gpu_people:
+                self._utils.cuda_requires(self, "npp")
+            if self.options.gpu_tracking:
+                self._utils.cuda_requires(self, "curand")
+
         # TODO:
         # self.requires("openni/x.x.x", transitive_headers=True)
-        # self.requires("openni2/x.x.x", transitive_headers=True)
         # self.requires("ensenso/x.x.x", transitive_headers=True)
         # self.requires("davidsdk/x.x.x", transitive_headers=True)
         # self.requires("dssdk/x.x.x", transitive_headers=True)
@@ -444,16 +460,41 @@ class PclConan(ConanFile):
                     raise ConanInvalidConfiguration(
                         f"'{dep}=True' is required when '{component}' is enabled."
                     )
-
         check_min_cppstd(self, 17)
+        if self._is_enabled("cuda"):
+            self._utils.validate_cuda_settings(self)
+            cuda_version = Version(self.settings.cuda.version)
+            if self.options.get_safe("gpu_people") and cuda_version >= "12.0":
+                raise ConanInvalidConfiguration("gpu_people module does not support CUDA 12 or newer")
+            if Version(self.version) < "1.15.1" and cuda_version >= "13.0":
+                raise ConanInvalidConfiguration("CUDA 13 or newer is only supported since PCL 1.15.1")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
+            self.tool_requires("cmake/[>=3.18]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+        # Let Conan set these
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD", "# set(CMAKE_CXX_STANDARD")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CUDA_STANDARD", "# set(CMAKE_CUDA_STANDARD")
+        replace_in_file(self, "CMakeLists.txt", "set(PCL_CXX_COMPILE_FEATURES", "# set(PCL_CXX_COMPILE_FEATURES")
+
+        # Fix CUDA library dirs not being set
+        replace_in_file(self, "cmake/pcl_find_cuda.cmake",
+                        "set(CUDA_TOOLKIT_INCLUDE ${CUDAToolkit_INCLUDE_DIRS})",
+                        "set(CUDA_TOOLKIT_INCLUDE ${CUDAToolkit_INCLUDE_DIRS})\n"
+                        "link_directories(${CUDAToolkit_LIBRARY_DIR})")
+
+        # Fix a missing curand dep
+        replace_in_file(self, "gpu/tracking/CMakeLists.txt",
+                        "pcl_gpu_containers",
+                        "pcl_gpu_containers CUDA::curand")
 
         find_modules_to_remove = [
             "ClangFormat",
@@ -501,6 +542,7 @@ class PclConan(ConanFile):
         tc.cache_variables["WITH_CUDA"] = self._is_enabled("cuda")
         tc.cache_variables["BUILD_CUDA"] = self._is_enabled("cuda")
         tc.cache_variables["BUILD_GPU"] = self._is_enabled("cuda")
+        tc.cache_variables["CUDA_ARCH_BIN"] = ";"
         tc.cache_variables["WITH_SYSTEM_ZLIB"] = True
         tc.cache_variables["PCL_ONLY_CORE_POINT_TYPES"] = self.options.precompile_only_core_point_types
         # The default False setting breaks OpenGL detection in CMake
@@ -544,24 +586,23 @@ class PclConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
         # Remove MSVC runtime libraries
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
             rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
@@ -608,6 +649,11 @@ class PclConan(ConanFile):
             component.requires = self._internal_optional_deps["tools"]
             for dep in self._external_optional_deps["tools"]:
                 component.requires += self._ext_dep_to_conan_target(dep)
+
+        if self.options.gpu_people:
+            self.cpp_info.components["gpu_people"].requires.extend(["npp::nppim", "npp::nppidei", "npp::npps"])
+        if self.options.gpu_tracking:
+            self.cpp_info.components["gpu_tracking"].requires.append("curand::curand")
 
         common = self.cpp_info.components["common"]
         if not self.options.shared:
