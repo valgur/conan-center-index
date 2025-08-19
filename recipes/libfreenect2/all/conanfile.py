@@ -21,7 +21,7 @@ class Libfreenect2Conan(ConanFile):
     topics = ("usb", "camera", "kinect")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -39,6 +39,12 @@ class Libfreenect2Conan(ConanFile):
         "with_cuda": False,
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -51,6 +57,8 @@ class Libfreenect2Conan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -68,18 +76,19 @@ class Libfreenect2Conan(ConanFile):
         if self.options.get_safe("with_vaapi"):
             self.requires("libva/[^2.21]")
         if self.options.with_cuda:
-            self.requires("cuda-samples/12.2")
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+            self._utils.cuda_requires(self, "cuda-samples")
 
     def validate(self):
         check_min_cppstd(self, 11)
-        if self.options.with_cuda:
-            self.output.warning("Conan package for CUDA is not available, will use system CUDA")
         if self.dependencies["libjpeg-meta"].options.provider not in ["libjpeg-turbo", "mozjpeg"]:
             raise ConanException("libjpeg-meta provider must be either libjpeg-turbo or mozjpeg")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -118,6 +127,10 @@ class Libfreenect2Conan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -166,4 +179,7 @@ class Libfreenect2Conan(ConanFile):
         if self.options.get_safe("with_vaapi"):
             self.cpp_info.requires += ["libva::libva"]
         if self.options.with_cuda:
-            self.cpp_info.requires += ["cuda-samples::cuda-samples"]
+            self.cpp_info.requires += [
+                "cudart::cudart_",
+                "cuda-samples::cuda-samples",
+            ]
