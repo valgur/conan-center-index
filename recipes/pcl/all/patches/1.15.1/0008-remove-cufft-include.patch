@@ -1,0 +1,64 @@
+From 27512b26e7f95a99b24e46b049d59d35035829cd Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Tue, 19 Aug 2025 14:37:45 +0300
+Subject: [PATCH] Remove an unused cufft.h include
+
+---
+ cuda/common/include/pcl/cuda/cutil.h                |  8 --------
+ cuda/common/include/pcl/cuda/cutil_inline_runtime.h | 12 ------------
+ 2 files changed, 20 deletions(-)
+
+diff --git a/cuda/common/include/pcl/cuda/cutil.h b/cuda/common/include/pcl/cuda/cutil.h
+index 194ce11464a..506939c04d2 100644
+--- a/cuda/common/include/pcl/cuda/cutil.h
++++ b/cuda/common/include/pcl/cuda/cutil.h
+@@ -786,14 +786,6 @@ extern "C" {
+                 __FILE__, __LINE__, cudaGetErrorString( err) );              \
+     } }
+ 
+-#  define CUFFT_SAFE_CALL( call) {                                           \
+-    cufftResult err = call;                                                  \
+-    if( CUFFT_SUCCESS != err) {                                              \
+-        fprintf(stderr, "CUFFT error in file '%s' in line %i.\n",            \
+-                __FILE__, __LINE__);                                         \
+-        exit(EXIT_FAILURE);                                                  \
+-    } }
+-
+ #  define CUT_SAFE_CALL( call)                                               \
+     if( CUTTrue != call) {                                                   \
+         fprintf(stderr, "Cut error in file '%s' in line %i.\n",              \
+diff --git a/cuda/common/include/pcl/cuda/cutil_inline_runtime.h b/cuda/common/include/pcl/cuda/cutil_inline_runtime.h
+index a57e20777c6..45406d4c7e4 100644
+--- a/cuda/common/include/pcl/cuda/cutil_inline_runtime.h
++++ b/cuda/common/include/pcl/cuda/cutil_inline_runtime.h
+@@ -25,14 +25,11 @@
+ #include <string.h>
+ #include <stdlib.h>
+ 
+-#include <cufft.h>
+-
+ // We define these calls here, so the user doesn't need to include __FILE__ and __LINE__
+ // The advantage is the developers gets to use the inline function so they can debug
+ #define cutilSafeCallNoSync(err)     __cudaSafeCallNoSync(err, __FILE__, __LINE__)
+ #define cutilSafeCall(err)           __cudaSafeCall      (err, __FILE__, __LINE__)
+ #define cutilSafeThreadSync()        __cudaSafeThreadSync(__FILE__, __LINE__)
+-#define cufftSafeCall(err)           __cufftSafeCall     (err, __FILE__, __LINE__)
+ #define cutilCheckError(err)         __cutilCheckError   (err, __FILE__, __LINE__)
+ #define cutilCheckMsg(msg)           __cutilGetLastError (msg, __FILE__, __LINE__)
+ #define cutilCheckMsgAndSync(msg)    __cutilGetLastErrorAndSync (msg, __FILE__, __LINE__)
+@@ -274,15 +271,6 @@ inline void __cudaSafeThreadSync( const char *file, const int line )
+     }
+ }
+ 
+-inline void __cufftSafeCall( cufftResult err, const char *file, const int line )
+-{
+-    if( CUFFT_SUCCESS != err) {
+-        FPRINTF((stderr, "%s(%i) : cufftSafeCall() CUFFT error.\n",
+-                file, line));
+-        exit(-1);
+-    }
+-}
+-
+ inline void __cutilCheckError( CUTBoolean err, const char *file, const int line )
+ {
+     if( CUTTrue != err) {

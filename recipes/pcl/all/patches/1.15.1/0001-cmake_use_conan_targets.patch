@@ -1,0 +1,50 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -309,7 +309,7 @@
+ option(WITH_OPENMP "Build with parallelization using OpenMP" TRUE)
+ option(USE_HOMEBREW_FALLBACK "(macOS-only) also look in 'brew --prefix' for libraries (e.g. OpenMP)" TRUE)
+ if(WITH_OPENMP)
+-  find_package(OpenMP COMPONENTS C CXX)
++  find_package(OpenMP REQUIRED COMPONENTS C CXX)
+   if(APPLE AND NOT OpenMP_FOUND)
+     if(USE_HOMEBREW_FALLBACK)
+       # libomp 15.0+ from brew is keg-only, so have to search in other locations.
+@@ -327,8 +327,8 @@
+   endif()
+ endif()
+ if(OpenMP_FOUND)
+-  string(APPEND CMAKE_C_FLAGS " ${OpenMP_C_FLAGS}")
+-  string(APPEND CMAKE_CXX_FLAGS " ${OpenMP_CXX_FLAGS}")
++  link_libraries(OpenMP::OpenMP_CXX)
++
+ 
+   # We could use OpenMP_CXX_VERSION starting from CMake 3.9, but this value is only available on first run of CMake (see https://gitlab.kitware.com/cmake/cmake/issues/19150),
+   # so we use always OpenMP_CXX_SPEC_DATE, which is available since CMake 3.7.
+@@ -387,7 +387,7 @@
+ # LibPNG
+ option(WITH_PNG "PNG file support" TRUE)
+ if(WITH_PNG)
+-  find_package(PNG)
++  find_package(PNG REQUIRED CONFIG)
+   if(PNG_FOUND)
+     set(HAVE_PNG ON)
+   endif()
+@@ -396,7 +396,7 @@
+ # Qhull
+ option(WITH_QHULL "Include convex-hull operations" TRUE)
+ if(WITH_QHULL)
+-  find_package(Qhull)
++  find_package(QHULL REQUIRED CONFIG)
+   if(NOT (${QHULL_LIBRARY_TYPE} MATCHES ${PCL_QHULL_REQUIRED_TYPE}) AND NOT (${PCL_QHULL_REQUIRED_TYPE} MATCHES "DONTCARE"))
+     message(FATAL_ERROR "Qhull was selected with ${PCL_QHULL_REQUIRED_TYPE} but found as ${QHULL_LIBRARY_TYPE}")
+   endif()
+@@ -431,7 +431,7 @@
+ #Find PCAP
+ option(WITH_PCAP "pcap file capabilities in Velodyne HDL driver" TRUE)
+ if(WITH_PCAP)
+-  find_package(Pcap)
++  find_package(PCAP REQUIRED CONFIG)
+ endif()
+ 
+ # OpenGL and GLUT

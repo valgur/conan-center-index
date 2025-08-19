@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -78,14 +79,10 @@ class PclConan(ConanFile):
         "with_qt": [True, False],
         "with_rssdk2": [True, False],
         "with_vtk": [True, False],
+        "with_qvtk": [True, False],
         # TODO:
-        # "with_davidsdk": [True, False],
-        # "with_dssdk": [True, False],
-        # "with_ensenso": [True, False],
-        # "with_fzapi": [True, False],
         # "with_metslib": [True, False],
         # "with_openni": [True, False],
-        # "with_qvtk": [True, False],
         # Precompile for a minimal set of point types only instead of all (e.g., pcl::PointXYZ instead of PCL_XYZ_POINT_TYPES)
         "precompile_only_core_point_types": [True, False],
         # Whether to append a ''/d/rd/s postfix to executables on Windows depending on the build type
@@ -149,6 +146,7 @@ class PclConan(ConanFile):
         "with_qt": True,
         "with_rssdk2": False,
         "with_vtk": False,
+        "with_qvtk": False,
         # Enabled to avoid excessive memory usage during compilation in CCI
         "precompile_only_core_point_types": True,
         "add_build_type_postfix": False,
@@ -194,7 +192,7 @@ class PclConan(ConanFile):
             "2d": ["vtk"],
             "features": ["openmp"],
             "filters": ["openmp"],
-            "io": ["davidsdk", "dssdk", "ensenso", "fzapi", "libusb", "openmp", "openni", "openni2", "pcap", "png", "rssdk", "rssdk2", "vtk"],
+            "io": ["libusb", "openmp", "openni", "openni2", "pcap", "png", "rssdk2", "vtk"],
             "kdtree": ["flann"],
             "keypoints": ["openmp"],
             "people": ["openni"],
@@ -205,9 +203,9 @@ class PclConan(ConanFile):
             "segmentation": ["openmp"],
             "surface": ["openmp", "qhull", "vtk"],
             "tracking": ["openmp"],
-            "visualization": ["davidsdk", "dssdk", "ensenso", "opengl", "openni", "openni2", "qvtk", "rssdk"],
-            "apps": ["cuda", "libusb", "opengl", "openni", "png", "qhull", "qt", "qvtk", "vtk"],
-            "tools": ["cuda", "davidsdk", "dssdk", "ensenso", "opencv", "opengl", "openni", "openni2", "qhull", "rssdk", "vtk"],
+            "visualization": ["opengl", "openni", "openni2"],
+            "apps": ["cuda", "libusb", "opengl", "openni", "png", "qhull", "qt", "vtk"],
+            "tools": ["cuda", "opencv", "opengl", "openni", "openni2", "qhull", "vtk"],
         }
 
     def _ext_dep_to_conan_target(self, dep):
@@ -216,12 +214,8 @@ class PclConan(ConanFile):
         return {
             "boost": ["boost::headers", "boost::filesystem", "boost::iostreams"],
             "cuda": ["cudart::cudart_", "cuda-cccl::cuda-cccl"],
-            "davidsdk": [],
-            "dssdk": [],
             "eigen": ["eigen::eigen"],
-            "ensenso": [],
             "flann": ["flann::flann"],
-            "fzapi": [],
             "libusb": ["libusb::libusb"],
             "metslib": [],
             "opencv": ["opencv::opencv"],
@@ -233,16 +227,14 @@ class PclConan(ConanFile):
             "png": ["libpng::libpng"],
             "qhull": ["qhull::qhull"],
             "qt": ["qt::qt"],
-            "qvtk": [],
-            "rssdk": [],
             "rssdk2": ["librealsense::librealsense"],
             "vtk": ["vtk::vtk"],
             "zlib": ["zlib-ng::zlib-ng"],
         }[dep]
 
-    @property
+    @cached_property
     def _internal_deps(self):
-        return {
+        deps = {
             "2d": ["common", "filters"],
             "common": [],
             "cuda_common": [],
@@ -272,7 +264,7 @@ class PclConan(ConanFile):
             "keypoints": ["common", "features", "filters", "kdtree", "octree", "search"],
             "ml": ["common"],
             "octree": ["common"],
-            "outofcore": ["common", "filters", "io", "octree", "visualization"],
+            "outofcore": ["common", "filters", "io", "octree"],
             "people": ["common", "filters", "geometry", "io", "kdtree", "octree",
                        "sample_consensus", "search", "segmentation", "visualization"],
             "recognition": ["common", "features", "filters", "io", "kdtree", "ml",
@@ -290,8 +282,11 @@ class PclConan(ConanFile):
             "tracking": ["common", "filters", "kdtree", "octree", "search"],
             "visualization": ["common", "geometry", "io", "kdtree", "octree", "search"],
         }
+        if (self.options.outofcore and self.options.visualization) or Version(self.version) < "1.15":
+            deps["outofcore"].append("visualization")
+        return deps
 
-    @property
+    @cached_property
     def _internal_optional_deps(self):
         return {
             "apps": ["2d", "common", "cuda_common", "cuda_features", "cuda_io",
@@ -303,6 +298,10 @@ class PclConan(ConanFile):
                       "io", "kdtree", "keypoints", "ml", "octree", "recognition", "registration",
                       "sample_consensus", "search", "segmentation", "surface", "visualization"],
         }
+
+    def _enabled_internal_optional_deps(self, name):
+        deps = self._internal_optional_deps.get(name, [])
+        return [dep for dep in deps if self.options.get_safe(dep)]
 
     def _is_header_only(self, component):
         return component in {"2d", "cuda_common", "geometry"}
@@ -340,6 +339,8 @@ class PclConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.with_cuda:
             del self.settings.cuda
+        if not self.options.with_vtk:
+            del self.options.with_qvtk
         self.options["boost"].with_filesystem = True
         self.options["boost"].with_iostreams = True
 
@@ -390,6 +391,7 @@ class PclConan(ConanFile):
                 "FiltersModeling": "YES",
                 "FiltersSources": "YES",
                 "FiltersStatistics": "YES",
+                "GUISupportQt": "YES" if self.options.with_qvtk else "NO",
                 "IOCore": "YES",
                 "IOGeometry": "YES",
                 "IOImage": "YES",
@@ -405,11 +407,12 @@ class PclConan(ConanFile):
                 "ParallelDIY": "YES",
                 "RenderingAnnotation": "YES",
                 "RenderingContext2D": "YES",
-                "RenderingCore": "YES",
                 "RenderingContextOpenGL2": "YES",
+                "RenderingCore": "YES",
                 "RenderingFreeType": "YES",
                 "RenderingLOD": "YES",
                 "RenderingOpenGL2": "YES",
+                "RenderingQt": "YES" if self.options.with_qvtk else "NO",
                 "ViewsContext2D": "YES",
                 "ViewsCore": "YES",
                 "with_diy2": True,
@@ -418,12 +421,15 @@ class PclConan(ConanFile):
                 "with_freetype": True,
                 "with_glew": True,
                 "with_nlohmannjson": True,
+                "with_qt": self.options.with_qt,
             })
         if self._is_enabled("rssdk2"):
             self.requires("librealsense/[^2.49.0]")
         if self._is_enabled("cuda"):
             if Version(self.version) < "1.15.1" and Version(self.settings.cuda.version).major == 12:
                 self.requires("cuda-cccl/[^2 <2.8]")
+            else:
+                self._utils.cuda_requires(self, "cuda-cccl")
             self._utils.cuda_requires(self, "cudart")
             if self.options.gpu_people:
                 self._utils.cuda_requires(self, "npp")
@@ -432,9 +438,6 @@ class PclConan(ConanFile):
 
         # TODO:
         # self.requires("openni/x.x.x", transitive_headers=True)
-        # self.requires("ensenso/x.x.x", transitive_headers=True)
-        # self.requires("davidsdk/x.x.x", transitive_headers=True)
-        # self.requires("dssdk/x.x.x", transitive_headers=True)
         # self.requires("metslib/x.x.x", transitive_headers=True)
         # self.requires("opennurbs/x.x.x", transitive_headers=True)
         # self.requires("poisson4/x.x.x", transitive_headers=True)
@@ -464,10 +467,12 @@ class PclConan(ConanFile):
         if self._is_enabled("cuda"):
             self._utils.validate_cuda_settings(self)
             cuda_version = Version(self.settings.cuda.version)
-            if self.options.get_safe("gpu_people") and cuda_version >= "12.0":
-                raise ConanInvalidConfiguration("gpu_people module does not support CUDA 12 or newer")
-            if Version(self.version) < "1.15.1" and cuda_version >= "13.0":
+            if cuda_version >= "13.0" and Version(self.version) < "1.15.1":
                 raise ConanInvalidConfiguration("CUDA 13 or newer is only supported since PCL 1.15.1")
+            if cuda_version >= "12.0":
+                for mod in ["gpu_people", "gpu_kinfu", "gpu_kinfu_large_scale"]:
+                    if self.options.get_safe(mod):
+                        raise ConanInvalidConfiguration(f"{mod} module does not support CUDA 12 or newer")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -517,7 +522,7 @@ class PclConan(ConanFile):
         if Version(self.version) < "1.14.0":
             find_modules_to_remove.append("Eigen")
         for mod in find_modules_to_remove:
-            os.remove(os.path.join(self.source_folder, "cmake", "Modules", f"Find{mod}.cmake"))
+            rm(self, f"Find{mod}.cmake", os.path.join(self.source_folder, "cmake", "Modules"))
 
         # Don't need to call autoinit for VTK from Conan
         replace_in_file(self, "visualization/CMakeLists.txt",
@@ -571,6 +576,7 @@ class PclConan(ConanFile):
 
         # Do not overwrite CMakeToolchain variables with cache variables
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        tc.cache_variables["CMAKE_CXX_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -628,9 +634,7 @@ class PclConan(ConanFile):
                 component.libs = [f"pcl_{name}"]
                 component.libs += self._extra_libs.get(name, [])
             component.requires += self._internal_deps[name]
-            for opt_dep in self._internal_optional_deps.get(name, []):
-                if self.options.get_safe(opt_dep):
-                    component.requires.append(opt_dep)
+            component.requires += self._enabled_internal_optional_deps(name)
             for dep in self._external_deps.get(name, []) + self._external_optional_deps.get(name, []):
                 component.requires += self._ext_dep_to_conan_target(dep)
 
@@ -638,7 +642,7 @@ class PclConan(ConanFile):
             component = self.cpp_info.components["apps"]
             component.libs = []
             component.includedirs = []
-            component.requires = self._internal_optional_deps["apps"]
+            component.requires = self._enabled_internal_optional_deps("apps")
             for dep in self._external_optional_deps["apps"]:
                 component.requires += self._ext_dep_to_conan_target(dep)
 
@@ -646,7 +650,7 @@ class PclConan(ConanFile):
             component = self.cpp_info.components["tools"]
             component.libs = []
             component.includedirs = []
-            component.requires = self._internal_optional_deps["tools"]
+            component.requires = self._enabled_internal_optional_deps("tools")
             for dep in self._external_optional_deps["tools"]:
                 component.requires += self._ext_dep_to_conan_target(dep)
 
