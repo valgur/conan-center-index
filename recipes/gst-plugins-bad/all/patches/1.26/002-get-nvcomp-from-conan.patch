@@ -1,0 +1,74 @@
+--- a/ext/nvcomp/meson.build
++++ b/ext/nvcomp/meson.build
+@@ -27,18 +27,6 @@
+   subdir_done()
+ endif
+ 
+-nvcomp_sdk_path = get_option('nvcomp-sdk-path')
+-if nvcomp_sdk_path == ''
+-  nvcomp_sdk_path = run_command(python3, '-c', 'import os; print(os.environ.get("NVCOMP_SDK_PATH"))', check: false).stdout().strip()
+-endif
+-
+-if nvcomp_sdk_path == '' or nvcomp_sdk_path == 'None'
+-  if nvcomp_opt.enabled()
+-    error('nvcomp-sdk-path option must be specified for nvCOMP plugin')
+-  endif
+-  subdir_done()
+-endif
+-
+ if not gstcuda_dep.found()
+   if nvcomp_opt.enabled()
+     error('nvCOMP plugin was enabled explicitly, but required gstcuda was not found')
+@@ -46,27 +34,8 @@
+   subdir_done()
+ endif
+ 
+-nvcomp_inc_dirs = [include_directories(join_paths(nvcomp_sdk_path, 'include'), './stub'),
+-                   cuda_stubinc]
+-
+-nvcomp_lib_path = join_paths(nvcomp_sdk_path, 'lib')
+-nvcomp_lib = cc.find_library('nvcomp',
+-                             dirs: nvcomp_lib_path, required: nvcomp_opt)
+-if not nvcomp_lib.found()
+-  subdir_done()
+-endif
+-
+-nvcomp_bitcomp_lib = cc.find_library('nvcomp_bitcomp',
+-                                     dirs: nvcomp_lib_path, required: nvcomp_opt)
+-if not nvcomp_bitcomp_lib.found()
+-  subdir_done()
+-endif
+-
+-nvcomp_gdeflate_lib = cc.find_library('nvcomp_gdeflate',
+-                                      dirs: nvcomp_lib_path, required: nvcomp_opt)
+-if not nvcomp_gdeflate_lib.found()
+-  subdir_done()
+-endif
++nvcomp_dep = dependency('nvcomp')
++cudart_dep = dependency('cuda', modules : ['cudart'])
+ 
+ if gstgl_dep.found()
+   extra_args += ['-DHAVE_GST_GL']
+@@ -76,9 +45,8 @@
+   nvcomp_sources,
+   c_args : gst_plugins_bad_args + extra_args,
+   cpp_args : gst_plugins_bad_args + extra_args,
+-  include_directories : [configinc] + nvcomp_inc_dirs,
+-  dependencies :  [gstbase_dep, gstvideo_dep, gstcuda_dep, gstgl_dep, nvcomp_lib,
+-                  nvcomp_bitcomp_lib, nvcomp_gdeflate_lib],
++  include_directories : [configinc],
++  dependencies :  [gstbase_dep, gstvideo_dep, gstcuda_dep, gstgl_dep, nvcomp_dep, cudart_dep],
+   override_options : ['cpp_std=c++17'],
+   install : true,
+   install_dir : plugins_install_dir,
+--- a/ext/nvcomp/gstnvcompvideoenc.cpp
++++ b/ext/nvcomp/gstnvcompvideoenc.cpp
+@@ -1216,7 +1216,7 @@
+       chunk_size = MIN (chunk_size, 16384);
+ 
+       nvcompBatchedCascadedOpts_t opts = nvcompBatchedCascadedDefaultOpts;
+-      opts.chunk_size = chunk_size;
++      opts.internal_chunk_bytes = chunk_size;
+       if (priv->data_type != GST_NV_COMP_DATA_TYPE_DEFAULT)
+         opts.type = (nvcompType_t) priv->data_type;
+ 

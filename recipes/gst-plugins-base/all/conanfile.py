@@ -155,6 +155,10 @@ class GStPluginsBaseConan(ConanFile):
         self.options["gstreamer"].shared = self.options.shared
         self.options["gstreamer"].with_introspection = self.options.with_introspection
 
+        if self.options.with_gl and self.settings.os in ["Linux", "FreeBSD"]:
+            # EGL is also required
+            self.options.with_egl.value = True
+
     def layout(self):
         basic_layout(self, src_folder="src")
 

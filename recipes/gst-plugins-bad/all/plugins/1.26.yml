@@ -365,6 +365,15 @@ nvcodec:
     - glib::gmodule-no-export-2.0
     - glib::gio-2.0
     - opengl::opengl
+nvcomp:
+  cpp: true
+  requires:
+    - gstreamer-base-1.0
+    - gstreamer-video-1.0
+    - gstreamer-cuda-1.0
+    - gstreamer-gl-1.0
+    - nvcomp::nvcomp
+    - opengl::opengl
 onnx:
   requires:
     - gstreamer-video-1.0

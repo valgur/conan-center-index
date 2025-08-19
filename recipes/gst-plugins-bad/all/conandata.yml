@@ -8,5 +8,8 @@ sources:
 patches:
   "1.26.0":
     - patch_file: "patches/1.26/001-use-conan-deps.patch"
+    - patch_file: "patches/1.26/002-get-nvcomp-from-conan.patch"
+      patch_description: "Find nvCOMP from Conan and fix a minor incompatibility with 4.x"
+      patch_type: "portability"
   "1.24.12":
     - patch_file: "patches/1.24/001-use-conan-deps.patch"

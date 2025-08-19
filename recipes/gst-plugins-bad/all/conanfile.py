@@ -261,6 +261,8 @@ class GStPluginsBadConan(ConanFile):
             self.requires("libmodplug/0.8.9.0")
         if self.options.webrtc:
             self.requires("libnice/0.1.21")
+        if "nvcomp" in reqs:
+            self.requires("nvcomp/[^4]")
         if "onnxruntime" in reqs:
             self.requires("onnxruntime/1.18.1")
         if "openal-soft" in reqs:
@@ -334,7 +336,7 @@ class GStPluginsBadConan(ConanFile):
             self.requires("zxing-cpp/2.2.1")
 
     def validate_build(self):
-        if self._is_enabled("qt6d3d11") or self._is_enabled("zxing"):
+        if self._is_enabled("qt6d3d11") or self._is_enabled("zxing") or self._is_enabled("nvcomp"):
             check_min_cppstd(self, 17)
         elif self._is_enabled("nvcodec") or self._is_enabled("soundtouch"):
             check_min_cppstd(self, 14)
@@ -435,7 +437,6 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["musepack"] = "disabled"  # libmpcdec
         tc.project_options["neon"] = "disabled"  # libneon27
         if Version(self.version) >= "1.26":
-            tc.project_options["nvcomp"] = "disabled" # NVIDIA nvCOMP
             tc.project_options["nvdswrapper"] = "disabled" # NVIDIA DeepStream SDK
         tc.project_options["openaptx"] = "disabled"  # openaptx
         tc.project_options["openmpt"] = "disabled"  # openmpt
@@ -603,7 +604,6 @@ class GStPluginsBadConan(ConanFile):
                 gst_cuda.system_libs.append("atomic")
             elif self.settings.os == "Windows":
                 gst_cuda.system_libs.append("advapi32")
-            # Also links against nvbufsurface on Jetson, if found
         # d3d11
         if self._is_enabled("d3d11"):
             gst_d3d11 = _define_library("d3d11", [
