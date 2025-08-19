@@ -18,7 +18,7 @@ class AdaptiveCppConan(ConanFile):
     homepage = "https://github.com/AdaptiveCpp/AdaptiveCpp"
     topics = ("compiler", "parallelism", "gpgpu", "sycl", "hip", "cuda", "hipsycl")
     package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "cuda": [True, False],
         "rocm": [True, False],
@@ -33,6 +33,16 @@ class AdaptiveCppConan(ConanFile):
         "boost/*:with_fiber": True,
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    def configure(self):
+        if not self.options.cuda:
+            del self.settings.cuda
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -45,10 +55,14 @@ class AdaptiveCppConan(ConanFile):
         self.requires("clang/[>=19]", transitive_headers=True, libs=False)
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         self.requires("libnuma/[^2.0.14]")
+        if self.options.cuda:
+            self._utils.cuda_requires(self, "cudart")
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The recipe currently only supports Linux.")
+        if self.options.cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("clang/<host_version>")
@@ -98,7 +112,9 @@ class AdaptiveCppConan(ConanFile):
 
         self.cpp_info.components["acpp-common"].set_property("cmake_target_name", f"{cmake_name}::acpp-common")
         self.cpp_info.components["acpp-common"].libs = ["acpp-common"]
-        self.cpp_info.components["acpp-common"].includedirs.append(os.path.join("include", "AdaptiveCpp"))
+        self.cpp_info.components["acpp-common"].includedirs.append("include/AdaptiveCpp")
+        self.cpp_info.components["acpp-common"].builddirs = [f"lib/cmake/{cmake_name}"]
+        self.cpp_info.set_property("cmake_build_modules", [f"lib/cmake/{cmake_name}/{cmake_name.lower()}-vars.cmake"])
 
         self.cpp_info.components["acpp-rt"].set_property("cmake_target_name", f"{cmake_name}::acpp-rt")
         self.cpp_info.components["acpp-rt"].libs = ["acpp-rt"]
@@ -111,7 +127,5 @@ class AdaptiveCppConan(ConanFile):
             "openmp::openmp",
             "libnuma::libnuma",
         ]
-
-        cmake_dir = os.path.join(self.package_folder, "lib", "cmake", cmake_name)
-        self.cpp_info.components["acpp-common"].builddirs.append(cmake_dir)
-        self.cpp_info.set_property("cmake_build_modules", [os.path.join(cmake_dir, f"{cmake_name.lower()}-vars.cmake")])
+        if self.options.cuda:
+            self.cpp_info.components["_runtime_deps"].requires.append("cudart::cudart_")
