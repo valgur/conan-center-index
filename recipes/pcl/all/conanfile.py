@@ -71,6 +71,7 @@ class PclConan(ConanFile):
         "with_opencv": [True, False],
         "with_opengl": [True, False],
         "with_openmp": [True, False],
+        "with_openni2": [True, False],
         "with_pcap": [True, False],
         "with_png": [True, False],
         "with_qhull": [True, False],
@@ -84,7 +85,6 @@ class PclConan(ConanFile):
         # "with_fzapi": [True, False],
         # "with_metslib": [True, False],
         # "with_openni": [True, False],
-        # "with_openni2": [True, False],
         # "with_qvtk": [True, False],
         # Precompile for a minimal set of point types only instead of all (e.g., pcl::PointXYZ instead of PCL_XYZ_POINT_TYPES)
         "precompile_only_core_point_types": [True, False],
@@ -142,6 +142,7 @@ class PclConan(ConanFile):
         "with_opencv": True,
         "with_opengl": True,
         "with_openmp": True,
+        "with_openni2": False,
         "with_pcap": True,
         "with_png": True,
         "with_qhull": True,
@@ -221,7 +222,7 @@ class PclConan(ConanFile):
             "opengl": ["opengl::opengl", "freeglut::freeglut", "glew::glew", "glu::glu"],
             "openmp": ["openmp::openmp"],
             "openni": [],
-            "openni2": [],
+            "openni2": ["openni2::openni2"],
             "pcap": ["libpcap::libpcap"],
             "png": ["libpng::libpng"],
             "qhull": ["qhull::qhull"],
@@ -371,6 +372,8 @@ class PclConan(ConanFile):
             self.requires("zlib-ng/[^2.0]")
         if self._is_enabled("openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self._is_enabled("openni2"):
+            self.requires("openni2/[^2.2.0]", transitive_headers=True)
         if self.options.with_vtk:
             self.requires("vtk/[^9]", transitive_headers=True, options={
                 "ChartsCore": "YES",
