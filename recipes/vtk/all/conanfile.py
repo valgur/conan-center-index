@@ -135,7 +135,7 @@ class VtkConan(ConanFile):
         "with_expat": False,
         "with_ffmpeg": False,
         "with_fontconfig": False,
-        "with_freetype": False,
+        "with_freetype": True,
         "with_gdal": False,
         "with_gl2ps": False,
         "with_glew": False,
@@ -608,12 +608,9 @@ class VtkConan(ConanFile):
         tc.variables["VTK_SMP_ENABLE_TBB"] = self.options.smp_enable_tbb
         tc.variables["VTK_SMP_IMPLEMENTATION_TYPE"] = self.options.smp_implementation
         tc.variables["VTK_USE_COCOA"] = self.options.get_safe("with_cocoa", False)
-        tc.variables["VTK_USE_CUDA"] = False  # TODO
         tc.variables["VTK_USE_FUTURE_BOOL"] = self.options.use_future_bool
         tc.variables["VTK_USE_FUTURE_CONST"] = self.options.use_future_const
-        tc.variables["VTK_USE_HIP"] = False  # TODO
         tc.variables["VTK_USE_KOKKOS"] = False  # TODO
-        tc.variables["VTK_USE_MEMKIND"] = False
         tc.variables["VTK_USE_MPI"] = self.options.with_mpi
         tc.variables["VTK_USE_SDL2"] = self.options.with_sdl2
         tc.variables["VTK_USE_TK"] = False  # requires wrap_python
@@ -679,7 +676,7 @@ class VtkConan(ConanFile):
         # VTK expects different find_package() filenames and targets (check ThirdParty/LIB/CMakeLists.txt)
         cmake_file_names = {
             "adios2": "ADIOS2",
-            "catalyst": "cataylst",
+            "catalyst": "catalyst",
             "expat": "EXPAT",
             "exprtk": "ExprTk",
             "fast_float": "FastFloat",
@@ -788,6 +785,7 @@ class VtkConan(ConanFile):
 
         # System recipes need special handling since they rely on CMake's Find<Package> modules
         cmake_targets_map.update({
+            "JPEG::JPEG": "libjpeg-meta::libjpeg-meta",
             "OpenMP::OpenMP_C": "openmp::openmp",
             "OpenMP::OpenMP_CXX": "openmp::openmp",
             "OpenGL::EGL": "egl::egl",
