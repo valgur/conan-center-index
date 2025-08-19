@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["WITH_CUDA"] = self.dependencies["onnxruntime"].options.with_cuda
+        tc.preprocessor_definitions["WITH_CUDA"] = self.dependencies["onnxruntime"].options.with_cuda.value in ["full", "minimal"]
         tc.generate()
         if self.settings.os == "Windows":
             # on windows the system dll C:\WINDOWS\system32\onnxruntime.dll may be loaded instead even if the conan lib is first in the PATH, see https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order

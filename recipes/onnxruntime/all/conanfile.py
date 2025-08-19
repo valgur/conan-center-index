@@ -24,12 +24,18 @@ class OnnxRuntimeConan(ConanFile):
         "fPIC": [True, False],
         "with_xnnpack": [True, False],
         "with_cuda": ["full", "minimal", False],
+        "cuda_profiling": [True, False],
+        "nvtx_profile": [True, False],
+        "with_nccl": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_xnnpack": False,
         "with_cuda": False,
+        "cuda_profiling": False,
+        "nvtx_profile": False,
+        "with_nccl": False,
         # https://github.com/microsoft/onnxruntime/blob/v1.14.0/cmake/external/onnxruntime_external_deps.cmake#L410
         "onnx/*:disable_static_registration": True,
     }
@@ -41,7 +47,6 @@ class OnnxRuntimeConan(ConanFile):
     def _utils(self):
         return self.python_requires["conan-utils"].module
 
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -51,7 +56,9 @@ class OnnxRuntimeConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.with_cuda:
             del self.settings.cuda
-            del self.options.cuda_minimal
+            del self.options.cuda_profiling
+            del self.options.nvtx_profile
+            del self.options.with_nccl
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -80,14 +87,21 @@ class OnnxRuntimeConan(ConanFile):
         if self.options.with_xnnpack:
             self.requires("xnnpack/[>=cci.20230715]")
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            # Included in the public onnxruntime/core/providers/cuda/cuda_context.h header
+            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
             self.requires("cutlass/[^3.9.2]", options={"install_examples_headers": True})
             if self.options.with_cuda == "full":
                 self.requires("cudnn-frontend/[^1]")
-                self.requires("cudnn/[^9]")
-                self._utils.cuda_requires(self, "cublas")
+                self.requires("cudnn/[^9]", transitive_headers=True)
+                self._utils.cuda_requires(self, "cublas", transitive_headers=True)
                 self._utils.cuda_requires(self, "curand")
                 self._utils.cuda_requires(self, "cufft")
+            if self.options.cuda_profiling:
+                self._utils.cuda_requires(self, "cupti")
+            if self.options.nvtx_profile:
+                self.requires("nvtx/[^3]")
+            if self.options.with_nccl:
+                self.requires("nccl/[^2]")
 
     def validate(self):
         # https://github.com/microsoft/onnxruntime/blob/8f5c79cb63f09ef1302e85081093a3fe4da1bc7d/cmake/CMakeLists.txt#L43-L47
@@ -127,7 +141,13 @@ class OnnxRuntimeConan(ConanFile):
         tc.cache_variables["onnxruntime_USE_FULL_PROTOBUF"] = not self.dependencies["protobuf"].options.lite
         tc.cache_variables["onnxruntime_USE_XNNPACK"] = self.options.with_xnnpack
         tc.cache_variables["onnxruntime_USE_CUDA"] = bool(self.options.with_cuda)
-        tc.cache_variables["onnxruntime_CUDA_MINIMAL"] = self.options.with_cuda == "minimal"
+        if self.options.with_cuda:
+            tc.cache_variables["onnxruntime_CUDA_MINIMAL"] = self.options.with_cuda == "minimal"
+            tc.cache_variables["onnxruntime_ENABLE_CUDA_PROFILING"] = self.options.cuda_profiling
+            tc.cache_variables["onnxruntime_ENABLE_NVTX_PROFILE"] = self.options.nvtx_profile
+            tc.cache_variables["onnxruntime_USE_NCCL"] = self.options.with_nccl
+            if self.options.with_cuda == "full":
+                tc.variables["CUDNN_MAJOR_VERSION"] = self.dependencies["cudnn"].ref.version.major.value
 
         # TODO:  https://onnxruntime.ai/docs/execution-providers/
         #  onnxruntime_USE_MIMALLOC
@@ -136,9 +156,6 @@ class OnnxRuntimeConan(ConanFile):
         #  onnxruntime_USE_WEBGPU
         #  onnxruntime_USE_COREML
         #  onnxruntime_USE_SNPE
-        #  onnxruntime_ENABLE_CUDA_PROFILING (cupti)
-        #  onnxruntime_ENABLE_NVTX_PROFILE
-        #  onnxruntime_USE_NCCL
         #  onnxruntime_ENABLE_TRAINING_OPS (MPI)
         #  onnxruntime_USE_MIGRAPHX: migraphx / HIP
         #  onnxruntime_USE_KLEIDIAI
