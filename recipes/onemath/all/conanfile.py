@@ -17,11 +17,10 @@ class OneMathConan(ConanFile):
         "CPUs, GPUs, FPGAs, and other accelerators."
     )
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/project/package"
+    homepage = "https://github.com/uxlfoundation/oneMath"
     topics = ("math", "numerical", "linear-algebra", "oneapi", "hpc", "blas")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -63,6 +62,12 @@ class OneMathConan(ConanFile):
         "onemkl/*:sycl": True,
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     @property
     def _all_backends(self):
         return ["mklcpu", "mklgpu", "netlib_blas", "generic_sycl_blas", "cublas", "curand", "cusolver", "cufft", "cusparse", "portfft"]
@@ -82,6 +87,8 @@ class OneMathConan(ConanFile):
         if not self.options.generic_sycl_blas:
             self.options.rm_safe("generic_sycl_blas_tune")
             self.options.rm_safe("cuda_targets")
+        if not any(self.options.get_safe(x) for x in ["cublas", "curand", "cusolver", "cufft", "cusparse"]):
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -93,6 +100,17 @@ class OneMathConan(ConanFile):
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.portfft:
             self.requires("portfft/[*]")
+
+        if self.options.cublas:
+            self._utils.cuda_requires(self, "cublas")
+        if self.options.curand:
+            self._utils.cuda_requires(self, "curand")
+        if self.options.cusolver:
+            self._utils.cuda_requires(self, "cusolver")
+        if self.options.cufft:
+            self._utils.cuda_requires(self, "cufft")
+        if self.options.cusparse:
+            self._utils.cuda_requires(self, "cusparse")
 
         # AdaptiveCpp / hipSYCL is disabled as most of the backends don't really successfully
         # compile with it due to SYCL extensions being used.
@@ -111,6 +129,7 @@ class OneMathConan(ConanFile):
                                             "Please enable at least one of: " + ", ".join(self._all_backends))
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.17]")
         if self.options.get_safe("use_adaptivecpp"):
             self.tool_requires("adaptivecpp/<host_version>")
 
@@ -164,6 +183,12 @@ class OneMathConan(ConanFile):
         if self.options.netlib_blas:
             deps.set_property("openblas", "cmake_file_name", "NETLIB")
             deps.set_property("openblas", "cmake_target_name", "ONEMATH::NETLIB::NETLIB")
+        if self.options.cublas:
+            deps.set_property("cublas", "cmake_target_name", "ONEMATH::cuBLAS::cuBLAS")
+        if self.options.curand:
+            deps.set_property("curand", "cmake_target_name", "ONEMATH::cuRAND::cuRAND")
+        if self.options.cusolver:
+            deps.set_property("cusolver", "cmake_target_name", "ONEMATH::cuSOLVER::cuSOLVER")
         deps.generate()
 
     def build(self):
@@ -253,32 +278,27 @@ class OneMathConan(ConanFile):
         if self.options.cublas:
             self.cpp_info.components["onemath_blas_cublas"].set_property("cmake_target_name", "ONEMATH::onemath_blas_cublas")
             self.cpp_info.components["onemath_blas_cublas"].libs = ["onemath_blas_cublas"]
-            if not self.options.shared:
-                self.cpp_info.components["onemath_blas_cublas"].system_libs = ["cublas"]
+            self.cpp_info.components["onemath_blas_cublas"].requires = ["cublas::cublas_", "onemath_sycl"]
 
         if self.options.cusolver:
             self.cpp_info.components["onemath_lapack_cusolver"].set_property("cmake_target_name", "ONEMATH::onemath_lapack_cusolver")
             self.cpp_info.components["onemath_lapack_cusolver"].libs = ["onemath_lapack_cusolver"]
-            if not self.options.shared:
-                self.cpp_info.components["onemath_lapack_cusolver"].system_libs = ["cusolver", "cublas"]
+            self.cpp_info.components["onemath_lapack_cusolver"].requires = ["cusolver::cusolver_", "onemath_sycl"]
 
         if self.options.curand:
             self.cpp_info.components["onemath_rng_curand"].set_property("cmake_target_name", "ONEMATH::onemath_rng_curand")
             self.cpp_info.components["onemath_rng_curand"].libs = ["onemath_rng_curand"]
-            if not self.options.shared:
-                self.cpp_info.components["onemath_rng_curand"].system_libs = ["curand"]
+            self.cpp_info.components["onemath_rng_curand"].requires = ["curand::curand", "onemath_sycl"]
 
         if self.options.cufft:
             self.cpp_info.components["onemath_dft_cufft"].set_property("cmake_target_name", "ONEMATH::onemath_dft_cufft")
             self.cpp_info.components["onemath_dft_cufft"].libs = ["onemath_dft_cufft"]
-            if not self.options.shared:
-                self.cpp_info.components["onemath_dft_cufft"].system_libs = ["cufft"]
+            self.cpp_info.components["onemath_dft_cufft"].requires = ["cufft::cufft_", "onemath_sycl"]
 
         if self.options.cusparse:
             self.cpp_info.components["onemath_sparse_blas_cusparse"].set_property("cmake_target_name", "ONEMATH::onemath_sparse_blas_cusparse")
             self.cpp_info.components["onemath_sparse_blas_cusparse"].libs = ["onemath_sparse_blas_cusparse"]
-            if not self.options.shared:
-                self.cpp_info.components["onemath_sparse_blas_cusparse"].system_libs = ["cusparse"]
+            self.cpp_info.components["onemath_sparse_blas_cusparse"].requires = ["cusparse::cusparse", "onemath_sycl"]
 
         if self.options.portfft:
             self.cpp_info.components["onemath_dft_portfft"].set_property("cmake_target_name", "ONEMATH::onemath_dft_portfft")
