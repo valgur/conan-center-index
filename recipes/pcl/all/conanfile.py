@@ -372,7 +372,42 @@ class PclConan(ConanFile):
         if self._is_enabled("openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_vtk:
-            self.requires("vtk/[^9]", transitive_headers=True)
+            self.requires("vtk/[^9]", transitive_headers=True, options={
+                "ChartsCore": "YES",
+                "FiltersExtraction": "YES",
+                "FiltersGeometry": "YES",
+                "FiltersModeling": "YES",
+                "FiltersSources": "YES",
+                "FiltersStatistics": "YES",
+                "IOCore": "YES",
+                "IOGeometry": "YES",
+                "IOImage": "YES",
+                "IOLegacy": "YES",
+                "IOPLY": "YES",
+                "IOXML": "YES",
+                "IOXMLParser": "YES",
+                "ImagingCore": "YES",
+                "ImagingSources": "YES",
+                "InteractionImage": "YES",
+                "InteractionStyle": "YES",
+                "InteractionWidgets": "YES",
+                "ParallelDIY": "YES",
+                "RenderingAnnotation": "YES",
+                "RenderingContext2D": "YES",
+                "RenderingCore": "YES",
+                "RenderingContextOpenGL2": "YES",
+                "RenderingFreeType": "YES",
+                "RenderingLOD": "YES",
+                "RenderingOpenGL2": "YES",
+                "ViewsContext2D": "YES",
+                "ViewsCore": "YES",
+                "with_diy2": True,
+                "with_eigen": True,
+                "with_expat": True,
+                "with_freetype": True,
+                "with_glew": True,
+                "with_nlohmannjson": True,
+            })
         if self._is_enabled("rssdk2"):
             self.requires("librealsense/[^2.49.0]")
         # TODO:
@@ -416,6 +451,7 @@ class PclConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
         find_modules_to_remove = [
             "ClangFormat",
             "DSSDK",
@@ -438,6 +474,11 @@ class PclConan(ConanFile):
             find_modules_to_remove.append("Eigen")
         for mod in find_modules_to_remove:
             os.remove(os.path.join(self.source_folder, "cmake", "Modules", f"Find{mod}.cmake"))
+
+        # Don't need to call autoinit for VTK from Conan
+        replace_in_file(self, "visualization/CMakeLists.txt",
+                        "vtk_module_autoinit(",
+                        "message(TRACE # vtk_module_autoinit(")
 
     def generate(self):
         tc = CMakeToolchain(self)
