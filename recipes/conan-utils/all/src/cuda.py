@@ -61,10 +61,6 @@ class NvccToolchain:
                                  "Please specify at least one architecture, e.g. 'cuda.architectures=70,75'.")
 
         self.cudaflags = []
-        tc_vars = AutotoolsToolchain(self.conanfile).vars()
-        cc = tc_vars.get("CC")
-        if cc:
-            self.cudaflags.append(f"-ccbin={cc}")
         if not skip_arch_flags:
             self.cudaflags.extend(self.arch_flags)
         if "cudart" in self.conanfile.dependencies.host:
@@ -79,6 +75,10 @@ class NvccToolchain:
                         self.cudaflags.append(f"-I{path}")
         self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", check_type=list, default=[]))
         self.extra_cudaflags = []
+
+    @cached_property
+    def _host_compiler(self):
+        return AutotoolsToolchain(self.conanfile).vars().get("CC", None)
 
     @cached_property
     def architectures(self):
@@ -126,9 +126,10 @@ class NvccToolchain:
         env = Environment()
         flags = " ".join(self.cudaflags + self.extra_cudaflags).strip()
         env.define("NVCC_PREPEND_FLAGS", flags)
-        cc = AutotoolsToolchain(self.conanfile).vars().get("CC", None)
-        if cc:
-            env.define_path("NVCC_CCBIN", cc)
+        if self._host_compiler:
+            env.define_path("NVCC_CCBIN", self._host_compiler)
+            # Initialize CMAKE_CUDA_COMPILER
+            env.define_path("CUDAHOSTCXX", self._host_compiler)
         # Initialize CMAKE_CUDA_FLAGS.
         env.define("CUDAFLAGS", flags)
         # Initialize CMAKE_CUDA_ARCHITECTURES. Requires CMake >= 3.20.
