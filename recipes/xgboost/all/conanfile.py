@@ -20,15 +20,13 @@ class XgboostConan(ConanFile):
     topics = ("machine-learning", "boosting", "distributed-systems")
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "openmp": [True, False],
         "cuda": [True, False],
-        "nccl": [True, False],
         "per_thread_default_stream": [True, False],
-        "plugin_rmm": [True, False],
         "plugin_federated": [True, False],
         "plugin_sycl": [True, False]
     }
@@ -37,9 +35,7 @@ class XgboostConan(ConanFile):
         "fPIC": True,
         "openmp": True,
         "cuda": False,
-        "nccl": False,
         "per_thread_default_stream": True,
-        "plugin_rmm": False,
         "plugin_federated": False,
         "plugin_sycl": False,
     }
@@ -47,13 +43,17 @@ class XgboostConan(ConanFile):
         "openmp": "Build with OpenMP support",
         # CUDA
         "cuda": "Build with GPU acceleration",
-        "nccl": "Build with NCCL to enable distributed GPU support",
         "per_thread_default_stream": "Build with per-thread default stream (CUDA)",
         # Plugins
-        "plugin_rmm": "Build with RAPIDS Memory Manager (RMM)",
         "plugin_federated": "Build with Federated Learning",
         "plugin_sycl": "SYCL plugin (requires Intel icpx compiler)",
     }
+
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -72,53 +72,56 @@ class XgboostConan(ConanFile):
 
     def requirements(self):
         if self.options.openmp:
-            # not used in any public headers
-            self.requires("openmp/system")
-        if self.options.plugin_rmm:
-            self.requires("rmm/24.04.00")
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("plugin_federated"):
             self.requires("grpc/[^1.50.2]")
+        if self.options.cuda:
+            self._utils.cuda_requires(self, "cudart")
+            self.requires("nccl/[^2]")
+            self.requires("rmm/[>=24.04.00]")
 
     def validate(self):
         check_min_cppstd(self, 17)
-        # Checks from https://github.com/dmlc/xgboost/blob/v2.0.3/CMakeLists.txt#L92-L148
-        if self.options.nccl and not self.options.cuda:
-            raise ConanInvalidConfiguration("`nccl` must be enabled with `cuda` option.")
-        if self.options.cuda and not self.options.plugin_rmm:
-            raise ConanInvalidConfiguration("`plugin_rmm` must be enabled with `cuda` option.")
         if self.options.get_safe("plugin_federated") and not self.options.shared:
             raise ConanInvalidConfiguration("Cannot build static lib with federated learning support")
+        if self.options.cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
         if self.options.get_safe("plugin_federated"):
             self.tool_requires("grpc/<host_version>")
+        if self.options.cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["xgboost"], strip_root=True)
         # TODO: unvendor
         get(self, **self.conan_data["sources"][self.version]["dmlc-core"], strip_root=True, destination="dmlc-core")
         get(self, **self.conan_data["sources"][self.version]["gputreeshap"], strip_root=True, destination="gputreeshap")
-        replace_in_file(self, os.path.join("dmlc-core", "CMakeLists.txt"),
-                        "cmake_minimum_required(VERSION 3.2)",
-                        "cmake_minimum_required(VERSION 3.5)")
-        # Don't build the 'xgboost' executable,
-        # which has been deprecated in the upcoming release anyway
-        save(self, "CMakeLists.txt", "\nset_target_properties(runxgboost PROPERTIES EXCLUDE_FROM_ALL TRUE)\n", append=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["USE_OPENMP"] = self.options.openmp
         tc.variables["FORCE_SHARED_CRT"] = not is_msvc_static_runtime(self)
         tc.variables["USE_CUDA"] = self.options.cuda
-        tc.variables["USE_NCCL"] = self.options.nccl
+        tc.variables["USE_NCCL"] = self.options.cuda
         tc.variables["USE_PER_THREAD_DEFAULT_STREAM"] = self.options.per_thread_default_stream
-        tc.variables["PLUGIN_RMM"] = self.options.plugin_rmm
+        tc.variables["PLUGIN_RMM"] = self.options.cuda
         tc.variables["PLUGIN_FEDERATED"] = self.options.get_safe("plugin_federated", False)
         tc.variables["PLUGIN_SYCL"] = self.options.get_safe("plugin_sycl", False)
+        if self.options.cuda:
+            tc.variables["CMAKE_CUDA_RUNTIME_LIBRARY"] = "Shared" if self.dependencies["cudart"].options.shared else "Static"
+            tc.variables["NCCL_LIBRARY"] = "nccl::nccl"
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.set_property("nccl", "cmake_file_name", "Nccl")
+        deps.generate()
+
+        if self.options.cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
