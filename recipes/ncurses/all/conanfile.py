@@ -95,6 +95,10 @@ class NCursesConan(ConanFile):
             raise ConanInvalidConfiguration("Cross-building requires 'strip' tool to be defined in 'tools.build:compiler_executables'")
 
     def validate(self):
+        if cross_building(self) and ("arm" in str(self.settings.arch) or "arm" in str(self.settings_build.arch)):
+            # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
+            # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
+            raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Cannot build shared libraries with static (MT) runtime")
         if self.settings.os == "Windows":
@@ -171,6 +175,10 @@ class NCursesConan(ConanFile):
             tc.configure_args["ac_cv_target"] = host
         # Allow ncurses to set the include dir with an appropriate subdir
         tc.configure_args.pop("--includedir", None)
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) >= 15:
+            # FIXME: Workaround to allow building with with GCC15
+            # Upstream has proper but huge patches: https://invisible-island.net/ncurses/NEWS.html#index-t20241207
+            tc.extra_cflags.append("-std=gnu17")
         tc.generate()
 
         if is_msvc(self):
@@ -203,15 +211,11 @@ class NCursesConan(ConanFile):
         autotools.configure()
         autotools.make()
 
-    @property
-    def _major_version(self):
-        return Version(self.version).major
-
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        os.unlink(os.path.join(self.package_folder, "bin", f"ncurses{self._suffix}{self._major_version}-config"))
+        os.unlink(os.path.join(self.package_folder, "bin", f"ncurses{self._suffix}{Version(self.version).major}-config"))
         copy(self, "*.cmake",
              src=os.path.join(self.export_sources_folder, "cmake"),
              dst=os.path.join(self.package_folder, self._module_subfolder))
