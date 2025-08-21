@@ -17,7 +17,7 @@ class StdexecConan(ConanFile):
     homepage = "https://github.com/NVIDIA/stdexec"
     topics = ("c++26", "concurrency", "asynchronous", "senders", "execution", "header-only")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "header_only": [True, False],
         "shared": [True, False],
@@ -43,18 +43,39 @@ class StdexecConan(ConanFile):
     implements = ["auto_header_only", "auto_shared_fpic"]
     no_copy_source = True
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    @property
+    def _sender_receiver_revision(self):
+        # Revision number from
+        # https://github.com/NVIDIA/stdexec/blob/nvhpc-24.09/CMakeLists.txt#L41
+        # https://github.com/cplusplus/sender-receiver/blob/main/execution.bs#L5
+        return 11
+
+    @property
+    def _exported_version(self):
+        return f"0.{self._sender_receiver_revision}.0"
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Macos":
             del self.options.enable_libdispatch
 
+    def configure(self):
+        if not self.options.enable_cuda:
+            del self.settings.cuda
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.enable_cuda:
-            self.requires("cub/[^2.2]", transitive_headers=True, transitive_libs=True)
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
             self.requires("nvtx/[^3.0]", transitive_headers=True, transitive_libs=True)
         if self.options.enable_tbb:
             self.requires("onetbb/[>=2021]", transitive_headers=True, transitive_libs=True)
@@ -69,10 +90,13 @@ class StdexecConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 20)
-        # Also cuda_std_20
+        if self.options.enable_cuda:
+            self._utils.validate_cuda_settings(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25.0 <5]")
+        if self.options.enable_cuda and not self.options.header_only:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -93,8 +117,12 @@ class StdexecConan(ConanFile):
             cmake.configure()
             cmake.build()
 
+            if self.options.enable_cuda:
+                nvcc_tc = self._utils.NvccToolchain(self)
+                nvcc_tc.generate()
+
     def _write_version_header(self):
-        v = Version(self.version)
+        v = Version(self._exported_version)
         save(self, os.path.join(self.package_folder, "include", "stdexec_version_config.hpp"),
              "#pragma once\n"
              f"#define STDEXEC_VERSION_MAJOR {v.major}\n"
@@ -118,6 +146,7 @@ class StdexecConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "stdexec")
         self.cpp_info.set_property("cmake_additional_variables_prefixes", ["STDEXEC"])
+        self.cpp_info.set_property("system_package_version", self._exported_version)
 
         self.cpp_info.components["stdexec_core"].set_property("cmake_target_name", "STDEXEC::stdexec")
         self.cpp_info.components["stdexec_core"].libdirs = []
@@ -148,7 +177,7 @@ class StdexecConan(ConanFile):
             self.cpp_info.components["nvexec"].set_property("cmake_target_name", "STDEXEC::nvexec")
             self.cpp_info.components["nvexec"].libdirs = []
             self.cpp_info.components["nvexec"].bindirs = []
-            self.cpp_info.components["nvexec"].requires = ["stdexec_core", "cub::cub", "nvtx::nvtx"]
+            self.cpp_info.components["nvexec"].requires = ["stdexec_core", "cudart::cudart_", "nvtx::nvtx"]
             # The consumer will need to take care of linking against the CUDA runtime themselves.
             # Also sets "-stdpar;-gpu=cc${CMAKE_CUDA_ARCHITECTURES}" cxxflags and ldflags if using NVHPC
 

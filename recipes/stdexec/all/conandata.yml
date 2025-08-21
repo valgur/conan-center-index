@@ -1,4 +1,4 @@
 sources:
-  "0.11.0.cci.20250624":
-    url: "https://github.com/NVIDIA/stdexec/archive/6c1f415eabf4a8ebc1ef13a0f6abb4b97b9f6d9a.tar.gz"
-    sha256: "877cb03923b3c90dea764bc63cebc67322bef76be3392bb75b7b32833da437e6"
+  "24.09":
+    url: "https://github.com/NVIDIA/stdexec/archive/refs/tags/nvhpc-24.09.tar.gz"
+    sha256: "d2d811c852dc6c53527a244a54ae343d6b65a50c23ea49f93723e3082435fff4"
