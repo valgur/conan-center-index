@@ -17,7 +17,7 @@ class OneDNNConan(ConanFile):
     homepage = "https://github.com/uxlfoundation/oneDNN"
     topics = ("oneapi", "dnn", "deep-learning", "sycl")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -36,8 +36,8 @@ class OneDNNConan(ConanFile):
         "fPIC": True,
         "build_graph_api": True,
         "workload": "training",
-        "cpu_runtime": "omp",
-        "gpu_runtime": "ocl",
+        "cpu_runtime": "omp",  # sycl for Intel compilers
+        "gpu_runtime": "ocl",  # sycl for Intel compilers
         "gpu_vendor": "intel",
         "blas_vendor": "internal",
         "enable_concurrent_exec": False,
@@ -66,6 +66,12 @@ class OneDNNConan(ConanFile):
         "install_dev_headers": "Install internal headers in addition to public ones (for OpenVINO recipe).",
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -82,6 +88,8 @@ class OneDNNConan(ConanFile):
             self.options.rm_safe("fPIC")
         if self.options.gpu_runtime == "none":
             del self.options.gpu_vendor
+        if self.options.get_safe("gpu_vendor") != "nvidia":
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -94,6 +102,9 @@ class OneDNNConan(ConanFile):
         if self.options.gpu_runtime == "ocl":
             self.requires("opencl-icd-loader/[*]")
             self.requires("opencl-headers/[*]", transitive_headers=True)
+        if self.options.get_safe("gpu_vendor") == "nvidia":
+            self._utils.cuda_requires(self, "cublas")
+            self.requires("cudnn/[>=8 <10]")
 
         # Unvendored third-party dependencies
         self.requires("level-zero/[^1.17.39]")
@@ -120,6 +131,13 @@ class OneDNNConan(ConanFile):
             raise ConanInvalidConfiguration("blas_vendor=armpl is not yet supported.")
         if self.options.blas_vendor == "external":
             raise ConanInvalidConfiguration("blas_vendor=external is not yet supported.")
+        if self.options.get_safe("gpu_vendor") == "nvidia":
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.18]")
+        if self.options.get_safe("gpu_vendor") == "nvidia":
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         info = self.conan_data["sources"][self.version]
@@ -133,6 +151,19 @@ class OneDNNConan(ConanFile):
         # Replace two vendored headers with the latest versions from intel/compute-runtime
         download(self, **info["ze_intel_gpu.h"], filename="third_party/level_zero/ze_intel_gpu.h")
         download(self, **info["ze_stypes.h"], filename="third_party/level_zero/ze_stypes.h")
+        rm(self, "FindcuBLAS.cmake", "cmake")
+        rm(self, "FindcuBLASLt.cmake", "cmake")
+        rm(self, "FindcuDNN.cmake", "cmake")
+        # Don't try to install FindcuBLAS.cmake, etc.
+        replace_in_file(self, "src/CMakeLists.txt", "if(DNNL_SYCL_CUDA)", "if(0)")
+        # Don't need to adjust import target order for Conan
+        replace_in_file(self, "cmake/SYCL.cmake",
+                        "adjust_headers_priority(",
+                        "# adjust_headers_priority(")
+        # linked libraries are not propagated correctly for CUDA otherwise
+        replace_in_file(self, "cmake/SYCL.cmake",
+                        "list(APPEND EXTRA_SHARED_LIBS cuBLAS::cuBLAS",
+                        "link_libraries(cuBLAS::cuBLAS")
 
     def generate(self):
         # https://github.com/uxlfoundation/oneDNN/blob/v3.8.1/cmake/options.cmake
@@ -152,7 +183,13 @@ class OneDNNConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("cublas::cublas_", "cmake_target_name", "cuBLAS::cuBLAS")
+        deps.set_property("cublas::cublasLt", "cmake_target_name", "cublasLt::cublasLt")
         deps.generate()
+
+        if self.options.get_safe("gpu_vendor") == "nvidia":
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -195,10 +232,6 @@ class OneDNNConan(ConanFile):
 
         if self.options.cpu_runtime == "sycl" or self.options.gpu_runtime == "sycl":
             self.cpp_info.cxxflags.append("-fsycl")
-            if self.options.get_safe("gpu_vendor", "none") == "nvidia":
-                # TODO: use dedicated CUDA packages
-                if not self.options.shared:
-                    self.cpp_info.system_libs.extend(["cublas", "cublasLt", "cudnn"])
 
         if self.options.blas_vendor == "accelerate":
             self.cpp_info.frameworks = ["Accelerate"]
