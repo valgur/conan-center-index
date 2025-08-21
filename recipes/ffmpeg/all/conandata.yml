@@ -2,22 +2,22 @@ sources:
   "7.1.1":
     url: "https://ffmpeg.org//releases/ffmpeg-7.1.1.tar.bz2"
     sha256: "0c8da2f11579a01e014fc007cbacf5bb4da1d06afd0b43c7f8097ec7c0f143ba"
-  "6.1.2":
-    url: "http://ffmpeg.org/releases/ffmpeg-6.1.2.tar.bz2"
-    sha256: "62fe9fd098cb537d4b61731b11049e1ac179f38c870a41b8e9d556af944edb45"
-  "5.1.6":
-    url: "https://ffmpeg.org/releases/ffmpeg-5.1.6.tar.bz2"
-    sha256: "d04c46cfe59f7dfbf2fd8574c2d24ad58c86a2e180a90d341cfa41781a994397"
-  "4.4.5":
-    url: "https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.bz2"
-    sha256: "501c299145c3e86c74ea73046286eb8313d0d36b6b405c03cf26455799a47910"
+  "6.1.3":
+    url: "http://ffmpeg.org/releases/ffmpeg-6.1.3.tar.bz2"
+    sha256: "54c08e5ae924ca9a1cef3e2b719351b6936194a5d701c14845f7151bb4d59270"
+  "5.1.7":
+    url: "https://ffmpeg.org/releases/ffmpeg-5.1.7.tar.bz2"
+    sha256: "434034b333ab129bc0176ac54603e52148e4e41e96f367314df3603262a04e56"
+  "4.4.6":
+    url: "https://ffmpeg.org/releases/ffmpeg-4.4.6.tar.bz2"
+    sha256: "822c980717470a2a576e5adba4e8a40977d15c3312b89dcd121547262b730d11"
 patches:
   "7.1.1":
     - patch_file: "patches/0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch"
       patch_description: "Add backwards compatibility with Chromium"
       patch_type: "portability"
       patch_source: "https://github.com/microsoft/vcpkg/blob/fdd63dd662a542a91df65ca776d80e35e31e67be/ports/ffmpeg/0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch"
-  "4.4.5":
+  "4.4.6":
     - patch_file: "patches/4.4-0001-fix-aom_codec_av1_dx_algo.patch"
       patch_description: "Compatibility with shared libaom"
       patch_type: "portability"
