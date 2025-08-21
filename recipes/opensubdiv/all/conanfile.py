@@ -11,13 +11,12 @@ required_conan_version = ">=2.1"
 
 class OpenSubdivConan(ConanFile):
     name = "opensubdiv"
-    license = "LicenseRef-LICENSE.txt"
-    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "An Open-Source subdivision surface library"
+    license = "DocumentRef-LICENSE.txt:LicenseRef-OpenSubDivModified-Apache-2.0"
+    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
     topics = ("cgi", "vfx", "animation", "subdivision surface")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -43,6 +42,12 @@ class OpenSubdivConan(ConanFile):
         "with_metal": True
     }
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     @property
     def _min_cppstd(self):
         if self.options.get_safe("with_metal"):
@@ -63,6 +68,8 @@ class OpenSubdivConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -75,11 +82,19 @@ class OpenSubdivConan(ConanFile):
             self.requires("glfw/[^3.4]")
         if self.options.get_safe("with_metal"):
             self.requires("metal-cpp/14.2")
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported on Windows")
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -116,10 +131,16 @@ class OpenSubdivConan(ConanFile):
         tc.variables["NO_TESTS"] = True
         tc.variables["NO_GLTESTS"] = True
         tc.variables["NO_MACOS_FRAMEWORK"] = True
+        # Let Conan manage the CUDA arch flags
+        tc.variables["OSD_CUDA_NVCC_FLAGS"] = ""
         tc.generate()
 
         tc = CMakeDeps(self)
         tc.generate()
+
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def _patch_sources(self):
         if self.settings.os == "Macos" and not self._osd_gpu_enabled:
@@ -157,6 +178,8 @@ class OpenSubdivConan(ConanFile):
                 self.cpp_info.components["osdgpu"].requires.extend(["opengl::opengl", "glfw::glfw"])
             if self.options.get_safe("with_metal"):
                 self.cpp_info.components["osdgpu"].requires.append("metal-cpp::metal-cpp")
+            if self.options.with_cuda:
+                self.cpp_info.components["osdgpu"].requires.append("cudart::cudart_")
             dl_required = self.options.with_opengl or self.options.with_opencl
             if self.settings.os in ["Linux", "FreeBSD"] and dl_required:
                 self.cpp_info.components["osdgpu"].system_libs = ["dl"]
