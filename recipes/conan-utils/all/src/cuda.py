@@ -56,7 +56,11 @@ class NvccToolchain:
         cuda_version = self.conanfile.settings.get_safe("cuda.version")
         if not cuda_version:
             raise ConanInvalidConfiguration("'cuda.version' setting must be defined, e.g. 'cuda.version=12.1'.")
-        if not self.arch_flags:
+
+        # Allow `del self.settings.cuda.architectures` for packages that only use the cuda/cudart API without building any device code.
+        have_architectures = conanfile.settings.get_safe("cuda.architectures") is not None
+        skip_arch_flags = skip_arch_flags or not have_architectures
+        if have_architectures and not self.arch_flags:
             raise ConanInvalidConfiguration("No valid CUDA architectures found in 'cuda.architectures' setting. "
                                  "Please specify at least one architecture, e.g. 'cuda.architectures=70,75'.")
 
