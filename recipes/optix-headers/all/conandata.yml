@@ -1,0 +1,10 @@
+sources:
+  "9.0.0":
+    url: "https://github.com/NVIDIA/optix-dev/archive/refs/tags/v9.0.0.tar.gz"
+    sha256: "069a5860040ea611e7eb6317f8e3bb0f0d54a5acac744568f7290d7cb8711c05"
+  "8.1.0":
+    url: "https://github.com/NVIDIA/optix-dev/archive/refs/tags/v8.1.0.tar.gz"
+    sha256: "aa32dfb55f37ff92964a5545b056094d86635441b3513e1d45a9410404b6d7c2"
+  "7.7.0":
+    url: "https://github.com/NVIDIA/optix-dev/archive/refs/tags/v7.7.0.tar.gz"
+    sha256: "02e5acdb8870a5668c763d47043d61586c1c4e72395d64e7bdd99ea04bc4222d"
