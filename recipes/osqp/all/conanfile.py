@@ -1,7 +1,8 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -17,23 +18,53 @@ class OsqpConan(ConanFile):
     homepage = "https://osqp.org/"
     topics = ("machine-learning", "control", "optimization", "svm", "solver", "lasso", "portfolio-optimization",
               "numerical-optimization", "quadratic-programming", "convex-optimization", "model-predictive-control")
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "backend": ["builtin", "cuda", "mkl"]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "backend": "builtin",
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.backend != "cuda":
+            del self.settings.cuda
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        if self.options.backend == "cuda":
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "cublas")
+            self._utils.cuda_requires(self, "cusparse")
+        elif self.options.backend == "mkl":
+            self.requires("onemkl/[*]")
+
+    def validate(self):
+        if Version(self.version) < "1.0" and self.options.backend != "builtin":
+            raise ConanInvalidConfiguration("Alternative backends are only supported in osqp >= 1.0.0")
+        if self.options.backend == "cuda":
+            self._utils.validate_cuda_settings(self)
+
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
+        if self.options.backend == "cuda":
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
@@ -43,9 +74,17 @@ class OsqpConan(ConanFile):
                 replace_in_file(self, cmakelists,
                                 "cmake_minimum_required (VERSION 3.2)",
                                 "cmake_minimum_required (VERSION 3.5)")
+        # Don't set CUDA architectures
+        if Version(self.version) >= "1.0.0":
+            replace_in_file(self, "CMakeLists.txt",
+                            "set(CMAKE_CUDA_ARCHITECTURES ",
+                            "# set(CMAKE_CUDA_ARCHITECTURES ")
+        if Version(self.version) >= "1.0.0":
+            replace_in_file(self, "algebra/mkl/CMakeLists.txt", "$<TARGET_PROPERTY:MKL::MKL", ") #")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["OSQP_ALGEBRA_BACKEND"] = self.options.backend
         tc.variables["UNITTESTS"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.variables["PRINTING"] = True
         tc.variables["PROFILING"] = True
@@ -54,7 +93,15 @@ class OsqpConan(ConanFile):
         tc.variables["DLONG"] = True
         tc.variables["COVERAGE"] = False
         tc.variables["ENABLE_MKL_PARDISO"] = True
+        tc.variables["OSQP_BUILD_DEMO_EXE"] = False
         tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
+        if self.options.backend == "cuda":
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
         cmake = CMake(self)
