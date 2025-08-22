@@ -1,0 +1,4 @@
+sources:
+  "1.0.0+git.20181128":
+    url: "https://github.com/NVIDIA/cnmem/archive/37896cc9bfc6536a8c878a1e675835c22d827821.tar.gz"
+    sha256: "4fd6c113ca2d03988b2343cc0fbdf3b3cd4ca8a792f2de66ff040e0d03968b58"
