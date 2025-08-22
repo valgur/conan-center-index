@@ -14,24 +14,36 @@ class FlannConan(ConanFile):
     name = "flann"
     description = "Fast Library for Approximate Nearest Neighbors"
     topics = ("nns", "nearest-neighbor-search", "knn", "kd-tree")
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.cs.ubc.ca/research/flann/"
     license = "BSD-3-Clause"
-
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_cuda": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_cuda": False,
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.with_cuda:
+            del self.settings.cuda
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -42,18 +54,42 @@ class FlannConan(ConanFile):
         # used in a public header:
         # https://github.com/flann-lib/flann/blob/1.9.2/src/cpp/flann/algorithms/nn_index.h#L323
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if Version(self.version) >= "1.9.2":
             check_min_cppstd(self, 11)
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
+
+    def build_requirements(self):
+        if self.options.with_cuda:
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # remove embedded lz4
+        rmdir(self, "src/cpp/flann/ext")
+        rmdir(self, "src/test")
+        if Version(self.version) < "1.9.2":
+            # Workaround issue with empty sources for a CMake target
+            save(self, "src/cpp/empty.cpp", "\n")
+            replace_in_file(self, "src/cpp/CMakeLists.txt",
+                            'add_library(flann_cpp SHARED "")',
+                            "add_library(flann_cpp SHARED empty.cpp)")
+            replace_in_file(self, "src/cpp/CMakeLists.txt",
+                            'add_library(flann SHARED "")',
+                            "add_library(flann SHARED empty.cpp)")
+        if Version(self.version) > "1.9.2":
+            # Don't set CUDA arch flags, let NvccToolchain handle it
+            replace_in_file(self, "src/cpp/CMakeLists.txt", " ;-gencode=", '") #')
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_C_BINDINGS"] = True
+        tc.variables["BUILD_CUDA_LIB"] = self.options.with_cuda
         # Only build the C++ libraries
         tc.variables["BUILD_DOC"] = False
         tc.variables["BUILD_EXAMPLES"] = False
@@ -71,28 +107,11 @@ class FlannConan(ConanFile):
         cd = CMakeDeps(self)
         cd.generate()
 
-    def _patch_sources(self):
-        # remove embedded lz4
-        rmdir(self, os.path.join(self.source_folder, "src", "cpp", "flann", "ext"))
-
-        if Version(self.version) < "1.9.2":
-            # Workaround issue with empty sources for a CMake target
-            flann_cpp_dir = os.path.join(self.source_folder, "src", "cpp")
-            save(self, os.path.join(flann_cpp_dir, "empty.cpp"), "\n")
-
-            replace_in_file(self,
-                os.path.join(flann_cpp_dir, "CMakeLists.txt"),
-                'add_library(flann_cpp SHARED "")',
-                'add_library(flann_cpp SHARED empty.cpp)'
-            )
-            replace_in_file(self,
-                os.path.join(flann_cpp_dir, "CMakeLists.txt"),
-                'add_library(flann SHARED "")',
-                'add_library(flann SHARED empty.cpp)'
-            )
+        if self.options.with_cuda:
+            nvcc_tc = self._utils.NvccToolchain(self)
+            nvcc_tc.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -111,7 +130,7 @@ class FlannConan(ConanFile):
             else:
                 rmdir(self, os.path.join(self.package_folder, "bin"))
         # Remove static/dynamic libraries depending on the build mode
-        libs_pattern_to_remove = ["*flann_cpp_s.*", "*flann_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*"]
+        libs_pattern_to_remove = ["_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*", "*flann_cuda.*"]
         for lib_pattern_to_remove in libs_pattern_to_remove:
             rm(self, lib_pattern_to_remove, os.path.join(self.package_folder, "lib"))
 
@@ -121,22 +140,35 @@ class FlannConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "flann")
         self.cpp_info.set_property("pkg_config_name", "flann")
 
+        suffix = "_s" if not self.options.shared else ""
+        alias_suffix = "_s" if self.options.shared else ""
+
         # flann_cpp
-        flann_cpp_lib = "flann_cpp" if self.options.shared else "flann_cpp_s"
-        self.cpp_info.components["flann_cpp"].set_property("cmake_target_name", f"flann::{flann_cpp_lib}")
-        self.cpp_info.components["flann_cpp"].libs = [flann_cpp_lib]
+        self.cpp_info.components["flann_cpp"].set_property("cmake_target_name", f"flann::flann_cpp{suffix}")
+        self.cpp_info.components["flann_cpp"].set_property("cmake_target_aliases", [f"flann::flann_cpp{alias_suffix}"])
+        self.cpp_info.components["flann_cpp"].libs = [f"flann_cpp{suffix}"]
         if not self.options.shared:
-            libcxx = stdcpp_library(self)
-            if libcxx:
-                self.cpp_info.components["flann_cpp"].system_libs.append(libcxx)
+            self.cpp_info.components["flann_cpp"].defines = ["FLANN_STATIC"]
         self.cpp_info.components["flann_cpp"].requires = ["lz4::lz4", "openmp::openmp"]
 
         # flann
-        flann_c_lib = "flann" if self.options.shared else "flann_s"
-        self.cpp_info.components["flann_c"].set_property("cmake_target_name", f"flann::{flann_c_lib}")
-        self.cpp_info.components["flann_c"].libs = [flann_c_lib]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["flann_c"].system_libs.append("m")
+        self.cpp_info.components["flann_c"].set_property("cmake_target_name", f"flann::flann{suffix}")
+        self.cpp_info.components["flann_c"].set_property("cmake_target_aliases", [f"flann::flann{alias_suffix}"])
+        self.cpp_info.components["flann_c"].libs = [f"flann{suffix}"]
         if not self.options.shared:
-            self.cpp_info.components["flann_c"].defines.append("FLANN_STATIC")
-        self.cpp_info.components["flann_c"].requires = ["flann_cpp"]
+            self.cpp_info.components["flann_c"].defines = ["FLANN_STATIC"]
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.components["flann_c"].system_libs = ["m"]
+        if not self.options.shared and stdcpp_library(self):
+            self.cpp_info.components["flann_c"].system_libs.append(stdcpp_library(self))
+        self.cpp_info.components["flann_c"].requires = ["lz4::lz4", "openmp::openmp"]
+
+        if self.options.with_cuda:
+            self.cpp_info.components["flann_cuda"].set_property("cmake_target_name", f"flann::flann_cuda{suffix}")
+            self.cpp_info.components["flann_cuda"].set_property("cmake_target_aliases", [f"flann::flann_cuda{alias_suffix}"])
+            self.cpp_info.components["flann_cuda"].libs = [f"flann_cuda{suffix}"]
+            if not self.options.shared:
+                self.cpp_info.components["flann_cuda"].defines = ["FLANN_STATIC"]
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.cpp_info.components["flann_cuda"].system_libs = ["m"]
+            self.cpp_info.components["flann_cuda"].requires = ["openmp::openmp", "cudart::cudart_"]
