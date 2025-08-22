@@ -1,0 +1,55 @@
+sources:
+  "10.13.2":
+    linux-aarch64:
+      13:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.2/tars/TensorRT-10.13.2.6.Linux.aarch64-gnu.cuda-13.0.tar.gz"
+        sha256: "c17c202d0c6cc2291f1604acb9e356b6e51731e2f94f6bd46127a93410efe312"
+    linux-x86_64:
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.2/tars/TensorRT-10.13.2.6.Linux.x86_64-gnu.cuda-12.9.tar.gz"
+        sha256: "63282a5338afa724142d58cc0c87a9f0e89460ef05d6f37ef52e5468aee8ae5b"
+      13:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.2/tars/TensorRT-10.13.2.6.Linux.x86_64-gnu.cuda-13.0.tar.gz"
+        sha256: "43865725c04bdb27023c7c2235a197424b8223766d1772961d2d36fe3b571587"
+    windows-x86_64:
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.2/zip/TensorRT-10.13.2.6.Windows.win10.cuda-12.9.zip"
+        sha256: "624707c62086dbff297b48f06584ad6458ac3215e9f812e4cebb857bac25e639"
+  "10.13.0":
+    linux-aarch64:
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.0/tars/TensorRT-10.13.0.35.Linux.aarch64-gnu.cuda-12.9.tar.gz"
+        sha256: "b2f7c7ae6da3588729b7a64825246cc59b643adbe373684fb9c5713262ed46c2"
+    linux-x86_64:
+      11:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.0/tars/TensorRT-10.13.0.35.Linux.x86_64-gnu.cuda-11.8.tar.gz"
+        sha256: "4128dd4f40433b957c90f9d04d53311d1636ee046b66a241ab60492f4861de74"
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.0/tars/TensorRT-10.13.0.35.Linux.x86_64-gnu.cuda-12.9.tar.gz"
+        sha256: "899ff39e237f1351fccac7f6891617f68cbab71c13a7d7c703184424bdbbf621"
+    windows-x86_64:
+      11:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.0/zip/TensorRT-10.13.0.35.Windows.win10.cuda-11.8.zip"
+        sha256: "c786d9300dd6fbc5bae1891aee3648366cba20fb4f3982116c309e88f9797f54"
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.0/zip/TensorRT-10.13.0.35.Windows.win10.cuda-12.9.zip"
+        sha256: "8b280dcdb9ce0bebed512ecb4cf8feaf5bd61dea9c981d5fc1fabfae7d06614f"
+  "8.6.1":
+    linux-aarch64:
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/tars/TensorRT-8.6.1.6.Ubuntu-20.04.aarch64-gnu.cuda-12.0.tar.gz"
+        sha256: "2dce3ebffc81af5ed595e70248530b503957313615ebc306131c275231a67b91"
+    linux-x86_64:
+      11:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/tars/TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz"
+        sha256: "15bfe6053d45feec45ecc7123a9106076b0b43fa0435f242d89dca0778337759"
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/tars/TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-12.0.tar.gz"
+        sha256: "0f8157a5fc5329943b338b893591373350afa90ca81239cdadd7580cd1eba254"
+    windows-x86_64:
+      11:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/zip/TensorRT-8.6.1.6.Windows10.x86_64.cuda-11.8.zip"
+        sha256: "1d24714f577de906688cf7706c47c8b13d3a30470927def896a36843119bcb3e"
+      12:
+        url: "https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/zip/TensorRT-8.6.1.6.Windows10.x86_64.cuda-12.0.zip"
+        sha256: "1fc0cdd50eccab806a62774db7681e4f6e1598323a90734468dbe5a91e4543c9"

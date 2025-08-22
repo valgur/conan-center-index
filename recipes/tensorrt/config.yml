@@ -1,0 +1,7 @@
+versions:
+  "10.13.2":
+    folder: all
+  "10.13.0":
+    folder: all
+  "8.6.1":
+    folder: all
