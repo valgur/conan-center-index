@@ -45,6 +45,7 @@ packages_following_ctk_minor_version = {
 packages_following_ctk_major_version = {
     "cuda-samples",
     "npp",
+    "nvjitlink",
     "nvjpeg",
 }
 

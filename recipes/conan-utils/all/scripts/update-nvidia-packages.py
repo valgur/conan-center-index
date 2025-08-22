@@ -23,6 +23,7 @@ conanfile_version_ranges = {
     "cudss/all": ("0.3", None),
     "cufile/all": ("1.3", None),
     "cupti/all": ("11.5", None),
+    "cuquantum/all": ("25.03.0", None),
     "cusparselt/all": ("0.4", None),
     "cutensor/all": ("1.7", None),
     "nvjpeg2k/all": ("0.7", None),
