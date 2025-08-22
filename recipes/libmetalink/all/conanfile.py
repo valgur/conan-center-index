@@ -3,11 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -22,17 +21,14 @@ class LibmetalinkConan(ConanFile):
     topics = ("metalink", "xml")
     homepage = "https://launchpad.net/libmetalink"
     url = "https://github.com/conan-io/conan-center-index"
-
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "xml_backend": ["expat", "libxml2"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "xml_backend": "expat",
     }
     languages = ["C"]
     implements = ["auto_shared_fpic"]
@@ -41,10 +37,7 @@ class LibmetalinkConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.xml_backend == "expat":
-            self.requires("expat/[>=2.6.2 <3]")
-        elif self.options.xml_backend == "libxml2":
-            self.requires("libxml2/[^2.12.5]")
+        self.requires("expat/[>=2.6.2 <3]")
 
     def validate(self):
         if is_msvc(self):
@@ -70,18 +63,13 @@ class LibmetalinkConan(ConanFile):
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        yes_no = lambda v: "yes" if v else "no"
         tc.configure_args.extend([
-            f"--with-libexpat={yes_no(self.options.xml_backend == 'expat')}",
-            f"--with-libxml2={yes_no(self.options.xml_backend == 'libxml2')}",
+            "--with-libexpat=yes",
+            "--with-libxml2=no",
             "ac_cv_func_malloc_0_nonnull=yes",
         ])
         tc.generate()
-
         deps = PkgConfigDeps(self)
         deps.generate()
 

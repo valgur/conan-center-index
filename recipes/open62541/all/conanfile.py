@@ -190,7 +190,8 @@ class Open62541Conan(ConanFile):
         if self.options.discovery == "With Multicast" or "multicast" in str(self.options.discovery):
             self.requires("pro-mdnsd/0.8.4")
         if self.options.get_safe("nodeset_loader"):
-            self.requires("libxml2/[>=2.12.5 <3]")
+            # version 1.4.11.1 with libxml2 2.14.x doesn't work because open62541 uses deprecated/remove APIs
+            self.requires("libxml2/[>=2.12.5 <=2.13.8]")
 
     def validate(self):
         if not self.options.subscription:
@@ -229,6 +230,9 @@ class Open62541Conan(ConanFile):
             # NodesetLoader requires parsing to be enabled
             raise ConanInvalidConfiguration("When nodeset_loader is enabled, then parsing has to be enabled too.")
 
+        if self.options.get_safe("nodeset_loader") and Version(self.version) >= "1.4.13":
+            raise ConanInvalidConfiguration("nodeset_loader option does not work properly with this version - contributions welcome")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -243,10 +247,12 @@ class Open62541Conan(ConanFile):
                     destination=path,
                     filename=archive_name,
                     strip_root=True)
-        self._patch_sources()
-
         apply_conandata_patches(self)
-        rm(self, "FindPython3.cmake", os.path.join(self.source_folder, "tools", "cmake"))
+        rm(self, "FindPython3.cmake", "tools/cmake")
+        if Version(self.version) >= "1.4.11.1":
+            replace_in_file(self, "deps/nodesetLoader/CMakeLists.txt",
+                            "find_package(LibXml2 REQUIRED QUIET)",
+                            "find_package(LibXml2 REQUIRED GLOBAL)")
 
     def _get_log_level(self):
         return {
