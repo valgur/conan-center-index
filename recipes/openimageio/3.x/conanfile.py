@@ -23,10 +23,11 @@ class OpenImageIOConan(ConanFile):
     homepage = "http://www.openimageio.org/"
     url = "https://github.com/conan-io/conan-center-index"
 
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_cuda": [True, False],
         "with_dicom": [True, False],
         "with_ffmpeg": [True, False],
         "with_freetype": [True, False],
@@ -47,6 +48,7 @@ class OpenImageIOConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_cuda": True,
         "with_dicom": False,
         "with_ffmpeg": False,
         "with_freetype": False,
@@ -68,8 +70,25 @@ class OpenImageIOConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.with_cuda:
+            del self.settings.cuda.architectures
+        else:
+            del self.settings.cuda
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # Required libraries
@@ -116,13 +135,12 @@ class OpenImageIOConan(ConanFile):
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_libultrahdr:
             self.requires("libultrahdr/[^1.4.0]")
+        if self.options.with_cuda:
+            self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
         # TODO: Field3D dependency
         # TODO: R3DSDK dependency
         # TODO: Nuke dependency
-
-    def build_requirements(self):
-        self.build_requires("cmake/[>=3.18.2 <5]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -130,9 +148,11 @@ class OpenImageIOConan(ConanFile):
             raise ConanInvalidConfiguration("Building shared library with static runtime is not supported!")
         if self.options.with_opencv and not self.dependencies["opencv"].options.videoio:
             raise ConanInvalidConfiguration("-o opencv/*:videoio=True is required for with_opencv=True")
+        if self.options.with_cuda:
+            self._utils.validate_cuda_settings(self)
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def build_requirements(self):
+        self.build_requires("cmake/[>=3.18.2 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -162,6 +182,7 @@ class OpenImageIOConan(ConanFile):
         tc.variables["USE_EXTERNAL_PUGIXML"] = True
         tc.variables["BUILD_MISSING_FMT"] = False
         tc.variables["OIIO_INTERNALIZE_FMT"] = False
+        tc.variables["OIIO_USE_CUDA"] = self.options.with_cuda
 
         tc.variables["USE_LIBHEIF"] = self.options.with_libheif
         tc.variables["USE_PTEX"] = self.options.with_ptex
@@ -314,6 +335,8 @@ class OpenImageIOConan(ConanFile):
             open_image_io.requires.append("libwebp::libwebp")
         if self.options.with_libultrahdr:
             open_image_io.requires.append("libultrahdr::libultrahdr")
+        if self.options.with_cuda:
+            open_image_io.requires.append("cudart::cudart_")
         if self.settings.os in ["Linux", "FreeBSD"]:
             open_image_io.system_libs.extend(["dl", "m", "pthread"])
 
