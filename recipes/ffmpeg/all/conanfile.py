@@ -177,7 +177,7 @@ class FFMpegConan(ConanFile):
         "with_mediacodec": False,
         "with_xlib": True,
         "with_ffnvcodec": True,
-        "with_cuda": True,
+        "with_cuda": False,
         "disable_everything": False,
         "disable_all_encoders": False,
         "disable_encoders": None,
