@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -136,7 +136,7 @@ class ColmapConan(ConanFile):
         tc.cache_variables["FETCH_FAISS"] = False
         tc.cache_variables["FETCH_POSELIB"] = False
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        if self.options.cuda and self.settings.os == "Linux":
+        if self.options.cuda and self.settings.os == "Linux" and not cross_building(self):
             # Workaround for -I/usr/include from OpenGL messing up the NVCC include dir search order,
             # causing src/thirdparty/SiftGPU/ProgramCU.cu to fail:
             #   /usr/include/c++/13/cmath:47:15: fatal error: math.h: No such file or directory
