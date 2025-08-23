@@ -1,0 +1,8 @@
+sources:
+  "0.4.0":
+    "linux-aarch64":
+      url: "https://developer.download.nvidia.com/compute/cupqc/redist/cupqc/cupqc-sdk-0.4.0-aarch64.tar.gz"
+      sha256: "3308a3bdc15074a060d503542c40cd4e77b975e5f103a3414db64507f7f3d052"
+    "linux-x86_64":
+      url: "https://developer.download.nvidia.com/compute/cupqc/redist/cupqc/cupqc-sdk-0.4.0-x86_64.tar.gz"
+      sha256: "f87f12f439411ad47103867613aaec74d652d81ca2df10d5d76535c902a07e57"
