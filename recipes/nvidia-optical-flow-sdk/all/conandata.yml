@@ -1,7 +1,17 @@
-# Must be logged in to download from https://developer.nvidia.com/opticalflow/download
+# Must be logged in to download v4.x and newer from https://developer.nvidia.com/opticalflow/download
 sources:
   "5.0.7":
     sha256: "1cbb8951ddb1be661f9bc03e31cf72253b251ca4721dd893a24583b472d06314"
+  "4.0.11":
+    sha256: "14200a44034cc6cab89bfcfc70a692d7804102ae1cb4493dc54657912b735c54"
+  "2.0":
+    url: "https://github.com/NVIDIA/NVIDIAOpticalFlowSDK/archive/refs/heads/nvof_2_0_bsd.zip"
+    sha256: "51073d91d0312e95801dbcc35e586349d1e45c51a5cffaa67f31a385c8df3437"
+  "1.0":
+    url: "https://github.com/NVIDIA/NVIDIAOpticalFlowSDK/archive/refs/heads/nvof_1_0_bsd.zip"
+    sha256: "4e0dd76734688e5237364637a4028bbe29596c400b4a53e62672f01033578a87"
 patches:
   "5.0.7":
+    - patch_file: "patches/5.0.7-cmake_fixes.patch"
+  "4.0.11":
     - patch_file: "patches/5.0.7-cmake_fixes.patch"
