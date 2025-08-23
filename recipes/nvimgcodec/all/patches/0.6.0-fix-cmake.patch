@@ -1,0 +1,84 @@
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -38,19 +38,23 @@
+     ${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/include
+ )
+ 
+-include_directories(SYSTEM ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+-find_path(NVJPEG_INCLUDE
+-    NAMES nvjpeg.h
+-    PATHS
+-        ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+-        ${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/include
+-)
+-include_directories(SYSTEM ${NVJPEG_INCLUDE})
+-
+-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/external/NVTX/c/include)
+-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/external/dlpack/include)
++include_directories(${CUDAToolkit_INCLUDE_DIRS})
++
++link_libraries(CUDA::nvtx3)
++find_package(dlpack REQUIRED)
++include_directories(${dlpack_INCLUDE_DIRS})
++
++if (BUILD_NVJPEG_EXT)
++    find_package(nvjpeg REQUIRED)
++    include_directories(${nvjpeg_INCLUDE_DIRS})
++endif()
+ 
+ if (BUILD_NVJPEG2K_EXT)
++    find_package(nvjpeg2k REQUIRED)
++    include_directories(${nvjpeg2k_INCLUDE_DIRS})
++    set(NVJPEG2K_LIBRARY CUDA::nvjpeg2k)
++endif()
++if(0)
+     if (WITH_DYNAMIC_NVJPEG2K)
+         include(FetchContent)
+         FetchContent_Declare(
+@@ -89,6 +93,11 @@
+ endif()
+ 
+ if (BUILD_NVTIFF_EXT)
++    find_package(nvtiff REQUIRED)
++    include_directories(${nvtiff_INCLUDE_DIRS})
++    set(NVTIFF_LIB CUDA::nvtiff)
++endif()
++if(0)
+     if (WITH_DYNAMIC_NVTIFF)
+         include(FetchContent)
+         FetchContent_Declare(
+@@ -128,7 +137,6 @@
+ 
+ set(TIFF_LIBRARY_DEPS)
+ 
+-find_package(ZLIB)
+ if(NOT ZLIB_FOUND)
+     message(STATUS "zlib not found - disabled")
+ else()
+@@ -136,7 +144,6 @@
+     list(APPEND TIFF_LIBRARY_DEPS ${ZLIB_LIBRARIES})
+ endif()
+ 
+-find_package(ZSTD)
+ if(NOT DEFINED ZSTD_LIBRARY)
+     message(FATAL_ERROR "zstd not found - disabled")
+ else()
+@@ -144,7 +151,7 @@
+     list(APPEND TIFF_LIBRARY_DEPS ${ZSTD_LIBRARY})
+ endif()
+ 
+-find_package(JPEG 62) # 1.5.3 version
++find_package(JPEG)
+ if(NOT JPEG_FOUND)
+     message(STATUS "libjpeg-turbo not found - disabled")
+     set(BUILD_LIBJPEG_TURBO_EXT OFF CACHE BOOL INTERNAL)
+@@ -196,7 +203,8 @@
+ # #################################################################
+ # Boost preprocessor
+ # #################################################################
+-include_directories(${PROJECT_SOURCE_DIR}/external/boost/preprocessor/include)
++find_package(Boost REQUIRED)
++include_directories(${Boost_INCLUDE_DIRS})
+ 
+ set(NVIMGCODEC_COMMON_DEPENDENCIES "")
+ list(APPEND NVIMGCODEC_COMMON_DEPENDENCIES rt)

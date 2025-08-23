@@ -1,0 +1,12 @@
+sources:
+  "0.6.0":
+    url: "https://github.com/NVIDIA/nvImageCodec/archive/refs/tags/v0.6.0.tar.gz"
+    sha256: "b79e2fe1693656e81078a95c17b512be96e58e8a2b93e4b8bc85112c4da85e7e"
+  "0.5.0":
+    url: "https://github.com/NVIDIA/nvImageCodec/archive/refs/tags/v0.5.0.tar.gz"
+    sha256: "bca65e817db45edcc86b57cc980d7ad122b3eef167b5cfc4a0e20e8e24c2226f"
+patches:
+  "0.6.0":
+    - patch_file: "patches/0.6.0-fix-cmake.patch"
+  "0.5.0":
+    - patch_file: "patches/0.5.0-fix-cmake.patch"

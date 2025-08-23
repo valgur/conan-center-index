@@ -1,0 +1,94 @@
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -33,20 +33,24 @@
+ 
+ find_package(CUDAToolkit REQUIRED)
+ 
+-include_directories(SYSTEM ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+-find_path(NVJPEG_INCLUDE
+-    NAMES nvjpeg.h
+-    PATHS
+-        ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+-        ${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/include
+-)
+-include_directories(SYSTEM ${NVJPEG_INCLUDE})
+-
+-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/external/NVTX/c/include)
+-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/external/dlpack/include)
++include_directories(${CUDAToolkit_INCLUDE_DIRS})
++
++link_libraries(CUDA::nvtx3)
++find_package(dlpack REQUIRED)
++include_directories(${dlpack_INCLUDE_DIRS})
++
++if (BUILD_NVJPEG_EXT)
++    find_package(nvjpeg REQUIRED)
++    include_directories(${nvjpeg_INCLUDE_DIRS})
++endif()
+ 
+ # Linking with static nvjpeg2k until there is a python package for it
+ if (BUILD_NVJPEG2K_EXT)
++    find_package(nvjpeg2k REQUIRED)
++    include_directories(${nvjpeg2k_INCLUDE_DIRS})
++    set(NVJPEG2K_LIBRARY CUDA::nvjpeg2k)
++endif()
++if(0)
+     if (NOT WITH_DYNAMIC_NVJPEG2K)
+         CUDA_find_library(NVJPEG2K_LIBRARY nvjpeg2k_static)
+         if (${NVJPEG2K_LIBRARY} STREQUAL "NVJPEG2K_LIBRARY-NOTFOUND")
+@@ -86,6 +90,11 @@
+ endif()
+ 
+ if (BUILD_NVTIFF_EXT)
++    find_package(nvtiff REQUIRED)
++    include_directories(${nvtiff_INCLUDE_DIRS})
++    set(NVTIFF_LIB CUDA::nvtiff)
++endif()
++if(0)
+     if (WITH_DYNAMIC_NVTIFF)
+         message(STATUS "Dynamic nvTIFF extension build")
+         # Note: We are getting the x86_64 tarball, but we are only interested in the headers.
+@@ -93,7 +102,7 @@
+         FetchContent_Declare(
+             nvtiff_headers
+             URL      https://developer.download.nvidia.com/compute/nvtiff/redist/libnvtiff/linux-x86_64/libnvtiff-linux-x86_64-0.5.0.67_cuda12-archive.tar.xz
+-            URL_HASH SHA512=62dea5c9b72aa3f4e18b306e3f1e60a00082e67c6cedc95442413b39aa48e41ae4b9371a5ff210a37a6cb3008ed308aeb78cbf2a7b9df55bc5ee7a6da0899832 
++            URL_HASH SHA512=62dea5c9b72aa3f4e18b306e3f1e60a00082e67c6cedc95442413b39aa48e41ae4b9371a5ff210a37a6cb3008ed308aeb78cbf2a7b9df55bc5ee7a6da0899832
+         )
+         FetchContent_Populate(nvtiff_headers)
+         set(nvtiff_SEARCH_PATH "${nvtiff_headers_SOURCE_DIR}/include")
+@@ -130,7 +139,6 @@
+ 
+ set(TIFF_LIBRARY_DEPS)
+ 
+-find_package(ZLIB)
+ if(NOT DEFINED ZLIB_LIBRARY)
+     message(STATUS "zlib not found - disabled")
+ else()
+@@ -138,7 +146,6 @@
+     list(APPEND TIFF_LIBRARY_DEPS ${ZLIB_LIBRARY})
+ endif()
+ 
+-find_package(ZSTD)
+ if(NOT DEFINED ZSTD_LIBRARY)
+     message(FATAL_ERROR "zstd not found - disabled")
+ else()
+@@ -146,7 +153,7 @@
+     list(APPEND TIFF_LIBRARY_DEPS ${ZSTD_LIBRARY})
+ endif()
+ 
+-find_package(JPEG 62) # 1.5.3 version
++find_package(JPEG)
+ if(NOT DEFINED JPEG_LIBRARY)
+     message(STATUS "libjpeg-turbo not found - disabled")
+     set(BUILD_LIBJPEG_TURBO_EXT OFF CACHE BOOL INTERNAL)
+@@ -198,7 +205,8 @@
+ # #################################################################
+ # Boost preprocessor
+ # #################################################################
+-include_directories(${PROJECT_SOURCE_DIR}/external/boost/preprocessor/include)
++find_package(Boost REQUIRED)
++include_directories(${Boost_INCLUDE_DIRS})
+ 
+ set(NVIMGCODEC_COMMON_DEPENDENCIES "")
+ list(APPEND NVIMGCODEC_COMMON_DEPENDENCIES rt)
