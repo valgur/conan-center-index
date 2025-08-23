@@ -1,0 +1,4 @@
+sources:
+  "0.0.1+git.20250822":
+    url: "https://github.com/NVIDIA/cuCollections/archive/a42b094fb3c5d882dfe300ca07146ab4881ae0bb.tar.gz"
+    sha256: "0fe836150e30ebf84e520d52b45081beb5a379c228f9f8e94ff67c88d5a73fbd"
