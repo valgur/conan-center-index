@@ -16,12 +16,6 @@ class NvidiaVideoCodecSdkConan(ConanFile):
     topics = ("nvidia", "video", "codec", "gpu")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
-    options = {
-        "archive_dir": ["ANY"],
-    }
-    default_options = {
-        "archive_dir": None,
-    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -30,7 +24,6 @@ class NvidiaVideoCodecSdkConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
         del self.info.settings.cuda
-        del self.info.options.archive_dir
 
     def requirements(self):
         self.requires(f"cuda-driver-stubs/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
@@ -47,14 +40,17 @@ class NvidiaVideoCodecSdkConan(ConanFile):
     def _file_name(self):
         return f"Video_Codec_SDK_{self.version}.zip"
 
+    @property
+    def _archive_dir(self):
+        return self.conf.get("user.tools:offline_archives_folder", check_type=str, default=None)
+
     def validate_build(self):
-        if not self.options.archive_dir:
-            raise ConanInvalidConfiguration(
-                f"The 'archive_dir' option must be set to a directory path where a '{self._file_name}' file is located"
-            )
+        if not self._archive_dir:
+            raise ConanInvalidConfiguration(f"user.tools:offline_archives_folder config variable must be set"
+                                            f" to a location containing a {self._file_name} archive file.")
 
     def _source(self):
-        path = os.path.join(self.options.archive_dir.value, self._file_name)
+        path = os.path.join(self._archive_dir, self._file_name)
         check_sha256(self, path, self.conan_data["sources"][self.version]["sha256"])
         unzip(self, path, destination=self.source_folder, strip_root=True)
 
