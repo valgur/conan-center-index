@@ -1,0 +1,4 @@
+sources:
+  "25.08.00":
+    url: "https://github.com/rapidsai/rapids-cmake/archive/refs/tags/v25.08.00.tar.gz"
+    sha256: "c19bfbe65f24adc3f68e78d757f5ebbefa7a7ef95d15668dfb225a18de13978c"
