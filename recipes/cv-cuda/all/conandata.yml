@@ -1,0 +1,4 @@
+sources:
+  "0.15.0":
+    url: "https://github.com/CVCUDA/CV-CUDA/archive/refs/tags/v0.15.0-beta.tar.gz"
+    sha256: "b9808018eaf218f22801081f71c642e2fe6042ef4749be53cd9b89def4b63634"
