@@ -45,30 +45,24 @@ class RmmConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30.4]")
+        self.tool_requires("rapids-cmake/25.08.00")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version]["rmm"], strip_root=True)
-        get(self, **self.conan_data["sources"][self.version]["rapids-cmake"], strip_root=True, destination="cpp/rapids-cmake")
-        # Use the local copy of rapids-cmake
-        replace_in_file(self, "cmake/RAPIDS.cmake",
-                        'FetchContent_Declare(rapids-cmake URL "${rapids-cmake-url}")',
-                        'FetchContent_Declare(rapids-cmake URL "${CMAKE_SOURCE_DIR}/rapids-cmake")')
-        # Prohibit FetchContent after loading rapids-cmake
-        replace_in_file(self, "cpp/CMakeLists.txt",
-                        "include(rapids-cmake)",
-                        "include(rapids-cmake)\n"
-                        "set(FETCHCONTENT_FULLY_DISCONNECTED 1)")
-        # Don't force an exact CCCL version
-        replace_in_file(self, "cpp/rapids-cmake/rapids-cmake/cpm/cccl.cmake", "FIND_PACKAGE_ARGUMENTS EXACT", "")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        save(self, "cmake/RAPIDS.cmake", "find_package(rapids-cmake REQUIRED)")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["RMM_NVTX"] = True
         tc.cache_variables["BUILD_TESTS"] = False
         tc.cache_variables["CPM_USE_LOCAL_PACKAGES"] = True
+        tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
+        tc.cache_variables["CMAKE_PREFIX_PATH"] = self.generators_folder.replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.build_context_activated.append("rapids-cmake")
+        deps.build_context_build_modules.append("rapids-cmake")
         deps.generate()
 
     def build(self):

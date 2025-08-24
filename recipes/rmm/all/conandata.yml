@@ -1,15 +1,7 @@
 sources:
   "25.08.00":  # Requires CUDA 12.0
-    rmm:
-      url: "https://github.com/rapidsai/rmm/archive/v25.08.00.tar.gz"
-      sha256: "6931f4de923b617af8c3b97505d79fd3b7b6b5492c1b5a8cd8bcfdc147cdf458"
-    rapids-cmake:
-      url: "https://github.com/rapidsai/rapids-cmake/archive/refs/tags/v25.08.00.tar.gz"
-      sha256: "c19bfbe65f24adc3f68e78d757f5ebbefa7a7ef95d15668dfb225a18de13978c"
+    url: "https://github.com/rapidsai/rmm/archive/v25.08.00.tar.gz"
+    sha256: "6931f4de923b617af8c3b97505d79fd3b7b6b5492c1b5a8cd8bcfdc147cdf458"
   "25.06.00":  # Requires CUDA 11.4
-    rmm:
-      url: "https://github.com/rapidsai/rmm/archive/v25.06.00.tar.gz"
-      sha256: "719f9d06dcc929ef315627f1dc574077006e5c80c85e86ff8e8126e6aafac021"
-    rapids-cmake:
-      url: "https://github.com/rapidsai/rapids-cmake/archive/refs/tags/v25.06.00.tar.gz"
-      sha256: "ab9998a17ee9919c8531ba8fc318609647f22dfa94c7ed8985fa9dec06d60cea"
+    url: "https://github.com/rapidsai/rmm/archive/v25.06.00.tar.gz"
+    sha256: "719f9d06dcc929ef315627f1dc574077006e5c80c85e86ff8e8126e6aafac021"
