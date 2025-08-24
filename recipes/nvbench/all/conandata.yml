@@ -1,0 +1,4 @@
+sources:
+  "0.1.0+git.20250806":
+    url: "https://github.com/NVIDIA/nvbench/archive/935bb0b633dd387940dd91ca21a48bdfb74cf09e.tar.gz"
+    sha256: "258e606126ae2fce9296d8fb7849e6a29f2acee3bed6705e00e597c1f8b1ea7d"
