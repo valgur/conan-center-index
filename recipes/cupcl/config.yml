@@ -1,0 +1,11 @@
+versions:
+  "1.1+x86_64":
+    folder: all
+  "1.1+armv8":
+    folder: all
+  "1.0+jp6":
+    folder: all
+  "1.0+jp5":
+    folder: all
+  "1.0+jp4":
+    folder: all

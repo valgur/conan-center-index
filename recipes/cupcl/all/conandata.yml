@@ -1,0 +1,17 @@
+# The version numbers are based on the 'lib version' string in the .so files
+sources:
+  "1.1+x86_64":
+    url: "https://github.com/NVIDIA-AI-IOT/cuPCL/archive/ceaf0c88a31355324b60d755bbb7d88f6e4f94c4.tar.gz"
+    sha256: "36fb2783a74a6c0dc49945662443a83f055a5cbc85d434d12ba586cc16d5cb14"
+  "1.1+armv8":
+    url: "https://github.com/NVIDIA-AI-IOT/cuPCL/archive/646bfc1fc8bce1133ad5eefc8c941ea6840f6df6.tar.gz"
+    sha256: "723f445d4749e9340901208b804342d106989a2e34d5a5b088d93c20d2f79c6c"
+  "1.0+jp6":
+    url: "https://github.com/NVIDIA-AI-IOT/cuPCL/archive/ad4eb15b213ab50d9bd0be83801892861e347799.tar.gz"
+    sha256: "879e8943aca6368954f652c3b297b5d498b474fbd66471cbe9cf0ce7b84f4ec5"
+  "1.0+jp5":
+    url: "https://github.com/NVIDIA-AI-IOT/cuPCL/archive/2b3a83d0a2f8b1470d8261b7af849aaece4c38bd.tar.gz"
+    sha256: "71f14b163fe1b2056ba8935578243e0e288379d5f2d53f244420c8816adbcfd5"
+  "1.0+jp4":
+    url: "https://github.com/NVIDIA-AI-IOT/cuPCL/archive/9bcf844d3154f27d9f3f7ff48de55e96321dc3de.tar.gz"
+    sha256: "069b5e715f2957a82dd2a14b196d2597c606f10f9477ca3d87d8f43c49f4e79b"
