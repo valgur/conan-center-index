@@ -1,0 +1,7 @@
+sources:
+  "1.51.0":
+    url: "https://github.com/NVIDIA/DALI/archive/refs/tags/v1.51.0.tar.gz"
+    sha256: "c0e92796288e94e355c0cea25d367ae2aa3bb7bbb8eebc1ff2294a2e53380a94"
+patches:
+  "1.51.0":
+    - patch_file: "patches/1.51.0-cmake-fixes.patch"

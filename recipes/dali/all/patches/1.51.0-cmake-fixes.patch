@@ -1,0 +1,248 @@
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -16,8 +16,8 @@
+ # CUDA Toolkit libraries (including NVJPEG)
+ ##################################################################
+ 
+-CUDA_find_library(CUDART_LIB cudart_static)
+-list(APPEND DALI_EXCLUDES libcudart_static.a)
++find_package(CUDAToolkit REQUIRED)
++set(CUDART_LIB CUDA::cudart_static)
+ 
+ # For NVJPEG
+ if (BUILD_NVJPEG)
+@@ -46,7 +46,8 @@
+ endif()
+ 
+ if (BUILD_NVJPEG2K)
+-  CUDA_find_library(NVJPEG2K_LIBRARY nvjpeg2k_static)
++  find_package(nvjpeg2k REQUIRED)
++  set(NVJPEG2K_LIBRARY CUDA::nvjpeg2k_static)
+   if (${NVJPEG2K_LIBRARY} STREQUAL "NVJPEG2K_LIBRARY-NOTFOUND")
+     message(WARNING "nvJPEG2k not found - disabled")
+     set(BUILD_NVJPEG2K OFF CACHE BOOL INTERNAL)
+@@ -59,9 +60,9 @@
+ 
+ # NVIDIA NPP library
+ if (NOT WITH_DYNAMIC_NPP)
+-  CUDA_find_library(CUDA_nppicc_LIBRARY nppicc_static)
+-  CUDA_find_library(CUDA_nppig_LIBRARY nppig_static)
+-  CUDA_find_library(CUDA_nppc_LIBRARY nppc_static)
++  set(CUDA_nppicc_LIBRARY CUDA::nppicc_static)
++  set(CUDA_nppig_LIBRARY CUDA::nppig_static)
++  set(CUDA_nppc_LIBRARY CUDA::nppc_static)
+   list(APPEND DALI_LIBS ${CUDA_nppicc_LIBRARY})
+   list(APPEND DALI_EXCLUDES libnppicc_static.a)
+   list(APPEND DALI_LIBS ${CUDA_nppig_LIBRARY})
+@@ -72,31 +73,26 @@
+ 
+ # cuFFT library
+ if (NOT WITH_DYNAMIC_CUFFT)
+-  CUDA_find_library(CUDA_cufft_LIBRARY cufft_static)
++  set(CUDA_cufft_LIBRARY CUDA::cufft_static)
+   list(APPEND DALI_EXCLUDES libcufft_static.a)
+ endif ()
+ 
+ # CULIBOS needed when using static CUDA libs
+-if (NOT WITH_DYNAMIC_NVJPEG OR NOT WITH_DYNAMIC_CUFFT OR NOT WITH_DYNAMIC_NPP)
++if (FALSE)
+   CUDA_find_library(CUDA_culibos_LIBRARY culibos)
+   list(APPEND DALI_LIBS ${CUDA_culibos_LIBRARY})
+   list(APPEND DALI_EXCLUDES libculibos.a)
+ endif()
+ 
+ if (LINK_LIBCUDA)
+-  CUDA_find_library_stub(CUDA_cuda_LIBRARY cuda)
+-  list(APPEND DALI_LIBS ${CUDA_cuda_LIBRARY})
+-
+-  CUDA_find_library_stub(CUDA_nvml_LIBRARY nvidia-ml)
++  set(CUDA_nvml_LIBRARY CUDA::nvml_static)
+   list(APPEND DALI_LIBS ${CUDA_nvml_LIBRARY})
+ endif()
+ 
+ # NVTX for profiling
+ if (NVTX_ENABLED)
+-  if(${CUDA_VERSION} VERSION_LESS "10.0")
+-     CUDA_find_library(CUDA_nvToolsExt_LIBRARY nvToolsExt)
+-     list(APPEND DALI_LIBS ${CUDA_nvToolsExt_LIBRARY})
+-  endif()
++   set(CUDA_nvToolsExt_LIBRARY CUDA::nvtx3)
++   link_libraries(CUDA::nvtx3)
+ endif()
+ 
+ # verbose
+--- a/cmake/Dependencies.common.cmake
++++ b/cmake/Dependencies.common.cmake
+@@ -62,7 +62,7 @@
+ # libjpeg-turbo
+ ##################################################################
+ if (BUILD_JPEG_TURBO)
+-  find_package(JPEG 62 REQUIRED) # 1.5.3 version
++  find_package(JPEG REQUIRED)
+   include_directories(${JPEG_INCLUDE_DIR})
+   message("Using libjpeg-turbo at ${JPEG_LIBRARY}")
+   list(APPEND DALI_LIBS ${JPEG_LIBRARY})
+@@ -101,31 +101,16 @@
+ # libsnd
+ ##################################################################
+ if(BUILD_LIBSND)
+-  find_library(libsnd_LIBS
+-          NAMES sndfile libsndfile
+-          PATHS ${LIBSND_ROOT_DIR} "/usr/local" ${CMAKE_SYSTEM_PREFIX_PATH}
+-          PATH_SUFFIXES lib lib64)
+-  if(${libsnd_LIBS} STREQUAL libsnd_LIBS-NOTFOUND)
+-    message(FATAL_ERROR "libsnd (sndfile) could not be found. Try to specify it's location with `-DLIBSND_ROOT_DIR`.")
+-  endif()
+-  message(STATUS "Found libsnd: ${libsnd_LIBS}")
+-  list(APPEND DALI_LIBS ${libsnd_LIBS})
++  find_package(SndFile REQUIRED)
++  list(APPEND DALI_LIBS SndFile::sndfile)
+ endif()
+ 
+ ##################################################################
+ # libtar
+ ##################################################################
+ if(BUILD_LIBTAR)
+-  find_library(libtar_LIBS
+-          NAMES libtar.a tar libtar
+-          PATHS ${LIBTAR_ROOT_DIR} "/usr/local" ${CMAKE_SYSTEM_PREFIX_PATH}
+-          PATH_SUFFIXES lib lib64)
+-  if(${libtar_LIBS} STREQUAL libtar_LIBS-NOTFOUND)
+-    message(FATAL_ERROR "libtar could not be found. Try to specify it's location with `-DLIBTAR_ROOT_DIR`.")
+-  endif()
+-  message(STATUS "Found libtar: ${libtar_LIBS}")
+-  list(APPEND DALI_LIBS ${libtar_LIBS})
+-  list(APPEND DALI_EXCLUDES libtar.a)
++  find_package(libtar REQUIRED)
++  list(APPEND DALI_LIBS libtar::libtar)
+ endif()
+ 
+ 
+@@ -134,7 +119,10 @@
+ ##################################################################
+ set(DALI_INSTALL_REQUIRES_NVCOMP "")
+ if(BUILD_NVCOMP)
+-  if (NOT WITH_DYNAMIC_NVCOMP)
++  if (1)
++    find_package(nvcomp REQUIRED)
++    list(APPEND DALI_LIBS nvcomp::nvcomp)
++  elseif(0)
+     find_library(
+       nvcomp_LIBS
+       NAMES nvcomp
+@@ -202,50 +190,33 @@
+ ##################################################################
+ # Boost preprocessor
+ ##################################################################
+-include_directories(${PROJECT_SOURCE_DIR}/third_party/boost/preprocessor/include)
++find_package(Boost REQUIRED)
++include_directories(${Boost_INCLUDE_DIRS})
+ 
+ ##################################################################
+ # RapidJSON
+ ##################################################################
+-include_directories(${PROJECT_SOURCE_DIR}/third_party/rapidjson/include)
++find_package(RapidJSON REQUIRED)
++include_directories(${RapidJSON_INCLUDE_DIRS})
+ 
+ ##################################################################
+ # FFTS
+ ##################################################################
+ if (BUILD_FFTS)
+-  set(GENERATE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "-fPIC")
+-  set(ENABLE_SHARED OFF CACHE BOOL "shared library target")
+-  set(ENABLE_STATIC ON CACHE BOOL "static library target")
+-  # dynamic machine code generation works only for x86
+-  if(NOT (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64"))
+-    set(DISABLE_DYNAMIC_CODE ON CACHE BOOL "Disables the use of dynamic machine code generation")
+-  endif()
+-
+-  # Workaround for Clang as msse3 is only enabled if GCC is detected
+-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
+-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -msse2 -msse3")
+-    SET(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -msse -Xcompiler -msse2 -Xcompiler -msse3")
+-  endif()
+-
+-  check_and_add_cmake_submodule(${PROJECT_SOURCE_DIR}/third_party/ffts EXCLUDE_FROM_ALL)
+-  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ffts/include)
+-  list(APPEND DALI_LIBS ffts)
+-  list(APPEND DALI_EXCLUDES libffts.a)
++  find_package(ffts REQUIRED)
++  list(APPEND DALI_LIBS ffts::ffts)
+ endif()
+ 
+ ##################################################################
+ # CUTLASS
+ ##################################################################
+-include_directories(SYSTEM third_party/cutlass/include)
+-include_directories(SYSTEM third_party/cutlass/tools/util/include)
++find_package(NvidiaCutlass REQUIRED)
++include_directories(${NvidiaCutlass_INCLUDE_DIRS})
+ 
+ ##################################################################
+ # CocoAPI
+ ##################################################################
+-set(SOURCE_FILES third_party/cocoapi/common/maskApi.c)
+-add_library(cocoapi STATIC ${SOURCE_FILES})
+-set_target_properties(cocoapi PROPERTIES POSITION_INDEPENDENT_CODE ON)
++find_package(cocoapi REQUIRED)
+ list(APPEND DALI_LIBS cocoapi)
+ list(APPEND DALI_EXCLUDES libcocoapi.a)
+ 
+@@ -253,15 +224,8 @@
+ # cfitsio
+ ##################################################################
+ if(BUILD_CFITSIO)
+-  find_library(cfitsio_LIBS
+-          NAMES libcfitsio.so libcfitsio
+-          PATHS ${CFITSIO_ROOT_DIR} "/usr/local" ${CMAKE_SYSTEM_PREFIX_PATH}
+-          PATH_SUFFIXES lib lib64)
+-  if(${cfitsio_LIBS} STREQUAL cfitsio_LIBS-NOTFOUND)
+-    message(FATAL_ERROR "cfitsio could not be found. Try to specify it's location with `-DCFITSIO_ROOT_DIR`.")
+-  endif()
+-  message(STATUS "Found cfitsio: ${cfitsio_LIBS}")
+-  list(APPEND DALI_LIBS ${cfitsio_LIBS})
++  find_package(cfitsio REQUIRED)
++  list(APPEND DALI_LIBS cfitsio::cfitsio)
+ endif()
+ 
+ ##################################################################
+@@ -281,6 +245,10 @@
+ ##################################################################
+ set(DALI_INSTALL_REQUIRES_NVIMGCODEC "")
+ if(BUILD_NVIMAGECODEC)
++  find_package(nvimgcodec REQUIRED)
++  set(NVIMGCODEC_LIBS nvimgcodec::nvimgcodec)
++endif()
++if(0)
+   set(NVIMGCODEC_MIN_VERSION "0.5.0")
+   set(NVIMGCODEC_MAX_VERSION "0.6.0")
+   message(STATUS "nvImageCodec - requires version >=${NVIMGCODEC_MIN_VERSION}, <${NVIMGCODEC_MAX_VERSION}")
+@@ -409,19 +377,10 @@
+ # AWS SDK
+ ##################################################################
+ if(BUILD_AWSSDK)
+-  find_path(AWSSDK_INCLUDE_DIR aws/core/Aws.h)
+-  find_library(AWS_CPP_SDK_CORE_LIB NAMES aws-cpp-sdk-core)
+-  find_library(AWS_CPP_SDK_S3_LIB NAMES aws-cpp-sdk-s3)
+-  if ("${AWSSDK_INCLUDE_DIR}" STREQUAL "AWSSDK_INCLUDE_DIR-NOTFOUND" OR
+-      "${AWS_CPP_SDK_CORE_LIB}" STREQUAL "AWS_CPP_SDK_CORE_LIB-NOTFOUND" OR
+-      "${AWS_CPP_SDK_S3_LIB}" STREQUAL "AWS_CPP_SDK_S3_LIB-NOTFOUND")
+-      message(WARNING "AWS SDK not found. Disabling AWS SDK support.")
+-      set(BUILD_AWSSDK OFF)
+-  else()
+-    set(AWSSDK_LIBRARIES "")
+-    list(APPEND AWSSDK_LIBRARIES ${AWS_CPP_SDK_S3_LIB})
+-    list(APPEND AWSSDK_LIBRARIES ${AWS_CPP_SDK_CORE_LIB})
+-    message(STATUS "AWSSDK_INCLUDE_DIR=${AWSSDK_INCLUDE_DIR}")
+-    message(STATUS "AWSSDK_LIBRARIES=${AWSSDK_LIBRARIES}")
+-  endif()
+-endif()
++  find_package(AWSSDK REQUIRED)
++  set(AWSSDK_LIBRARIES AWS::aws-sdk-cpp-s3)
++  link_libraries(AWS::aws-sdk-cpp-s3)
++endif()
++
++find_package(dlpack REQUIRED)
++include_directories(${dlpack_INCLUDE_DIRS})
