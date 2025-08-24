@@ -47,6 +47,7 @@ packages_following_ctk_major_version = {
     "npp",
     "nvjitlink",
     "nvjpeg",
+    "nvidia-video-codec-sdk",
 }
 
 
@@ -349,6 +350,25 @@ def get_version_range(package_name, cuda_version):
             return ">=12 <12.6"
         else:
             return "^11"
+    if package_name == "nvcomp":
+        if cuda_major >= 13:
+            return ">=5"
+        else:
+            return "<6"
+    if package_name == "nvjpeg2k":
+        if cuda_major >= 13:
+            return ">=0.9"
+        else:
+            return "<0.9"
+    if package_name == "nvtiff":
+        if cuda_major >= 13:
+            return ">=0.5 <1"
+        else:
+            return "<0.6"
+    if package_name == "nvimgcodec":
+        return "*"
+    if package_name == "nvidia-optical-flow-sdk":
+        return "^5"
     raise ConanException(f"Unknown CUDA package name: {package_name}")
 
 
