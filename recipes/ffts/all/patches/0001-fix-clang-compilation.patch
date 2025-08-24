@@ -1,0 +1,23 @@
+From 95489ebcd6fc136c6a76f50f57d43e6072e2bd38 Mon Sep 17 00:00:00 2001
+From: Janusz Lisiecki <jlisiecki@nvidia.com>
+Date: Fri, 6 Sep 2024 10:39:20 +0200
+Subject: [PATCH] Fix compilation for newer clang
+
+Signed-off-by: Janusz Lisiecki <jlisiecki@nvidia.com>
+---
+ src/ffts.c | 6 +++---
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ffts.c b/src/ffts.c
+index 76fd19cd6a6..004f2992b81 100644
+--- a/src/ffts.c
++++ b/src/ffts.c
+@@ -121,7 +121,7 @@ ffts_flush_instruction_cache(void *start, size_t length)
+ #if GCC_VERSION_AT_LEAST(4,3)
+     __builtin___clear_cache(start, (char*) start + length);
+ #elif __GNUC__
+-    __clear_cache((long) start, (long) start + length);
++    __builtin___clear_cache((char*) start, (char*) start + length);
+ #endif
+ #endif
+     return 0;

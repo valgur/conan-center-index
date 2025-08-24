@@ -1,0 +1,10 @@
+sources:
+  "0.9.0+git.20240906":
+    url: "https://github.com/linkotec/ffts/archive/2c8da4877588e288ff4cd550f14bec2dc7bf668c.tar.gz"
+    sha256: "4f63ba119db850adcb0f065f18094e618ef4319ece2b80d14e0a9943eb6e088c"
+patches:
+  "0.9.0+git.20240906":
+    - patch_file: "patches/0001-fix-clang-compilation.patch"
+      patch_description: "Fix compilation for newer clang"
+      patch_type: "bugfix"
+      patch_source: "https://github.com/anthonix/ffts/commit/95489ebcd6fc136c6a76f50f57d43e6072e2bd38"
