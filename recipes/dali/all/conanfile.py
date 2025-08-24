@@ -24,6 +24,7 @@ class DaliConan(ConanFile):
         "with_awssdk": [True, False],
         "with_cfitsio": [True, False],
         "with_cufile": [True, False],
+        "with_cvcuda": [True, False],
         "with_ffmpeg": [True, False],
         "with_ffts": [True, False],
         "with_jpeg": [True, False],
@@ -44,6 +45,7 @@ class DaliConan(ConanFile):
         "with_awssdk": False,
         "with_cfitsio": False,
         "with_cufile": False,
+        "with_cvcuda": False,
         "with_ffmpeg": False,
         "with_ffts": False,
         "with_jpeg": False,
@@ -95,6 +97,8 @@ class DaliConan(ConanFile):
         self.requires("nvtx/[^3]")
         if self.options.with_cufile:
             self._utils.cuda_requires(self, "cufile")
+        if self.options.with_cvcuda:
+            self.requires("cv-cuda/[>=0.15.0 <1]")
         if self.options.with_nvdec:
             self._utils.cuda_requires(self, "nvidia-video-codec-sdk")
         if self.options.with_nvof:
@@ -195,7 +199,7 @@ class DaliConan(ConanFile):
         tc.cache_variables["BUILD_AWSSDK"] = self.options.with_awssdk
         tc.cache_variables["BUILD_CFITSIO"] = self.options.with_cfitsio
         tc.cache_variables["BUILD_CUFILE"] = self.options.with_cufile
-        tc.cache_variables["BUILD_CVCUDA"] = False  # TODO
+        tc.cache_variables["BUILD_CVCUDA"] = self.options.with_cvcuda
         tc.cache_variables["BUILD_FFMPEG"] = self.options.with_ffmpeg
         tc.cache_variables["BUILD_FFTS"] = self.options.with_ffts
         tc.cache_variables["BUILD_JPEG_TURBO"] = self.options.with_jpeg
@@ -286,6 +290,8 @@ class DaliConan(ConanFile):
             requires.append("cfitsio::cfitsio")
         if self.options.with_cufile:
             requires.append("cufile::cufile")
+        if self.options.with_cvcuda:
+            requires.append("cv-cuda::cv-cuda")
         if self.options.with_ffmpeg:
             requires.append("ffmpeg::ffmpeg")
         if self.options.with_ffts:
