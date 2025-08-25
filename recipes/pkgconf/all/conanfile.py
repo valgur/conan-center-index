@@ -5,7 +5,6 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.4"
 
@@ -17,6 +16,7 @@ class PkgConfConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.sr.ht/~kaniini/pkgconf"
     topics = ("build", "configuration")
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
