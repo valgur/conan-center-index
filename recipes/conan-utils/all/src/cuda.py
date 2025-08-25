@@ -369,6 +369,8 @@ def get_version_range(package_name, cuda_version):
         return "*"
     if package_name == "nvidia-optical-flow-sdk":
         return "^5"
+    if package_name == "nvtx":
+        return "^3"
     raise ConanException(f"Unknown CUDA package name: {package_name}")
 
 

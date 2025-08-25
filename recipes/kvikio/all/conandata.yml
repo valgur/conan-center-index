@@ -1,0 +1,4 @@
+sources:
+  "25.08.00":
+    url: "https://github.com/rapidsai/kvikio/archive/v25.08.00.tar.gz"
+    sha256: "e30d20b8c8f406025bee6d5f910e8a007547c1d9a61a0371335c31ee2124284a"
