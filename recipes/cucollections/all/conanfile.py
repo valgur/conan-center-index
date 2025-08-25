@@ -25,8 +25,12 @@ class CuCollectionsConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        # CUDA 13 with CCCL 3 is required
-        self.requires("cuda-cccl/[^3]")
+        if self.version > "0.0.1+git.20250529":
+            # Requires CUDA 13 or higher
+            self.requires("cuda-cccl/[^3]")
+        else:
+            # Requires CUDA 11.5 or higher
+            self.requires("cuda-cccl/[^2.5]")
         self.requires(f"cudart/[~{self.settings.cuda.version}]")
 
     def validate(self):
@@ -42,7 +46,7 @@ class CuCollectionsConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cuco")
         self.cpp_info.set_property("cmake_target_name", "cuco")
-        self.cpp_info.set_property("cmake_target_alias", ["cuco::cuco"])
+        self.cpp_info.set_property("cmake_target_aliases", ["cuco::cuco"])
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.buildenv_info.append("NVCC_APPEND_FLAGS", "--expt-extended-lambda", separator=" ")
