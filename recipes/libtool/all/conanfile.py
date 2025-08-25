@@ -56,6 +56,7 @@ class LibtoolConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "Makefile.in", "$(update_mans)", "# $(update_mans)")
 
     def generate(self):
         if is_msvc(self):
