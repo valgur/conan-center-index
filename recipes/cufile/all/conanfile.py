@@ -85,27 +85,27 @@ class CuFileConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "none")
 
+        suffix = "" if self.options.shared else "_static"
+        alias_suffix = "_static" if self.options.shared else ""
         v = self._cuda_version
+
+        self.cpp_info.components["cufile_"].set_property("cmake_target_name", f"CUDA::cuFile{suffix}")
+        if self.options.cmake_alias:
+            self.cpp_info.components["cufile_"].set_property("cmake_target_aliases", [f"CUDA::cuFile{alias_suffix}"])
         self.cpp_info.components["cufile_"].set_property("pkg_config_name", f"cufile-{v.major}.{v.minor}")
         self.cpp_info.components["cufile_"].set_property("component_version", f"{v.major}.{v.minor}")
-        lib = "cufile" if self.options.shared else "cufile_static"
-        self.cpp_info.components["cufile_"].set_property("cmake_target_name", f"CUDA::{lib}")
-        if self.options.cmake_alias:
-            alias = "cufile_static" if self.options.shared else "cufile"
-            self.cpp_info.components["cufile_"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
-        self.cpp_info.components["cufile_"].libs = [lib]
+        self.cpp_info.components["cufile_"].libs = [f"cufile{suffix}"]
         if not self.options.shared:
             self.cpp_info.components["cufile_"].system_libs = ["rt", "pthread", "m", "gcc_s", "stdc++"]
         self.cpp_info.components["cufile_"].requires = ["cudart::cudart_"]
 
         if self.options.cufile_rdma:
-            self.cpp_info.components["cufile_rdma"].set_property("pkg_config_name", f"cufile_rdma-{v.major}.{v.minor}")
-            lib = "cufile_rdma" if self.options.shared else "cufile_rdma_static"
-            self.cpp_info.components["cufile_rdma"].set_property("cmake_target_name", f"CUDA::{lib}")
+            self.cpp_info.components["cufile_rdma"].set_property("cmake_target_name", f"CUDA::cuFile_rdma{suffix}")
             if self.options.cmake_alias:
-                alias = "cufile_rdma_static" if self.options.shared else "cufile_rdma"
-                self.cpp_info.components["cufile_rdma"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
-            self.cpp_info.components["cufile_rdma"].libs = [lib]
+                self.cpp_info.components["cufile_rdma"].set_property("cmake_target_aliases", [f"CUDA::cuFile_rdma{alias_suffix}"])
+            self.cpp_info.components["cufile_rdma"].set_property("pkg_config_name", f"cufile_rdma-{v.major}.{v.minor}")
+            self.cpp_info.components["cufile_rdma"].set_property("component_version", f"{v.major}.{v.minor}")
+            self.cpp_info.components["cufile_rdma"].libs = [f"cufile_rdma{suffix}"]
             self.cpp_info.components["cufile_rdma"].requires = [
                 "cufile_",
                 "rdma-core::libmlx5",
