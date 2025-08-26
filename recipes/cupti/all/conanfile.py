@@ -54,7 +54,6 @@ class CuptiConan(ConanFile):
 
     def requirements(self):
         self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires("libvdpau/[^1.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "cuda_cupti")
@@ -86,7 +85,7 @@ class CuptiConan(ConanFile):
         self.cpp_info.components["cupti_"].libs = [f"cupti{suffix}"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["cupti_"].system_libs = ["rt", "pthread", "m", "dl", "util", "gcc_s", "stdc++"]
-        self.cpp_info.components["cupti_"].requires = ["cudart::cudart_", "libvdpau::libvdpau"]
+        self.cpp_info.components["cupti_"].requires = ["cudart::cudart_"]
 
         # nvperf_host
         self.cpp_info.components["nvperf_host"].set_property("cmake_target_name", f"CUDA::nvperf_host{suffix}")
