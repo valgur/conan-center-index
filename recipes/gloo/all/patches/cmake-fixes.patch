@@ -1,0 +1,76 @@
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -7,27 +7,16 @@
+ 
+ if(USE_REDIS)
+   find_package(hiredis REQUIRED)
+-  if(HIREDIS_FOUND)
+-    include_directories(SYSTEM ${HIREDIS_INCLUDE_DIRS})
+-    list(APPEND gloo_DEPENDENCY_LIBS ${HIREDIS_LIBRARIES})
+-  else()
+-    message(WARNING "Not compiling with Redis support. Suppress this warning with -DUSE_REDIS=OFF.")
+-    set(USE_REDIS OFF)
+-  endif()
++  link_libraries(hiredis::hiredis)
+ endif()
+ 
+ if(USE_IBVERBS)
+   find_package(ibverbs REQUIRED)
+-  if(IBVERBS_FOUND)
+-    include_directories(SYSTEM ${IBVERBS_INCLUDE_DIRS})
+-    list(APPEND gloo_DEPENDENCY_LIBS ${IBVERBS_LIBRARIES})
+-  else()
+-    message(WARNING "Not compiling with ibverbs support. Suppress this warning with -DUSE_IBVERBS=OFF.")
+-    set(USE_IBVERBS OFF)
+-  endif()
++  link_libraries(rdma-core::libibverbs)
+ endif()
+ 
+ if(USE_LIBUV)
++  find_package(libuv REQUIRED)
+   # If the Gloo build is included from another project's build, it may
+   # have already included libuv and we can use it directly here.
+   if(TARGET uv_a)
+@@ -98,17 +87,8 @@
+ endif()
+ 
+ if(USE_MPI)
+-  find_package(MPI)
+-  if(MPI_C_FOUND)
+-    message(STATUS "MPI include path: " ${MPI_CXX_INCLUDE_PATH})
+-    message(STATUS "MPI libraries: " ${MPI_CXX_LIBRARIES})
+-    include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
+-    list(APPEND gloo_DEPENDENCY_LIBS ${MPI_CXX_LIBRARIES})
+-    add_definitions(-DGLOO_USE_MPI=1)
+-  else()
+-    message(WARNING "Not compiling with MPI support. Suppress this warning with -DUSE_MPI=OFF.")
+-    set(USE_MPI OFF)
+-  endif()
++  find_package(MPI REQUIRED)
++  link_libraries(MPI::MPI_C)
+ endif()
+ 
+ if(USE_CUDA)
+@@ -120,20 +100,8 @@
+ endif()
+ 
+ if(USE_CUDA AND USE_NCCL)
+-  # NCCL_EXTERNAL is set if using the Caffe2 bundled version of NCCL
+-  if(NCCL_EXTERNAL)
+-    include_directories(SYSTEM ${NCCL_INCLUDE_DIRS})
+-    list(APPEND gloo_cuda_DEPENDENCY_LIBS ${NCCL_LIBRARIES} dl rt)
+-  else()
+-    find_package(nccl REQUIRED)
+-    if(NCCL_FOUND)
+-      include_directories(SYSTEM ${NCCL_INCLUDE_DIRS})
+-      list(APPEND gloo_cuda_DEPENDENCY_LIBS ${NCCL_LIBRARIES} dl rt)
+-    else()
+-      message(WARNING "Not compiling with NCCL support. Suppress this warning with -DUSE_NCCL=OFF.")
+-      set(USE_NCCL OFF)
+-    endif()
+-  endif()
++  find_package(nccl REQUIRED)
++  link_libraries(nccl::nccl)
+ endif()
+ 
+ if(USE_ROCM)
