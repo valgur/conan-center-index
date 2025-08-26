@@ -1,0 +1,4 @@
+sources:
+  "0.4.0+git.20250826":
+    url: "https://github.com/pytorch/kineto/archive/87eb1333b04afbc57318c9b5c62f8d729c975768.tar.gz"
+    sha256: "d810c833a311f6b0fc22fc5aaedc6be1dffbce32d68a13d0509b7d18eac4c3f1"
