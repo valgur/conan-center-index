@@ -2,3 +2,6 @@ sources:
   "2.0.0+git.20250823":
     url: "https://github.com/NVIDIA/jitify/archive/44e978b21fc8bdb6b2d7d8d179523c8350db72e5.tar.gz"
     sha256: "d31af6fe0cdc0471c389712e56da9668b45e102015a74b605fbd229bcdb334a1"
+patches:
+    "2.0.0+git.20250823":
+      - patch_file: "patches/cmake-fixes.patch"
