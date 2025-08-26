@@ -1,0 +1,108 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -4,7 +4,7 @@
+ # This source code is licensed under the BSD-style license found in the
+ # LICENSE file in the root directory of this source tree.
+ 
+-CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
++CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
+ 
+ INCLUDE(GNUInstallDirs)
+ 
+@@ -57,6 +57,7 @@
+   SET(CLOG_SOURCE_DIR "${PROJECT_SOURCE_DIR}/deps/clog")
+ ENDIF()
+ 
++if(0)
+ IF(NOT DEFINED CPUINFO_SOURCE_DIR)
+   MESSAGE(STATUS "Downloading cpuinfo to ${CONFU_DEPENDENCIES_SOURCE_DIR}/cpuinfo (define CPUINFO_SOURCE_DIR to avoid it)")
+   CONFIGURE_FILE(cmake/DownloadCpuinfo.cmake "${CONFU_DEPENDENCIES_BINARY_DIR}/cpuinfo-download/CMakeLists.txt")
+@@ -126,6 +127,7 @@
+     WORKING_DIRECTORY "${CONFU_DEPENDENCIES_BINARY_DIR}/googlebenchmark-download")
+   SET(GOOGLEBENCHMARK_SOURCE_DIR "${CONFU_DEPENDENCIES_SOURCE_DIR}/googlebenchmark" CACHE STRING "Google Benchmark source directory")
+ ENDIF()
++endif()
+ 
+ # ---[ QNNPACK library
+ SET(QNNPACK_INIT_SRCS
+@@ -284,7 +286,7 @@
+ TARGET_LINK_LIBRARIES(qnnpack PRIVATE clog)
+ 
+ # ---[ Configure cpuinfo
+-IF(NOT TARGET cpuinfo)
++IF(0)
+   SET(CPUINFO_BUILD_TOOLS OFF CACHE BOOL "")
+   SET(CPUINFO_BUILD_UNIT_TESTS OFF CACHE BOOL "")
+   SET(CPUINFO_BUILD_MOCK_TESTS OFF CACHE BOOL "")
+@@ -293,16 +295,18 @@
+     "${CPUINFO_SOURCE_DIR}"
+     "${CONFU_DEPENDENCIES_BINARY_DIR}/cpuinfo")
+ ENDIF()
++find_package(cpuinfo REQUIRED)
+ TARGET_LINK_LIBRARIES(qnnpack PRIVATE cpuinfo)
+ 
+ # ---[ Configure pthreadpool
+-IF(NOT TARGET pthreadpool)
++IF(0)
+   SET(PTHREADPOOL_BUILD_TESTS OFF CACHE BOOL "")
+   SET(PTHREADPOOL_BUILD_BENCHMARKS OFF CACHE BOOL "")
+   ADD_SUBDIRECTORY(
+     "${PTHREADPOOL_SOURCE_DIR}"
+     "${CONFU_DEPENDENCIES_BINARY_DIR}/pthreadpool")
+ ENDIF()
++find_package(pthreadpool REQUIRED)
+ IF(QNNPACK_CUSTOM_THREADPOOL)
+   # Depend on pthreadpool interface, but not on implementation.
+   # This is used when QNNPACK user (e.g. Caffe2) provides its own threadpool implementation.
+@@ -312,37 +316,48 @@
+ ENDIF()
+ 
+ # ---[ Configure FXdiv
+-IF(NOT TARGET fxdiv)
++IF(0)
+   SET(FXDIV_BUILD_TESTS OFF CACHE BOOL "")
+   SET(FXDIV_BUILD_BENCHMARKS OFF CACHE BOOL "")
+   ADD_SUBDIRECTORY(
+     "${FXDIV_SOURCE_DIR}"
+     "${CONFU_DEPENDENCIES_BINARY_DIR}/fxdiv")
+ ENDIF()
++find_package(fxdiv REQUIRED)
+ TARGET_LINK_LIBRARIES(qnnpack PRIVATE fxdiv)
+ 
+ # ---[ Configure psimd
+-IF(NOT TARGET psimd)
++IF(0)
+   ADD_SUBDIRECTORY(
+     "${PSIMD_SOURCE_DIR}"
+     "${CONFU_DEPENDENCIES_BINARY_DIR}/psimd")
+ ENDIF()
++find_package(psimd REQUIRED)
+ TARGET_LINK_LIBRARIES(qnnpack PRIVATE psimd)
+ 
+ # ---[ Configure FP16
+-IF(NOT TARGET fp16)
++IF(0)
+   SET(FP16_BUILD_TESTS OFF CACHE BOOL "")
+   SET(FP16_BUILD_BENCHMARKS OFF CACHE BOOL "")
+   ADD_SUBDIRECTORY(
+     "${FP16_SOURCE_DIR}"
+     "${CONFU_DEPENDENCIES_BINARY_DIR}/fp16")
+ ENDIF()
++find_package(fp16 REQUIRED)
+ TARGET_LINK_LIBRARIES(qnnpack PRIVATE fp16)
+ 
+ INSTALL(TARGETS qnnpack
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++if(QNNPACK_LIBRARY_TYPE STREQUAL "static")
++  INSTALL(TARGETS clog
++      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++endif()
++
+ 
+ # ---[ QNNPACK unit tests
+ IF(QNNPACK_BUILD_TESTS)
