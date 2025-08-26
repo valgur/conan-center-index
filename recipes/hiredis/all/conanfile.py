@@ -84,6 +84,7 @@ class HiredisConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "hiredis")
+        self.cpp_info.set_property("pkg_config_name", "none")
 
         suffix = ""
         if Version(self.version) >= "1.1.0":
@@ -96,8 +97,11 @@ class HiredisConan(ConanFile):
         self.cpp_info.components["hiredislib"].set_property("cmake_target_name", "hiredis::hiredis")
         self.cpp_info.components["hiredislib"].set_property("pkg_config_name", "hiredis")
         self.cpp_info.components["hiredislib"].libs = [f"hiredis{suffix}"]
+        self.cpp_info.components["hiredislib"].defines = ["_FILE_OFFSET_BITS=64"]
+        self.cpp_info.components["hiredislib"].includedirs.append("include/hiredis")
         if self.settings.os == "Windows":
             self.cpp_info.components["hiredislib"].system_libs = ["ws2_32"]
+
         # hiredis_ssl
         if self.options.with_ssl:
             self.cpp_info.components["hiredis_ssl"].set_property("cmake_target_name", "hiredis::hiredis_ssl")
@@ -106,11 +110,3 @@ class HiredisConan(ConanFile):
             self.cpp_info.components["hiredis_ssl"].requires = ["openssl::ssl"]
             if self.settings.os == "Windows":
                 self.cpp_info.components["hiredis_ssl"].requires.append("hiredislib")
-
-            # These cmake_target_name and pkg_config_name are unofficial. It avoids conflicts
-            # in conan generators between global target/pkg-config and hiredislib component.
-            # TODO: eventually remove the cmake_target_name trick if conan can implement smarter logic
-            # in CMakeDeps when a downstream recipe requires another recipe globally
-            # (link to all components directly instead of global target)
-            self.cpp_info.set_property("cmake_target_name", "hiredis::hiredis_all_unofficial")
-            self.cpp_info.set_property("pkg_config_name", "hiredis_all_unofficial")
