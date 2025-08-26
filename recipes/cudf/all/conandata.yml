@@ -1,0 +1,9 @@
+sources:
+  # Using a pre-release to include this switch to Nvidia's jitify2:
+  # https://github.com/rapidsai/cudf/commit/d71e00debdcd91e0eb7a5d258a84fb09c0d49cbc
+  "25.10.00+git.20250816":
+    url: "https://github.com/rapidsai/cudf/archive/d71e00debdcd91e0eb7a5d258a84fb09c0d49cbc.tar.gz"
+    sha256: "b98e2797d231b84eedfdb727439ea1dadf51e44e41e071f40e0509617031bf10"
+patches:
+  "25.10.00+git.20250816":
+    - patch_file: "patches/use-external-jitify-executable.patch"

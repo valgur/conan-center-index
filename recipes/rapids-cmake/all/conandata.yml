@@ -1,4 +1,7 @@
 sources:
+  "25.10.00-git.20250822":
+    url: "https://github.com/rapidsai/rapids-cmake/archive/c89327b64387040fe5331f1aa6f8bfc6b4a1c933.tar.gz"
+    sha256: "e9ca78c93da88a713db4d284ad6c1e1223ed732c3632a367338cf005352b3bad"
   "25.08.00":
     url: "https://github.com/rapidsai/rapids-cmake/archive/refs/tags/v25.08.00.tar.gz"
     sha256: "c19bfbe65f24adc3f68e78d757f5ebbefa7a7ef95d15668dfb225a18de13978c"

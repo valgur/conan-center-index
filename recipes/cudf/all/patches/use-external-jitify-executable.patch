@@ -1,0 +1,30 @@
+--- a/cpp/cmake/Modules/JitifyPreprocessKernels.cmake
++++ b/cpp/cmake/Modules/JitifyPreprocessKernels.cmake
+@@ -12,12 +12,7 @@
+ # the License.
+ # =============================================================================
+ 
+-# Create `jitify_preprocess` executable
+-add_executable(jitify_preprocess "${JITIFY_INCLUDE_DIR}/jitify2_preprocess.cpp")
+-
+-target_compile_definitions(jitify_preprocess PRIVATE "_FILE_OFFSET_BITS=64")
+-rapids_cuda_set_runtime(jitify_preprocess USE_STATIC ${CUDA_STATIC_RUNTIME})
+-target_link_libraries(jitify_preprocess PUBLIC ${CMAKE_DL_LIBS})
++find_program(JITIFY2_PREPROCESS jitify2_preprocess REQUIRED)
+ 
+ # Take a list of files to JIT-compile and run them through jitify_preprocess.
+ function(jit_preprocess_files)
+@@ -39,12 +34,11 @@
+     # glibc
+     add_custom_command(
+       OUTPUT ${ARG_OUTPUT}
+-      DEPENDS jitify_preprocess "${ARG_SOURCE_DIRECTORY}/${ARG_FILE}"
+       WORKING_DIRECTORY ${ARG_SOURCE_DIRECTORY}
+       VERBATIM
+       COMMAND ${CMAKE_COMMAND} -E make_directory "${jit_output_directory}"
+       COMMAND
+         "${CMAKE_COMMAND}" -E env LD_LIBRARY_PATH=${CUDAToolkit_LIBRARY_DIR}
+-        $<TARGET_FILE:jitify_preprocess> ${ARG_FILE} -o ${ARG_OUTPUT_DIR} -i -std=c++20
++        ${JITIFY2_PREPROCESS} ${ARG_FILE} -o ${ARG_OUTPUT_DIR} -i -std=c++20
+         -remove-unused-globals -D_FILE_OFFSET_BITS=64 -D__CUDACC_RTC__ -DCUDF_RUNTIME_JIT
+         -I${CUDF_SOURCE_DIR}/include -I${CUDF_SOURCE_DIR}/src ${includes}

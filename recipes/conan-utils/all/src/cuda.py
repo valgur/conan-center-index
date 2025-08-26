@@ -318,6 +318,11 @@ def get_version_range(package_name, cuda_version):
         return f"~{cuda_version.major}.{cuda_version.minor}"
     if package_name in packages_following_ctk_major_version:
         return f"^{cuda_major}"
+    if package_name == "cucollections":
+        if cuda_major >= 13:
+            return ">0.0.1+git.20250529"
+        else:
+            return "<=0.0.1+git.20250529"
     if package_name == "cuda-cccl":
         if cuda_major >= 13:
             return "^3"
