@@ -1,0 +1,7 @@
+sources:
+  "0.5.1-git.20250624":
+    url: "https://github.com/facebookincubator/dynolog/archive/d2ffe0a4e3acace628db49974246b66fc3e85fb1.tar.gz"
+    sha256: "aa926d9f94833c3508b78c28d70590026ee073aa2318f9621edc19f92ba9f1b1"
+  "0.5.0":
+    url: "https://github.com/facebookincubator/dynolog/archive/refs/tags/v0.5.0.tar.gz"
+    sha256: "1e9f93ad292c230e6131e1b9feea59fea461cc4a0bd39e87bfcccd4c2249ee22"
