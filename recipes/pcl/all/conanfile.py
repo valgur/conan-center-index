@@ -69,6 +69,7 @@ class PclConan(ConanFile):
         "with_cuda": [True, False],
         "with_flann": [True, False],
         "with_libusb": [True, False],
+        "with_nanoflann": [True, False],
         "with_opencv": [True, False],
         "with_opengl": [True, False],
         "with_openmp": [True, False],
@@ -135,12 +136,13 @@ class PclConan(ConanFile):
         # Optional external dependencies
         "with_cuda": False,
         "with_flann": True,
-        "with_libusb": True,
+        "with_libusb": False,
+        "with_nanoflann": True,
         "with_opencv": True,
         "with_opengl": True,
         "with_openmp": True,
         "with_openni2": False,
-        "with_pcap": True,
+        "with_pcap": False,
         "with_png": True,
         "with_qhull": True,
         "with_qt": True,
@@ -188,7 +190,7 @@ class PclConan(ConanFile):
 
     @property
     def _external_optional_deps(self):
-        return {
+        deps = {
             "2d": ["vtk"],
             "features": ["openmp"],
             "filters": ["openmp"],
@@ -207,6 +209,9 @@ class PclConan(ConanFile):
             "apps": ["cuda", "libusb", "opengl", "openni", "png", "qhull", "qt", "vtk"],
             "tools": ["cuda", "opencv", "opengl", "openni", "openni2", "qhull", "vtk"],
         }
+        if Version(self.version) >= "1.15.1":
+            deps["kdtree"].append("nanoflann")
+        return deps
 
     def _ext_dep_to_conan_target(self, dep):
         if not self._is_enabled(dep):
@@ -218,6 +223,7 @@ class PclConan(ConanFile):
             "flann": ["flann::flann"],
             "libusb": ["libusb::libusb"],
             "metslib": [],
+            "nanoflann": ["nanoflann::nanoflann"],
             "opencv": ["opencv::opencv"],
             "opengl": ["opengl::opengl", "freeglut::freeglut", "glew::glew", "glu::glu"],
             "openmp": ["openmp::openmp"],
@@ -341,6 +347,8 @@ class PclConan(ConanFile):
             del self.settings.cuda
         if not self.options.with_vtk:
             del self.options.with_qvtk
+        if Version(self.version) < "1.15.1":
+            del self.options.with_nanoflann
         self.options["boost"].with_filesystem = True
         self.options["boost"].with_iostreams = True
 
@@ -354,8 +362,11 @@ class PclConan(ConanFile):
         return is_available and is_used
 
     def requirements(self):
-        # asio on 1.87 is not compatible
-        self.requires("boost/[^1.71.0 <1.87]", transitive_headers=True)
+        if Version(self.version) >= "1.15":
+            self.requires("boost/[^1.71.0]", transitive_headers=True)
+        else:
+            # asio on 1.87 is not compatible
+            self.requires("boost/[^1.71.0 <1.87]", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self._is_enabled("flann"):
             self.requires("flann/1.9.2", transitive_headers=True)
@@ -367,6 +378,8 @@ class PclConan(ConanFile):
             self.requires("qt/[>=6.6 <7]")
         if self._is_enabled("libusb"):
             self.requires("libusb/[^1.0.26]", transitive_headers=True)
+        if self._is_enabled("nanoflann"):
+            self.requires("nanoflann/[^1]", transitive_headers=True)
         if self._is_enabled("pcap"):
             self.requires("libpcap/[^1.10.4]")
         if self._is_enabled("opengl"):
@@ -500,6 +513,9 @@ class PclConan(ConanFile):
         replace_in_file(self, "gpu/tracking/CMakeLists.txt",
                         "pcl_gpu_containers",
                         "pcl_gpu_containers CUDA::curand")
+
+        if Version(self.version) >= "1.15.1":
+            replace_in_file(self, "CMakeLists.txt", "find_package(nanoflann 1.4.2 QUIET)", "find_package(nanoflann)")
 
         find_modules_to_remove = [
             "ClangFormat",
@@ -653,6 +669,9 @@ class PclConan(ConanFile):
             component.requires = self._enabled_internal_optional_deps("tools")
             for dep in self._external_optional_deps["tools"]:
                 component.requires += self._ext_dep_to_conan_target(dep)
+
+        if self.options.kdtree and self.options.get_safe("with_nanoflann"):
+            self.cpp_info.components["kdtree"].defines.append("PCL_HAS_NANOFLANN")
 
         if self.options.gpu_people:
             self.cpp_info.components["gpu_people"].requires.extend(["npp::nppim", "npp::nppidei", "npp::npps"])

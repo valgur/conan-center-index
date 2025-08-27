@@ -1,7 +1,7 @@
 sources:
-  "1.15.1-rc1":
-    url: "https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.15.1-rc1.tar.gz"
-    sha256: "85091d8872b1bb7d23e0a3004d80aa9360aea378ac72b10df03d2a92f7b1a435"
+  "1.15.1":
+    url: "https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.15.1.tar.gz"
+    sha256: "e1d862c7b6bd27a45884a825a2e509bfcbd4561307d5bfe17ce5c8a3d94a6c29"
   "1.14.1":
     url: "https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.14.1.tar.gz"
     sha256: "5dc5e09509644f703de9a3fb76d99ab2cc67ef53eaf5637db2c6c8b933b28af6"
@@ -9,7 +9,7 @@ sources:
     url: "https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.13.1.tar.gz"
     sha256: "8ab98a9db371d822de0859084a375a74bdc7f31c96d674147710cf4101b79621"
 patches:
-  "1.15.1-rc1":
+  "1.15.1":
     - patch_file: "patches/1.15.1/0001-cmake_use_conan_targets.patch"
       patch_description: "Update PCL CMake files to work with Conan"
       patch_type: "conan"
