@@ -1,0 +1,5 @@
+sources:
+  "25.07.0":
+    "Linux":
+      url: "https://developer.arm.com/-/cdn-downloads/permalink/Arm-Performance-Libraries/Version_25.07/arm-performance-libraries_25.07_deb_gcc.tar"
+      sha256: "28a0cdf84b1f8e61d1d1ea484f4e2ecf645f7d916bb002ed34d46f6eb2e41345"
