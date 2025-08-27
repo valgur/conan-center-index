@@ -46,10 +46,10 @@ class XnnpackConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        #  https://github.com/google/XNNPACK/blob/ed5f9c0562e016a08b274a4579de5ef500fec134/include/xnnpack.h#L15
+        self.requires("pthreadpool/[>=cci.20250723]", transitive_headers=True)
         self.requires("cpuinfo/[>=cci.20231129]")
         self.requires("fp16/[>=cci.20210320]")
-        #  https://github.com/google/XNNPACK/blob/ed5f9c0562e016a08b274a4579de5ef500fec134/include/xnnpack.h#L15
-        self.requires("pthreadpool/[>=cci.20231129]", transitive_headers=True)
         self.requires("fxdiv/[>=cci.20200417]")
 
     def validate(self):
