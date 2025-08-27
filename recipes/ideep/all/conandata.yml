@@ -1,0 +1,4 @@
+sources:
+  "3.9.0.4":
+    url: "https://github.com/intel/ideep/archive/41b6162717bd784b885b5753d82bd3f3db203e40.tar.gz"
+    sha256: "3a3a482dc232e47ac09f8c89f9563cf5998d55a73d3c36ee515b85db111bdbe0"
