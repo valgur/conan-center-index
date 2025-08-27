@@ -167,8 +167,9 @@ class FlannConan(ConanFile):
             self.cpp_info.components["flann_cuda"].set_property("cmake_target_name", f"flann::flann_cuda{suffix}")
             self.cpp_info.components["flann_cuda"].set_property("cmake_target_aliases", [f"flann::flann_cuda{alias_suffix}"])
             self.cpp_info.components["flann_cuda"].libs = [f"flann_cuda{suffix}"]
+            self.cpp_info.components["flann_cuda"].defines = ["FLANN_USE_CUDA"]
             if not self.options.shared:
-                self.cpp_info.components["flann_cuda"].defines = ["FLANN_STATIC"]
+                self.cpp_info.components["flann_cuda"].defines.append("FLANN_STATIC")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["flann_cuda"].system_libs = ["m"]
             self.cpp_info.components["flann_cuda"].requires = ["openmp::openmp", "cudart::cudart_"]
