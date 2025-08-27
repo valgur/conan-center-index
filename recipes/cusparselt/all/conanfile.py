@@ -45,8 +45,8 @@ class CuSparseLtConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires("cusparse/[^12]", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         self._utils.validate_cuda_package(self, "libcusparse_lt")

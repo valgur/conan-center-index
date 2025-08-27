@@ -330,6 +330,13 @@ def get_version_range(package_name, cuda_version):
             return "^2"
         else:
             return "^1"
+    if package_name == "cudss":
+        if cuda_major >= 13:
+            return ">=0.7"
+        elif cuda_major == 12:
+            return ">=0.3 <0.7"
+        else:
+            return "<0.3"
     if package_name == "cufft":
         return f"^{cuda_major - 1}"
     if package_name == "cufile":
@@ -348,6 +355,13 @@ def get_version_range(package_name, cuda_version):
             return "~10.2"
     if package_name == "cusolver":
         return "^12" if cuda_major >= 13 else "^11"
+    if package_name == "cusolvermp":
+        if cuda_major >= 13:
+            return ">=0.7"
+        elif cuda_major == 12:
+            return "*"
+        else:
+            return "<0.6"
     if package_name == "cusparse":
         if cuda_major >= 13:
             return ">=12.6"
@@ -355,6 +369,13 @@ def get_version_range(package_name, cuda_version):
             return ">=12 <12.6"
         else:
             return "^11"
+    if package_name == "cusparselt":
+        if cuda_major >= 13:
+            return ">=0.8"
+        elif cuda_major == 12:
+            return "*"
+        else:
+            return "<0.8"
     if package_name == "nvcomp":
         if cuda_major >= 13:
             return ">=5"

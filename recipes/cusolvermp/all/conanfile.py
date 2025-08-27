@@ -37,17 +37,8 @@ class CusolvermpConan(ConanFile):
 
     def requirements(self):
         cuda_major = Version(self.settings.cuda.version).major
-        if cuda_major >= 13:
-            cusolver_range = "^12"
-            cusparse_range = "^12"
-        elif cuda_major >= 12:
-            cusolver_range = "^11"
-            cusparse_range = "^12 <12.6"
-        else:
-            cusolver_range = "^11 <11.4"
-            cusparse_range = "^11"
-        self.requires(f"cusolver/[{cusolver_range}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"cusparse/[{cusparse_range}]", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cusolver", transitive_headers=True, transitive_libs=True)
+        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
         if cuda_major >= 12:
             self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
         if Version(self.version) >= "0.7":
