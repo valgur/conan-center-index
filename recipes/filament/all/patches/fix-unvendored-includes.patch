@@ -1,0 +1,190 @@
+diff --git a/filament/backend/test/ShaderGenerator.cpp b/filament/backend/test/ShaderGenerator.cpp
+index e575d8334..f3b485b5a 100644
+--- a/filament/backend/test/ShaderGenerator.cpp
++++ b/filament/backend/test/ShaderGenerator.cpp
+@@ -16,7 +16,7 @@
+ 
+ #include "ShaderGenerator.h"
+ 
+-#include <GlslangToSpv.h>
++#include <glslang/SPIRV/GlslangToSpv.h>
+ 
+ #include <spirv_glsl.hpp>
+ #include <spirv_msl.hpp>
+diff --git a/libs/filamat/src/GLSLPostProcessor.cpp b/libs/filamat/src/GLSLPostProcessor.cpp
+index 7b6e83f03..950ee2b36 100644
+--- a/libs/filamat/src/GLSLPostProcessor.cpp
++++ b/libs/filamat/src/GLSLPostProcessor.cpp
+@@ -16,8 +16,9 @@
+ 
+ #include "GLSLPostProcessor.h"
+ 
+-#include <GlslangToSpv.h>
++#include <glslang/SPIRV/GlslangToSpv.h>
+ #include <spirv-tools/libspirv.hpp>
++#include <spirv-tools/optimizer.hpp>
+ 
+ #include <spirv_glsl.hpp>
+ #include <spirv_msl.hpp>
+diff --git a/libs/filamat/src/GLSLPostProcessor.h b/libs/filamat/src/GLSLPostProcessor.h
+index 2a78c133b..14e8cb4c4 100644
+--- a/libs/filamat/src/GLSLPostProcessor.h
++++ b/libs/filamat/src/GLSLPostProcessor.h
+@@ -27,7 +27,7 @@
+ 
+ #include <spirv-tools/optimizer.hpp>
+ 
+-#include <ShaderLang.h>
++#include <glslang/Public/ShaderLang.h>
+ 
+ #include <backend/DriverEnums.h>
+ 
+diff --git a/libs/filamat/src/SpirvRemapWrapper.cpp b/libs/filamat/src/SpirvRemapWrapper.cpp
+index 95fe6ae08..96a92793c 100644
+--- a/libs/filamat/src/SpirvRemapWrapper.cpp
++++ b/libs/filamat/src/SpirvRemapWrapper.cpp
+@@ -16,7 +16,7 @@
+ 
+ #include "SpirvRemapWrapper.h"
+ 
+-#include <SPVRemapper.h>
++#include <glslang/SPIRV/SPVRemapper.h>
+ #include <utils/Log.h>
+ #include <utils/ostream.h>
+ 
+diff --git a/libs/filamat/src/sca/ASTHelpers.cpp b/libs/filamat/src/sca/ASTHelpers.cpp
+index d82831aa1..412ddc63f 100644
+--- a/libs/filamat/src/sca/ASTHelpers.cpp
++++ b/libs/filamat/src/sca/ASTHelpers.cpp
+@@ -18,8 +18,8 @@
+ 
+ #include "GLSLTools.h"
+ 
+-#include <intermediate.h>
+-#include <localintermediate.h>
++#include <glslang-internal/Include/intermediate.h>
++#include <glslang-internal/MachineIndependent/localintermediate.h>
+ 
+ #include <utils/Log.h>
+ 
+diff --git a/libs/filamat/src/sca/ASTHelpers.h b/libs/filamat/src/sca/ASTHelpers.h
+index 19ec1ce01..312dc856e 100644
+--- a/libs/filamat/src/sca/ASTHelpers.h
++++ b/libs/filamat/src/sca/ASTHelpers.h
+@@ -19,7 +19,7 @@
+ 
+ #include <string>
+ #include <vector>
+-#include <intermediate.h>
++#include <glslang-internal/Include/intermediate.h>
+ 
+ class TIntermNode;
+ 
+diff --git a/libs/filamat/src/sca/GLSLTools.cpp b/libs/filamat/src/sca/GLSLTools.cpp
+index c03b9f295..93b5a1c9f 100644
+--- a/libs/filamat/src/sca/GLSLTools.cpp
++++ b/libs/filamat/src/sca/GLSLTools.cpp
+@@ -25,8 +25,8 @@
+ #include "ASTHelpers.h"
+ 
+ // GLSLANG headers
+-#include <InfoSink.h>
+-#include <localintermediate.h>
++#include <glslang-internal/Include/InfoSink.h>
++#include <glslang-internal/MachineIndependent/localintermediate.h>
+ 
+ #include "builtinResource.h"
+ 
+diff --git a/libs/filamat/src/sca/GLSLTools.h b/libs/filamat/src/sca/GLSLTools.h
+index 1c7cf169d..fb2a61061 100644
+--- a/libs/filamat/src/sca/GLSLTools.h
++++ b/libs/filamat/src/sca/GLSLTools.h
+@@ -25,7 +25,7 @@
+ 
+ #include <filamat/MaterialBuilder.h>
+ 
+-#include <ShaderLang.h>
++#include <glslang/Public/ShaderLang.h>
+ 
+ class TIntermNode;
+ 
+diff --git a/libs/filamat/src/sca/builtinResource.h b/libs/filamat/src/sca/builtinResource.h
+index d58f2a9d5..16e055025 100644
+--- a/libs/filamat/src/sca/builtinResource.h
++++ b/libs/filamat/src/sca/builtinResource.h
+@@ -14,7 +14,7 @@
+  * limitations under the License.
+  */
+ 
+-#include "glslang/Include/intermediate.h"
++#include "glslang-internal/Include/intermediate.h"
+ 
+ const TBuiltInResource DefaultTBuiltInResource = {
+         /* .MaxLights = */ 32,
+diff --git a/libs/geometry/src/MikktspaceImpl.cpp b/libs/geometry/src/MikktspaceImpl.cpp
+index 5c5a1b582..4c6dd9b3c 100644
+--- a/libs/geometry/src/MikktspaceImpl.cpp
++++ b/libs/geometry/src/MikktspaceImpl.cpp
+@@ -21,7 +21,7 @@
+ #include <utils/Panic.h>
+ 
+ #include <meshoptimizer.h>
+-#include <mikktspace/mikktspace.h>
++#include <mikktspace.h>
+ 
+ #include <vector>
+ 
+diff --git a/libs/imageio/src/BasisEncoder.cpp b/libs/imageio/src/BasisEncoder.cpp
+index 0c24e710d..f684b2709 100644
+--- a/libs/imageio/src/BasisEncoder.cpp
++++ b/libs/imageio/src/BasisEncoder.cpp
+@@ -22,7 +22,7 @@
+ 
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Warray-bounds"
+-#include <basisu_comp.h>
++#include <libbasisu/encoder/basisu_comp.h>
+ #pragma clang diagnostic pop
+ 
+ namespace image {
+diff --git a/libs/ktxreader/src/Ktx2Reader.cpp b/libs/ktxreader/src/Ktx2Reader.cpp
+index 5d5386146..f92413538 100644
+--- a/libs/ktxreader/src/Ktx2Reader.cpp
++++ b/libs/ktxreader/src/Ktx2Reader.cpp
+@@ -26,7 +26,7 @@
+ 
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Warray-bounds"
+-#include <basisu_transcoder.h>
++#include <libbasisu/transcoder/basisu_transcoder.h>
+ #pragma clang diagnostic pop
+ 
+ using namespace basist;
+diff --git a/libs/matdbg/src/ShaderReplacer.cpp b/libs/matdbg/src/ShaderReplacer.cpp
+index 8537b4a13..6d6ab7ed4 100644
+--- a/libs/matdbg/src/ShaderReplacer.cpp
++++ b/libs/matdbg/src/ShaderReplacer.cpp
+@@ -28,7 +28,7 @@
+ #include <algorithm>
+ #include <sstream>
+ 
+-#include <GlslangToSpv.h>
++#include <glslang/SPIRV/GlslangToSpv.h>
+ 
+ #include "sca/builtinResource.h"
+ #include "sca/GLSLTools.h"
+diff --git a/tools/matc/src/matc/MaterialCompiler.cpp b/tools/matc/src/matc/MaterialCompiler.cpp
+index d85e14ebf..3f3981615 100644
+--- a/tools/matc/src/matc/MaterialCompiler.cpp
++++ b/tools/matc/src/matc/MaterialCompiler.cpp
+@@ -28,8 +28,8 @@
+ #include <utils/Log.h>
+ #include <utils/Path.h>
+ 
+-#include <GlslangToSpv.h>
+-#include "glslang/Include/intermediate.h"
++#include <glslang/SPIRV/GlslangToSpv.h>
++#include "glslang-internal/Include/intermediate.h"
+ 
+ #include "sca/builtinResource.h"
+ 
