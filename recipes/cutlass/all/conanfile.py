@@ -73,6 +73,8 @@ class CutlassConan(ConanFile):
                 copy(self, pattern,
                      os.path.join(self.source_folder, "examples"),
                      os.path.join(self.package_folder, "include", "cutlass", "examples"))
+        # Install tools headers even if CUTLASS_ENABLE_TOOLS is disabled
+        copy(self, "*", os.path.join(self.source_folder, "tools", "util", "include"), os.path.join(self.package_folder, "include"))
         rmdir(self, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "test"))
 
