@@ -65,6 +65,7 @@ class NvshmemConan(ConanFile):
         ]):
             self.options.with_gdrcopy.value = False
         if self.options.with_libfabric:
+            self.options["libfabric"].shared = True
             self.options["libfabric"].cuda = True
             if self.options.with_gdrcopy:
                 self.options["libfabric"].gdrcopy = True
@@ -109,6 +110,10 @@ class NvshmemConan(ConanFile):
     def validate(self):
         if self.settings.compiler not in ["gcc", "clang"]:
             raise ConanInvalidConfiguration("NVSHMEM only supports compilation with GCC or Clang.")
+        if self.options.with_libfabric and not self.dependencies["libfabric"].options.shared:
+            # /usr/bin/ld: src/lib/nvshmem_transport_libfabric.so.3.0.0: version node not found for symbol fi_freeparams@@FABRIC_1.0
+            # /usr/bin/ld: failed to set dynamic section sizes: bad value
+            raise ConanInvalidConfiguration("libfabric/*:shared=True is required")
         check_min_cppstd(self, 11 if Version(self.settings.cuda.version) < 13 else 17)
 
     def build_requirements(self):
