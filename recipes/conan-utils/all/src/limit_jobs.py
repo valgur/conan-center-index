@@ -6,6 +6,10 @@ import subprocess
 from conan import ConanFile
 
 
+# Keep the original value in case limit_build_jobs() is applied multiple times
+_max_jobs_original = None
+
+
 def limit_build_jobs(conanfile: ConanFile, gb_mem_per_job: float):
     """
     Limit the number of build jobs based on available memory.
@@ -13,7 +17,9 @@ def limit_build_jobs(conanfile: ConanFile, gb_mem_per_job: float):
     """
     mem_free_gb = _get_free_memory_gb()
     max_jobs = max(math.floor(mem_free_gb / gb_mem_per_job), 1)
-    if int(conanfile.conf.get("tools.build:jobs", default=os.cpu_count())) > max_jobs:
+    global _max_jobs_original
+    _max_jobs_original = _max_jobs_original or int(conanfile.conf.get("tools.build:jobs", default=os.cpu_count()))
+    if _max_jobs_original > max_jobs:
         conanfile.output.warning(f"Limiting the number of build jobs to {max_jobs} "
                                  f"to fit the available {mem_free_gb:.1f} GB of memory "
                                  f"with {gb_mem_per_job} GB per job.")
