@@ -1,5 +1,4 @@
 #include <torch/torch.h>
-
 #include <iostream>
 
 struct Net: torch::nn::Module {
@@ -26,6 +25,4 @@ int main() {
     for (const auto& pair : net.named_parameters()) {
         std::cout << pair.key() << ": " << pair.value() << std::endl;
     }
-
-    return 0;
 }

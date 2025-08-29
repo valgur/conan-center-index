@@ -1,0 +1,19 @@
+diff --git a/tools/generate_torch_version.py b/tools/generate_torch_version.py
+--- a/tools/generate_torch_version.py	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/tools/generate_torch_version.py	(date 1756312904750)
+@@ -6,7 +6,6 @@
+ import subprocess
+ from pathlib import Path
+ 
+-from setuptools import distutils  # type: ignore[import,attr-defined]
+ 
+ 
+ UNKNOWN = "Unknown"
+@@ -71,7 +70,6 @@
+     parser.add_argument(
+         "--is-debug",
+         "--is_debug",
+-        type=distutils.util.strtobool,
+         help="Whether this build is debug mode or not.",
+     )
+     parser.add_argument("--cuda-version", "--cuda_version", type=str)

@@ -1,0 +1,311 @@
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+--- a/cmake/Dependencies.cmake	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/cmake/Dependencies.cmake	(date 1756564466391)
+@@ -274,8 +274,8 @@
+ endif()
+ 
+ # --- [ PocketFFT
+-set(AT_POCKETFFT_ENABLED 0)
+-if(NOT AT_MKL_ENABLED)
++set(AT_POCKETFFT_ENABLED 1)
++if(0)
+   set(POCKETFFT_INCLUDE_DIR "${Torch_SOURCE_DIR}/third_party/pocketfft/")
+   if(NOT EXISTS "${POCKETFFT_INCLUDE_DIR}")
+     message(FATAL_ERROR "pocketfft directory not found, expected ${POCKETFFT_INCLUDE_DIR}")
+@@ -556,7 +556,7 @@
+ 
+   include_directories(SYSTEM ${XNNPACK_INCLUDE_DIR})
+   list(APPEND Caffe2_DEPENDENCY_LIBS XNNPACK microkernels-prod)
+-elseif(NOT TARGET XNNPACK AND USE_SYSTEM_XNNPACK)
++elseif(0)
+   add_library(XNNPACK SHARED IMPORTED)
+   add_library(microkernels-prod SHARED IMPORTED)
+   find_library(XNNPACK_LIBRARY XNNPACK)
+@@ -699,7 +699,7 @@
+     endif()
+   endif()
+   if(USE_FBGEMM)
+-    target_compile_definitions(fbgemm PUBLIC DISABLE_FBGEMM_AUTOVEC)
++    target_compile_definitions(fbgemm INTERFACE DISABLE_FBGEMM_AUTOVEC)
+     list(APPEND Caffe2_DEPENDENCY_LIBS fbgemm)
+   endif()
+ endif()
+@@ -885,8 +885,8 @@
+ 
+ # ---[ MPI
+ if(USE_MPI)
+-  find_package(MPI)
+-  if(MPI_CXX_FOUND)
++  find_package(MPI REQUIRED)
++  if(MPI_FOUND)
+     message(STATUS "MPI support found")
+     message(STATUS "MPI compile flags: " ${MPI_CXX_COMPILE_FLAGS})
+     message(STATUS "MPI include path: " ${MPI_CXX_INCLUDE_PATH})
+@@ -895,7 +895,7 @@
+     find_program(OMPI_INFO
+       NAMES ompi_info
+       HINTS ${MPI_CXX_LIBRARIES}/../bin)
+-    if(OMPI_INFO)
++    if(0)
+       execute_process(COMMAND ${OMPI_INFO}
+                       OUTPUT_VARIABLE _output)
+       if(_output MATCHES "smcuda")
+@@ -961,8 +961,7 @@
+   if(CUDNN_VERSION VERSION_LESS 8.5)
+     message(FATAL_ERROR "PyTorch needs CuDNN-8.5 or above, but found ${CUDNN_VERSION}. Builds are still possible with `USE_CUDNN=0`")
+   endif()
+-  set(CUDNN_FRONTEND_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/../third_party/cudnn_frontend/include)
+-  target_include_directories(torch::cudnn INTERFACE ${CUDNN_FRONTEND_INCLUDE_DIR})
++  target_link_libraries(torch::cudnn INTERFACE cudnn_frontend)
+ endif()
+ 
+ # ---[ nvtx
+@@ -1152,10 +1151,6 @@
+ 
+     # Tensorpipe uses cuda_add_library
+     torch_update_find_cuda_flags()
+-    if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0.0")
+-      message(WARNING "Archived TensorPipe forces CMake compatibility mode")
+-      set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+-    endif()
+     add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/tensorpipe)
+     # Suppress warning to unblock libnop compilation by clang-17
+     # See https://github.com/pytorch/pytorch/issues/151316
+@@ -1224,16 +1219,12 @@
+       include_directories(BEFORE SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../third_party/gloo)
+       include_directories(BEFORE SYSTEM ${PROJECT_BINARY_DIR}/third_party/gloo)
+     else()
+-      find_package(Gloo)
++      find_package(Gloo REQUIRED)
+       if(NOT Gloo_FOUND)
+         message(FATAL_ERROR "Cannot find gloo")
+       endif()
+       message("Found gloo: ${Gloo_LIBRARY}")
+       message("Found gloo include directories: ${Gloo_INCLUDE_DIRS}")
+-      add_library(gloo SHARED IMPORTED)
+-      set_target_properties(gloo PROPERTIES IMPORTED_LOCATION ${Gloo_LIBRARY})
+-      # need to use Gloo_INCLUDE_DIRS over third_party/gloo to find Gloo's auto-generated config.h
+-      include_directories(BEFORE SYSTEM ${Gloo_INCLUDE_DIRS})
+     endif()
+     set(BUILD_TEST ${__BUILD_TEST})
+     set(BUILD_BENCHMARK ${__BUILD_BENCHMARK})
+@@ -1317,7 +1308,7 @@
+       caffe2_interface_library(onnx onnx_library)
+     endif()
+     list(APPEND Caffe2_DEPENDENCY_WHOLE_LINK_LIBS onnx_library)
+-  else()
++  elseif(0)
+     add_library(onnx SHARED IMPORTED)
+     find_library(ONNX_LIBRARY onnx)
+     if(NOT ONNX_LIBRARY)
+@@ -1566,7 +1557,6 @@
+ # CMAKE_CXX_FLAGS in ways that break feature checks. Since we already know
+ # `fmt` is compatible with a superset of the compilers that PyTorch is, it
+ # shouldn't be too bad to just disable the checks.
+-set_target_properties(fmt-header-only PROPERTIES INTERFACE_COMPILE_FEATURES "")
+ 
+ list(APPEND Caffe2_DEPENDENCY_LIBS fmt::fmt-header-only)
+ set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS} CACHE BOOL "Build shared libs" FORCE)
+@@ -1695,10 +1685,6 @@
+     endif()
+   endif()
+ 
+-  if(NOT TARGET kineto)
+-    add_subdirectory("${KINETO_SOURCE_DIR}")
+-    set_property(TARGET kineto PROPERTY POSITION_INDEPENDENT_CODE ON)
+-  endif()
+   list(APPEND Caffe2_DEPENDENCY_LIBS kineto)
+   string(APPEND CMAKE_CXX_FLAGS " -DUSE_KINETO")
+   if(LIBKINETO_NOCUPTI)
+@@ -1721,15 +1707,3 @@
+ 
+ # Include google/FlatBuffers
+ include(${CMAKE_CURRENT_LIST_DIR}/FlatBuffers.cmake)
+-
+-# Include cpp-httplib
+-add_library(httplib INTERFACE IMPORTED)
+-target_include_directories(httplib SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/third_party/cpp-httplib)
+-
+-# Include nlohmann-json
+-add_library(nlohmann INTERFACE IMPORTED)
+-include_directories(nlohmann SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/third_party/nlohmann/include)
+-
+-# Include moodycamel
+-add_library(moodycamel INTERFACE IMPORTED)
+-include_directories(moodycamel SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/third_party/concurrentqueue)
+diff --git a/aten/src/ATen/CMakeLists.txt b/aten/src/ATen/CMakeLists.txt
+--- a/aten/src/ATen/CMakeLists.txt	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/aten/src/ATen/CMakeLists.txt	(date 1756585142826)
+@@ -222,6 +222,14 @@
+     UNFUSE_FMA
+   )
+ 
++  target_link_libraries(flash_attention PRIVATE ${ATen_CUDA_DEPENDENCY_LIBS} ${Caffe2_CUDA_DEPENDENCY_LIBS})
++  if(USE_GFLAGS)
++    target_link_libraries(flash_attention PRIVATE gflags)
++  endif()
++  if(USE_GLOG)
++    target_link_libraries(flash_attention PRIVATE glog::glog)
++  endif()
++
+   set_target_properties(flash_attention PROPERTIES POSITION_INDEPENDENT_CODE ON)
+ endif()
+ 
+diff --git a/cmake/public/cuda.cmake b/cmake/public/cuda.cmake
+--- a/cmake/public/cuda.cmake	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/cmake/public/cuda.cmake	(date 1756362388835)
+@@ -60,7 +60,8 @@
+ 
+ cmake_policy(POP)
+ 
+-if(NOT CMAKE_CUDA_COMPILER_VERSION VERSION_EQUAL CUDAToolkit_VERSION)
++# Disabled due to spurious conflicts in patch versions of cudart and nvcc
++if(0)
+   message(FATAL_ERROR "Found two conflicting CUDA versions:\n"
+                       "V${CMAKE_CUDA_COMPILER_VERSION} in '${CUDA_INCLUDE_DIRS}' and\n"
+                       "V${CUDAToolkit_VERSION} in '${CUDAToolkit_INCLUDE_DIRS}'")
+@@ -168,7 +169,7 @@
+         TARGET torch::cudart PROPERTY INTERFACE_LINK_LIBRARIES
+         CUDA::cudart)
+ endif()
+-
++target_link_libraries(torch::cudart INTERFACE CUDA::nvml)
+ 
+ # cublas
+ add_library(caffe2::cublas INTERFACE IMPORTED)
+@@ -228,17 +229,16 @@
+     set(CAFFE2_USE_CUSPARSELT OFF)
+   else()
+     add_library(torch::cusparselt INTERFACE IMPORTED)
+-    target_include_directories(torch::cusparselt INTERFACE ${CUSPARSELT_INCLUDE_PATH})
+-    target_link_libraries(torch::cusparselt INTERFACE ${CUSPARSELT_LIBRARY_PATH})
++    target_link_libraries(torch::cusparselt INTERFACE CUDA::cusparseLt)
+   endif()
+ else()
+   message(STATUS "USE_CUSPARSELT is set to 0. Compiling without cuSPARSELt support")
+ endif()
+ 
+ if(USE_CUDSS)
+-  find_package(CUDSS)
+-
+-  if(NOT CUDSS_FOUND)
++  find_package(CUDSS REQUIRED)
++  if(1)
++  elseif(0)
+     message(WARNING
+       "Cannot find CUDSS library. Turning the option off")
+     set(USE_CUDSS OFF)
+diff --git a/cmake/BuildVariables.cmake b/cmake/BuildVariables.cmake
+--- a/cmake/BuildVariables.cmake	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/cmake/BuildVariables.cmake	(date 1756372688119)
+@@ -23,8 +23,8 @@
+ set(Caffe2_GPU_INCLUDE)
+ 
+ # Lists for Caffe2 dependency libraries, for CPU and CUDA respectively.
+-set(Caffe2_DEPENDENCY_LIBS "")
+-set(Caffe2_CUDA_DEPENDENCY_LIBS "")
++#set(Caffe2_DEPENDENCY_LIBS "")
++#set(Caffe2_CUDA_DEPENDENCY_LIBS "")
+ # This variable contains dependency libraries of Caffe2 which requires whole
+ # symbol linkage. One example is the onnx lib where we need all its schema
+ # symbols. However, if the lib is whole linked in caffe2 lib, we don't want
+diff --git a/caffe2/CMakeLists.txt b/caffe2/CMakeLists.txt
+--- a/caffe2/CMakeLists.txt	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/caffe2/CMakeLists.txt	(date 1756450029842)
+@@ -995,18 +995,14 @@
+     set(NVSHMEM_HOME $ENV{NVSHMEM_HOME} CACHE PATH "Path to NVSHMEM build dir")
+   endif()
+ 
+-  if(USE_NVSHMEM AND NOT DEFINED NVSHMEM_HOME)
++  if(0)
+     message(WARNING "USE_NVSHMEM set to 1 but NVSHMEM_HOME not found. Please run `pip install nvidia-nvshmem-<version>`, or set NVSHMEM_HOME to the NVSHMEM build dir")
+     # Disable nvshmem if NVSHMEM_HOME is not found
+     set(USE_NVSHMEM FALSE CACHE BOOL "Whether to build with NVSHMEM support")
+   endif()
+ 
+   if(USE_NVSHMEM)
+-    message("Building with NVSHMEM support:  '${NVSHMEM_HOME}'")
+-    set(NVSHMEM_INCLUDE_DIR "${NVSHMEM_HOME}/include")
+-    set(NVSHMEM_LIB_DIR "${NVSHMEM_HOME}/lib")
+-
+-    include_directories(${NVSHMEM_INCLUDE_DIR})
++    find_package(NVSHMEM REQUIRED)
+ 
+     # Linking with nvshmem requires the source binary to be built with -rdc
+     # which is not viable for libtorch_cuda. So we isolate the linking of
+@@ -1020,13 +1016,17 @@
+     set_target_properties(nvshmem_extension PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+     target_compile_options(nvshmem_extension PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-rdc=true>)
+     target_compile_options(nvshmem_extension PRIVATE "-U__CUDA_NO_HALF_OPERATORS__")
+-    target_link_directories(nvshmem_extension PRIVATE ${NVSHMEM_LIB_DIR})
+     target_link_libraries(nvshmem_extension PRIVATE
+-        # Full path needed bc nvshmem wheel ships with .so.3 instead of .so;
+-        # otherwise, we could just write `nvshmem_host`
+-        ${NVSHMEM_LIB_DIR}/libnvshmem_host.so.3
+-        nvshmem_device
++        nvshmem::nvshmem_host
++        nvshmem::nvshmem_device
++        ${ATen_CUDA_DEPENDENCY_LIBS}
+     )
++    if(USE_GFLAGS)
++      target_link_libraries(nvshmem_extension PRIVATE gflags)
++    endif()
++    if(USE_GLOG)
++      target_link_libraries(nvshmem_extension PRIVATE glog::glog)
++    endif()
+     target_compile_definitions(torch_cuda PUBLIC USE_NVSHMEM)
+     target_compile_definitions(nvshmem_extension PUBLIC USE_NVSHMEM)
+     target_link_libraries(torch_cuda PRIVATE nvshmem_extension)
+@@ -1543,7 +1543,7 @@
+ target_link_libraries(torch_cpu PRIVATE ${Caffe2_DEPENDENCY_LIBS})
+ target_link_libraries(torch_cpu PRIVATE ${Caffe2_DEPENDENCY_WHOLE_LINK_LIBS})
+ if(USE_MPI)
+-  target_link_libraries(torch_cpu PRIVATE MPI::MPI_CXX)
++  target_link_libraries(torch_cpu PRIVATE MPI::MPI_C)
+ endif()
+ target_include_directories(torch_cpu INTERFACE $<INSTALL_INTERFACE:include>)
+ target_include_directories(torch_cpu PRIVATE ${Caffe2_CPU_INCLUDE})
+@@ -1713,7 +1713,7 @@
+   endif()
+   set_target_properties(torch_global_deps PROPERTIES LINKER_LANGUAGE C)
+   if(USE_MPI)
+-    target_link_libraries(torch_global_deps MPI::MPI_CXX)
++    target_link_libraries(torch_global_deps MPI::MPI_C)
+   endif()
+   if(CAFFE2_USE_MKL)
+     target_link_libraries(torch_global_deps caffe2::mkl)
+diff --git a/cmake/External/nccl.cmake b/cmake/External/nccl.cmake
+--- a/cmake/External/nccl.cmake	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/cmake/External/nccl.cmake	(date 1756449255121)
+@@ -4,7 +4,7 @@
+   if(USE_SYSTEM_NCCL)
+     # NCCL_ROOT, NCCL_LIB_DIR, NCCL_INCLUDE_DIR will be accounted in the following line.
+     find_package(NCCL REQUIRED)
+-    if(NCCL_FOUND)
++    if(0)
+       add_library(__caffe2_nccl INTERFACE)
+       target_link_libraries(__caffe2_nccl INTERFACE ${NCCL_LIBRARIES})
+       target_include_directories(__caffe2_nccl INTERFACE ${NCCL_INCLUDE_DIRS})
+diff --git a/cmake/public/utils.cmake b/cmake/public/utils.cmake
+--- a/cmake/public/utils.cmake	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/cmake/public/utils.cmake	(date 1756362312266)
+@@ -436,7 +436,7 @@
+   if(USE_CUDA)
+     foreach(option IN LISTS private_compile_options)
+       if(CMAKE_CUDA_HOST_COMPILER_ID STREQUAL "GNU")
+-        if("${option}" STREQUAL "-Wextra-semi")
++        if("${option}" MATCHES "-W")
+           continue()
+         endif()
+         if("${option}" STREQUAL "-Wunused-private-field")
+diff --git a/caffe2/serialize/CMakeLists.txt b/caffe2/serialize/CMakeLists.txt
+--- a/caffe2/serialize/CMakeLists.txt	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/caffe2/serialize/CMakeLists.txt	(date 1756500496984)
+@@ -2,7 +2,6 @@
+ 
+ set(Caffe2_CPU_TEST_SRCS ${Caffe2_CPU_TEST_SRCS} ${tmp})
+ list(APPEND Caffe2_CPU_SRCS
+-  ${PROJECT_SOURCE_DIR}/third_party/miniz-3.0.2/miniz.c
+   ${CMAKE_CURRENT_SOURCE_DIR}/inline_container.cc
+   ${CMAKE_CURRENT_SOURCE_DIR}/istream_adapter.cc
+   ${CMAKE_CURRENT_SOURCE_DIR}/file_adapter.cc

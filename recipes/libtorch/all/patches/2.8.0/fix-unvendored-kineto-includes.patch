@@ -1,0 +1,94 @@
+diff --git a/torch/csrc/profiler/kineto_shim.h b/torch/csrc/profiler/kineto_shim.h
+--- a/torch/csrc/profiler/kineto_shim.h	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/profiler/kineto_shim.h	(date 1756358380309)
+@@ -12,7 +12,7 @@
+ #undef USE_KINETO
+ #endif
+ 
+-#include <ActivityType.h>
++#include <kineto/ActivityType.h>
+ 
+ #include <torch/csrc/Export.h>
+ #include <torch/csrc/profiler/api.h>
+diff --git a/torch/csrc/profiler/collection.cpp b/torch/csrc/profiler/collection.cpp
+--- a/torch/csrc/profiler/collection.cpp	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/profiler/collection.cpp	(date 1756358412202)
+@@ -12,7 +12,7 @@
+ #include <fmt/format.h>
+ 
+ #ifdef USE_KINETO
+-#include <libkineto.h>
++#include <kineto/libkineto.h>
+ #endif
+ 
+ #include <ATen/Context.h>
+diff --git a/torch/csrc/profiler/util.cpp b/torch/csrc/profiler/util.cpp
+--- a/torch/csrc/profiler/util.cpp	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/profiler/util.cpp	(date 1756358405607)
+@@ -9,7 +9,7 @@
+ #include <fmt/ranges.h>
+ 
+ #ifdef USE_KINETO
+-#include <libkineto.h>
++#include <kineto/libkineto.h>
+ #endif
+ #ifdef USE_DISTRIBUTED
+ #include <torch/csrc/distributed/c10d/ParamCommsUtils.hpp>
+diff --git a/torch/csrc/profiler/kineto_shim.cpp b/torch/csrc/profiler/kineto_shim.cpp
+--- a/torch/csrc/profiler/kineto_shim.cpp	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/profiler/kineto_shim.cpp	(date 1756358422768)
+@@ -3,7 +3,7 @@
+ #include <type_traits>
+ 
+ #ifdef USE_KINETO
+-#include <libkineto.h>
++#include <kineto/libkineto.h>
+ #endif
+ 
+ #include <c10/util/Exception.h>
+diff --git a/torch/csrc/autograd/profiler_kineto.cpp b/torch/csrc/autograd/profiler_kineto.cpp
+--- a/torch/csrc/autograd/profiler_kineto.cpp	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/autograd/profiler_kineto.cpp	(date 1756361013055)
+@@ -24,9 +24,9 @@
+ #include <utility>
+ 
+ #ifdef USE_KINETO
+-#include <ApproximateClock.h>
+-#include <libkineto.h>
+-#include <time_since_epoch.h>
++#include <kineto/ApproximateClock.h>
++#include <kineto/libkineto.h>
++#include <kineto/time_since_epoch.h>
+ 
+ #ifndef _MSC_VER
+ // TODO: TO be removed, once this properly works from libkineto
+diff --git a/torch/csrc/jit/serialization/mobile_bytecode_generated.h b/torch/csrc/jit/serialization/mobile_bytecode_generated.h
+--- a/torch/csrc/jit/serialization/mobile_bytecode_generated.h	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/jit/serialization/mobile_bytecode_generated.h	(date 1756474811049)
+@@ -9,8 +9,8 @@
+ // Ensure the included flatbuffers.h is the same version as when this file was
+ // generated, otherwise it may not be compatible.
+ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
+-              FLATBUFFERS_VERSION_MINOR == 12 &&
+-              FLATBUFFERS_VERSION_REVISION == 23,
++              FLATBUFFERS_VERSION_MINOR == 3 &&
++              FLATBUFFERS_VERSION_REVISION == 25,
+              "Non-compatible flatbuffers version included");
+ 
+ namespace torch {
+@@ -2597,4 +2597,3 @@
+ }  // namespace torch
+ 
+ #endif  // FLATBUFFERS_GENERATED_MOBILEBYTECODE_TORCH_JIT_MOBILE_SERIALIZATION_H_
+-// @generated
+diff --git a/torch/csrc/profiler/kineto_client_interface.cpp b/torch/csrc/profiler/kineto_client_interface.cpp
+--- a/torch/csrc/profiler/kineto_client_interface.cpp	(revision ba56102387ef21a3b04b357e5b183d48f0afefc7)
++++ b/torch/csrc/profiler/kineto_client_interface.cpp	(date 1756358414684)
+@@ -1,6 +1,6 @@
+ #ifdef USE_KINETO
+ #include <ATen/Context.h>
+-#include <libkineto.h>
++#include <kineto/libkineto.h>
+ #include <torch/csrc/autograd/profiler_kineto.h>
+ #include <torch/csrc/mtia/profiler/MTIAMemoryProfiler.h>
+ #include <torch/csrc/profiler/kineto_client_interface.h>
