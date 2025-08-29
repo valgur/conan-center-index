@@ -23,14 +23,24 @@ class MinizConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "zlib_compat": [True, False],
+        # For compatibility with libtorch
+        "disable_crc32_checks": [True, False],
+        "use_external_mzcrc": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "zlib_compat": False,
+        "disable_crc32_checks": False,
+        "use_external_mzcrc": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
+
+    def config_options(self):
+        if "pytorch" in self.version:
+            self.options.disable_crc32_checks = True
+            self.options.use_external_mzcrc = True
 
     def configure(self):
         if self.options.shared:
@@ -53,16 +63,18 @@ class MinizConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "2.2.0":
-            tc.variables["BUILD_EXAMPLES"] = False
-            tc.variables["BUILD_FUZZERS"] = False
-            tc.variables["AMALGAMATE_SOURCES"] = False
-            tc.variables["BUILD_HEADER_ONLY"] = False
-            tc.variables["INSTALL_PROJECT"] = True
-        # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
+        tc.variables["BUILD_EXAMPLES"] = False
+        tc.variables["BUILD_FUZZERS"] = False
+        tc.variables["AMALGAMATE_SOURCES"] = False
+        tc.variables["BUILD_HEADER_ONLY"] = False
+        tc.variables["INSTALL_PROJECT"] = True
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if Version(self.version) <= "3.0.2":
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if self.options.disable_crc32_checks:
+            tc.preprocessor_definitions["MINIZ_DISABLE_ZIP_READER_CRC32_CHECKS"] = "1"
+        if self.options.use_external_mzcrc:
+            tc.preprocessor_definitions["USE_EXTERNAL_MZCRC"] = "1"
         tc.generate()
 
     def build(self):

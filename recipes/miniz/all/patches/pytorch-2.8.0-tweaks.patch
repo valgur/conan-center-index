@@ -1,0 +1,119 @@
+diff --git a/miniz_zip.c b/miniz_zip.c
+--- a/miniz_zip.c
++++ b/miniz_zip.c
+@@ -773,8 +773,7 @@
+             filename_size = MZ_READ_LE16(p + MZ_ZIP_CDH_FILENAME_LEN_OFS);
+             ext_data_size = MZ_READ_LE16(p + MZ_ZIP_CDH_EXTRA_LEN_OFS);
+ 
+-            if ((!pZip->m_pState->m_zip64_has_extended_info_fields) &&
+-                (ext_data_size) &&
++            if ((ext_data_size) &&
+                 (MZ_MAX(MZ_MAX(comp_size, decomp_size), local_header_ofs) == MZ_UINT32_MAX))
+             {
+                 /* Attempt to find zip64 extended information field in the entry's extra data */
+@@ -836,7 +835,28 @@
+                         extra_size_remaining = extra_size_remaining - sizeof(mz_uint16) * 2 - field_data_size;
+                     } while (extra_size_remaining);
+ 
+-					MZ_FREE(buf);
++                    // Read zip64 extended information field
++                    // Header ID: 0x0001, field size: 2 bytes
++                    if (extra_size_remaining >= sizeof(mz_uint16) * 2) {
++                        extra_size_remaining = extra_size_remaining - sizeof(mz_uint16) * 2;
++                        pExtra_data += sizeof(mz_uint16) * 2;
++                        if (decomp_size == MZ_UINT32_MAX && extra_size_remaining >= sizeof(mz_uint64)) {
++                            decomp_size = MZ_READ_LE64(pExtra_data);
++                            extra_size_remaining -= sizeof(mz_uint64);
++                            pExtra_data += sizeof(mz_uint64);
++                        }
++                        if (comp_size == MZ_UINT32_MAX && extra_size_remaining >= sizeof(mz_uint64)) {
++                            comp_size = MZ_READ_LE64(pExtra_data);
++                            extra_size_remaining -= sizeof(mz_uint64);
++                            pExtra_data += sizeof(mz_uint64);
++                        }
++                        if (local_header_ofs == MZ_UINT32_MAX && extra_size_remaining >= sizeof(mz_uint64)) {
++                            local_header_ofs = MZ_READ_LE64(pExtra_data);
++                            extra_size_remaining -= sizeof(mz_uint64);
++                            pExtra_data += sizeof(mz_uint64);
++                        }
++                    }
++                    MZ_FREE(buf);
+                 }
+             }
+ 
+@@ -853,7 +873,7 @@
+ 
+             if (comp_size != MZ_UINT32_MAX)
+             {
+-                if (((mz_uint64)MZ_READ_LE32(p + MZ_ZIP_CDH_LOCAL_HEADER_OFS) + MZ_ZIP_LOCAL_DIR_HEADER_SIZE + comp_size) > pZip->m_archive_size)
++                if ((local_header_ofs + MZ_ZIP_LOCAL_DIR_HEADER_SIZE + comp_size) > pZip->m_archive_size)
+                     return mz_zip_set_error(pZip, MZ_ZIP_INVALID_HEADER_OR_CORRUPTED);
+             }
+ 
+@@ -3197,6 +3217,8 @@
+     mz_uint32 extra_size = 0;
+     mz_uint8 extra_data[MZ_ZIP64_MAX_CENTRAL_EXTRA_FIELD_SIZE];
+     mz_uint16 bit_flags = 0;
++    mz_bool write_metadata_only = buf_size && !pBuf;
++    mz_bool skip_crc32 = write_metadata_only || (level_and_flags & MZ_ZIP_FLAG_DO_NOT_COMPUTE_CRC32);
+ 
+     if ((int)level_and_flags < 0)
+         level_and_flags = MZ_DEFAULT_LEVEL;
+@@ -3210,7 +3232,7 @@
+     level = level_and_flags & 0xF;
+     store_data_uncompressed = ((!level) || (level_and_flags & MZ_ZIP_FLAG_COMPRESSED_DATA));
+ 
+-    if ((!pZip) || (!pZip->m_pState) || (pZip->m_zip_mode != MZ_ZIP_MODE_WRITING) || ((buf_size) && (!pBuf)) || (!pArchive_name) || ((comment_size) && (!pComment)) || (level > MZ_UBER_COMPRESSION))
++    if ((!pZip) || (!pZip->m_pState) || (pZip->m_zip_mode != MZ_ZIP_MODE_WRITING) || (!pArchive_name) || ((comment_size) && (!pComment)) || (level > MZ_UBER_COMPRESSION))
+         return mz_zip_set_error(pZip, MZ_ZIP_INVALID_PARAMETER);
+ 
+     pState = pZip->m_pState;
+@@ -3255,7 +3277,9 @@
+ 
+ 	if (!(level_and_flags & MZ_ZIP_FLAG_COMPRESSED_DATA))
+ 	{
+-		uncomp_crc32 = (mz_uint32)mz_crc32(MZ_CRC32_INIT, (const mz_uint8 *)pBuf, buf_size);
++	    if (!skip_crc32) {
++	        uncomp_crc32 = (mz_uint32)mz_crc32(MZ_CRC32_INIT, (const mz_uint8 *)pBuf, buf_size);
++	    }
+ 		uncomp_size = buf_size;
+ 		if (uncomp_size <= 3)
+ 		{
+diff --git a/miniz_zip.h b/miniz_zip.h
+--- a/miniz_zip.h
++++ b/miniz_zip.h
+@@ -101,7 +101,9 @@
+     MZ_ZIP_FLAG_ASCII_FILENAME = 0x10000,
+     /*After adding a compressed file, seek back
+     to local file header and set the correct sizes*/
+-    MZ_ZIP_FLAG_WRITE_HEADER_SET_SIZE = 0x20000
++    MZ_ZIP_FLAG_WRITE_HEADER_SET_SIZE = 0x20000,
++    MZ_ZIP_FLAG_DO_NOT_COMPUTE_CRC32 = 0x80000,
++    /* don't compute the crc32 of file data that's being added. */
+ } mz_zip_flags;
+ 
+ typedef enum {
+@@ -151,7 +153,7 @@
+     MZ_ZIP_TOTAL_ERRORS
+ } mz_zip_error;
+ 
+-typedef struct
++typedef struct mz_zip_archive /* note: added name so it can be forward declared */
+ {
+     mz_uint64 m_archive_size;
+     mz_uint64 m_central_directory_file_ofs;
+diff --git a/miniz.h b/miniz.h
+--- a/miniz.h
++++ b/miniz.h
+@@ -208,8 +208,10 @@
+ #if !defined(MINIZ_USE_UNALIGNED_LOADS_AND_STORES)
+ #if MINIZ_X86_OR_X64_CPU
+ /* Set MINIZ_USE_UNALIGNED_LOADS_AND_STORES to 1 on CPU's that permit efficient integer loads and stores from unaligned addresses. */
++/* zdevito: ASAN doesn't like unligned loads and stores, and -O3 optimizes the unoptimized code pattern away anyawy */
+ #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
+-#define MINIZ_UNALIGNED_USE_MEMCPY
++/* zdevito: ASAN doesn't like unligned loads and stores, and -O3 optimizes the unoptimized code pattern away anyawy */
++/*#define MINIZ_UNALIGNED_USE_MEMCPY*/
+ #else
+ #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
+ #endif
