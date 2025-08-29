@@ -204,10 +204,12 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-libltdl"] = "no"
         # Disable a PMIx linking check
         tc.configure_args["oac_cv_check_package_pmix_wrapper_compiler_static_libs"] = ""
-        tc.generate()
-
         deps = AutotoolsDeps(self)
+        env = deps.environment.vars(self)
+        # Linking of static transitive deps for tools is broken without this
+        tc.make_args["LIBS"] = f'{env["LDFLAGS"]} {env["LIBS"]}'
         deps.generate()
+        tc.generate()
 
         # Needed for ./configure to find libhwloc.so and libibnetdisc.so
         VirtualRunEnv(self).generate(scope="build")
