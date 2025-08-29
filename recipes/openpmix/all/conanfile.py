@@ -16,7 +16,6 @@ class OpenPMIxConan(ConanFile):
     name = "openpmix"
     description = "OpenPMIx: reference implementation of the Process Management Interface Exascale (PMIx) standard"
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://openpmix.github.io/"
     topics = ("process-management", "mpi", "openmpi", "pmix", "hpc")
     provides = ["pmix"]
@@ -61,6 +60,9 @@ class OpenPMIxConan(ConanFile):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("OpenPMIx doesn't support Windows")
 
+    def build_requirements(self):
+        self.tool_requires("libtool/[^2.4.7]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -96,13 +98,16 @@ class OpenPMIxConan(ConanFile):
         # Not adding it as it fails to be detected by ./configure in some cases.
         # https://github.com/open-mpi/ompi/blob/v4.1.6/opal/mca/dl/dl.h#L20-L25
         tc.configure_args.append("--with-libltdl=no")
-        tc.generate()
-
         deps = AutotoolsDeps(self)
+        env = deps.environment.vars(self)
+        # Linking of tools is broken without this
+        tc.make_args.append(f'LIBS={env["LDFLAGS"]} {env["LIBS"]}')
         deps.generate()
+        tc.generate()
 
     def build(self):
         autotools = Autotools(self)
+        autotools.autoreconf()
         autotools.configure()
         autotools.make()
 
