@@ -94,6 +94,10 @@ class KinetoConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        # PyTorch also relies on the ApproximateClock.h internal header
+        copy(self,
+             "ApproximateClock.h", os.path.join(self.source_folder, "libkineto", "src"),
+             os.path.join(self.package_folder, "include", "kineto"))
         rmdir(self, os.path.join(self.package_folder, "share"))  # CMake config
 
     def package_info(self):
