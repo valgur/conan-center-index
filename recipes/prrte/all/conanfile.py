@@ -73,10 +73,12 @@ class PrrteConan(ConanFile):
             tc.configure_args.append("--host=aarch64-apple-darwin")
             tc.extra_ldflags.append("-arch arm64")
         tc.configure_args.append("--with-libltdl=no")
-        tc.generate()
-
         deps = AutotoolsDeps(self)
+        env = deps.environment.vars(self)
+        # Linking of static transitive deps for tools is broken without this
+        tc.make_args.append(f'LIBS={env["LDFLAGS"]} {env["LIBS"]}')
         deps.generate()
+        tc.generate()
 
     def build(self):
         autotools = Autotools(self)
