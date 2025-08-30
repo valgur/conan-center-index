@@ -128,6 +128,14 @@ class XnnpackConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["XNNPACK"]
+        self.cpp_info.components["core"].libs = ["XNNPACK"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["m"]
+            self.cpp_info.components["core"].system_libs = ["m"]
+        self.cpp_info.components["core"].requires = ["cpuinfo::cpuinfo", "fp16::fp16", "fxdiv::fxdiv", "pthreadpool::pthreadpool"]
+        if not self.options.shared:
+            if Version(self.version) >= "cci.20250610":
+                self.cpp_info.components["microkernels-prod"].libs = ["xnnpack-microkernels-prod"]
+                self.cpp_info.components["core"].requires.append("microkernels-prod")
+            elif Version(self.version) >= "cci.20240823":
+                self.cpp_info.components["microkernels-prod"].libs = ["microkernels-prod"]
+                self.cpp_info.components["core"].requires.append("microkernels-prod")
