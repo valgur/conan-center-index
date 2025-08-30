@@ -122,5 +122,7 @@ class GlogConan(ConanFile):
             self.cpp_info.defines.append(f"GOOGLE_GLOG_DLL_DECL={decl}")
         if self.options.with_gflags and not self.options.shared:
             self.cpp_info.defines.extend(["GFLAGS_DLL_DECLARE_FLAG=", "GFLAGS_DLL_DEFINE_FLAG="])
+        if not self.options.shared:
+            self.cpp_info.defines.append("GLOG_STATIC_DEFINE")
         if Version(self.version) >= "0.7.0":
             self.cpp_info.defines.append("GLOG_USE_GLOG_EXPORT=")
