@@ -9,7 +9,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LiunwindConan(ConanFile):
@@ -39,15 +39,11 @@ class LiunwindConan(ConanFile):
         "minidebuginfo": True,
         "zlibdebuginfo": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -60,9 +56,7 @@ class LiunwindConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration(
-                "libunwind is only supported on Linux and FreeBSD"
-            )
+            raise ConanInvalidConfiguration("libunwind is only supported on Linux and FreeBSD")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -75,17 +69,15 @@ class LiunwindConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend(
-            [
-                f"--enable-coredump={yes_no(self.options.coredump)}",
-                f"--enable-ptrace={yes_no(self.options.ptrace)}",
-                f"--enable-setjmp={yes_no(self.options.setjmp)}",
-                f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
-                f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
-                "--disable-tests",
-                "--disable-documentation",
-            ]
-        )
+        tc.configure_args.extend([
+            f"--enable-coredump={yes_no(self.options.coredump)}",
+            f"--enable-ptrace={yes_no(self.options.ptrace)}",
+            f"--enable-setjmp={yes_no(self.options.setjmp)}",
+            f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
+            f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
+            "--disable-tests",
+            "--disable-documentation",
+        ])
         tc.generate()
 
         tc = AutotoolsDeps(self)
@@ -97,12 +89,7 @@ class LiunwindConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"),)
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -112,9 +99,7 @@ class LiunwindConan(ConanFile):
         # As this seems to be unnecessary for the conan package.
         # rename the real file to libunwind_generic,
         lib_ext = "so" if self.options.shared else "a"
-        symlink_path = os.path.join(
-            self.package_folder, "lib", f"libunwind-generic.{lib_ext}"
-        )
+        symlink_path = os.path.join(self.package_folder, "lib", f"libunwind-generic.{lib_ext}")
         source_path = os.path.realpath(symlink_path)
         rm(self, os.path.basename(symlink_path), os.path.dirname(symlink_path))
         shutil.copy(source_path, symlink_path)
@@ -128,26 +113,22 @@ class LiunwindConan(ConanFile):
             self.cpp_info.components["unwind"].requires.append("zlib-ng::zlib-ng")
         if self.settings.os == "Linux":
             self.cpp_info.components["unwind"].system_libs.append("pthread")
-        self.cpp_info.components["generic"].set_property(
-            "pkg_config_name", "libunwind-generic"
-        )
+
+        self.cpp_info.components["generic"].set_property("pkg_config_name", "libunwind-generic")
         self.cpp_info.components["generic"].libs = ["unwind-generic"]
         self.cpp_info.components["generic"].requires = ["unwind"]
+
         if self.options.ptrace:
-            self.cpp_info.components["ptrace"].set_property(
-                "pkg_config_name", "libunwind-ptrace"
-            )
+            self.cpp_info.components["ptrace"].set_property("pkg_config_name", "libunwind-ptrace")
             self.cpp_info.components["ptrace"].libs = ["unwind-ptrace"]
             self.cpp_info.components["ptrace"].requires = ["generic", "unwind"]
+
         if self.options.setjmp:
-            self.cpp_info.components["setjmp"].set_property(
-                "pkg_config_name", "libunwind-setjmp"
-            )
+            self.cpp_info.components["setjmp"].set_property("pkg_config_name", "libunwind-setjmp")
             self.cpp_info.components["setjmp"].libs = ["unwind-setjmp"]
             self.cpp_info.components["setjmp"].requires = ["unwind"]
+
         if self.options.coredump:
-            self.cpp_info.components["coredump"].set_property(
-                "pkg_config_name", "libunwind-coredump"
-            )
+            self.cpp_info.components["coredump"].set_property("pkg_config_name", "libunwind-coredump")
             self.cpp_info.components["coredump"].libs = ["unwind-coredump"]
             self.cpp_info.components["coredump"].requires = ["generic", "unwind"]
