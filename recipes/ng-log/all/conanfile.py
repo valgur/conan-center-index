@@ -9,18 +9,19 @@ from conan.tools.scm import Version
 required_conan_version = ">=2.1"
 
 
-class GlogConan(ConanFile):
-    name = "glog"
-    description = "Google logging library"
+class NgLogConan(ConanFile):
+    name = "ng-log"
+    description = ("ng-log (formerly Google Logging Library or glog) is a C++14 library that implements application-level logging."
+                   " The library provides logging APIs based on C++-style streams and various helper macros.")
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/google/glog/"
-    topics = ("logging",)
+    homepage = "https://ng-log.github.io/ng-log/stable/"
+    topics = ("logging", "glog")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "glog_compat": [True, False],
         "with_gflags": [True, False],
         "with_threads": [True, False],
         "with_unwind": [True, False],
@@ -28,20 +29,19 @@ class GlogConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "glog_compat": True,
         "with_gflags": True,
         "with_threads": True,
         "with_unwind": True,
     }
-
-    # Either ng-log or Abseil Logging is the recommended successor to glog.
-    # ng-log 0.8.x also provides a glog-compatible API.
-    deprecated = "ng-log"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_unwind
+        if Version(self.version) >= "0.9.0":
+            del self.options.glog_compat
 
     def configure(self):
         if self.options.shared:
@@ -59,20 +59,17 @@ class GlogConan(ConanFile):
             self.requires("libunwind/[^1.8.0]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if Version(self.version) >= "0.7.0":
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        if self.version == "0.6.0":
-            # CMake v4 support
-            replace_in_file(self, "cmake/GetCacheVariables.cmake", "cmake_policy (VERSION 3.3)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["BUILD_COMPAT"] = self.options.get_safe("glog_compat", False)
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags
         tc.variables["WITH_THREADS"] = self.options.with_threads
         tc.variables["WITH_PKGCONFIG"] = True
@@ -85,14 +82,13 @@ class GlogConan(ConanFile):
         tc.variables["WITH_UNWIND"] = self.options.get_safe("with_unwind", False)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["WITH_GTEST"] = False
-        # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
-        # Needed for https://github.com/google/glog/blob/v0.7.1/CMakeLists.txt#L81
-        # and https://github.com/google/glog/blob/v0.7.1/CMakeLists.txt#L90
         tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("libunwind", "cmake_file_name", "Unwind")
+        deps.set_property("libunwind", "cmake_target_name", "unwind::unwind")
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -108,19 +104,35 @@ class GlogConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "glog")
-        self.cpp_info.set_property("cmake_target_name", "glog::glog")
-        self.cpp_info.set_property("pkg_config_name", "libglog")
+        self.cpp_info.set_property("cmake_file_name", "ng-log")
+        self.cpp_info.components["ng-log_"].set_property("cmake_target_name", "ng-log::ng-log")
+        self.cpp_info.components["ng-log_"].set_property("pkg_config_name", "libng-log")
+
         postfix = "d" if self.settings.build_type == "Debug" else ""
-        self.cpp_info.libs = ["glog" + postfix]
+        self.cpp_info.components["ng-log_"].libs = ["ng-log" + postfix]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread"]
+            self.cpp_info.components["ng-log_"].system_libs = ["pthread", "m", "dl"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["dbghelp"]
-            self.cpp_info.defines = ["GLOG_NO_ABBREVIATED_SEVERITIES"]
-            decl = "__declspec(dllimport)" if self.options.shared else ""
-            self.cpp_info.defines.append(f"GOOGLE_GLOG_DLL_DECL={decl}")
-        if self.options.with_gflags and not self.options.shared:
-            self.cpp_info.defines.extend(["GFLAGS_DLL_DECLARE_FLAG=", "GFLAGS_DLL_DEFINE_FLAG="])
-        if Version(self.version) >= "0.7.0":
-            self.cpp_info.defines.append("GLOG_USE_GLOG_EXPORT=")
+            self.cpp_info.components["ng-log_"].system_libs = ["dbghelp"]
+            self.cpp_info.components["ng-log_"].defines = ["NGLOG_NO_ABBREVIATED_SEVERITIES"]
+        self.cpp_info.components["ng-log_"].defines.append("NGLOG_USE_EXPORT")
+        if not self.options.shared:
+            self.cpp_info.components["ng-log_"].defines.append("NGLOG_STATIC_DEFINE")
+        if self.options.get_safe("with_unwind"):
+            self.cpp_info.components["ng-log_"].requires.append("libunwind::libunwind")
+        if self.options.with_gflags:
+            self.cpp_info.components["ng-log_"].defines.append("NGLOG_USE_GFLAGS")
+            self.cpp_info.components["ng-log_"].requires.append("gflags::gflags")
+
+        if self.options.get_safe("glog_compat"):
+            self.cpp_info.components["glog"].set_property("cmake_target_name", "glog::glog")
+            self.cpp_info.components["glog"].set_property("pkg_config_name", "libglog")
+            self.cpp_info.components["glog"].libs = ["glog" + postfix]
+            if self.settings.os == "Windows":
+                self.cpp_info.components["glog"].defines.append("GLOG_NO_ABBREVIATED_SEVERITIES")
+            if not self.options.shared:
+                self.cpp_info.components["glog"].defines.append("NGLOG_COMPAT_STATIC_DEFINE")
+            if self.options.with_gflags and not self.options.shared:
+                self.cpp_info.components["glog"].defines.extend(["GFLAGS_DLL_DECLARE_FLAG", "GFLAGS_DLL_DEFINE_FLAG"])
+            self.cpp_info.components["glog"].defines.append("GLOG_USE_GLOG_EXPORT")
+            self.cpp_info.components["glog"].requires = ["ng-log_"]
