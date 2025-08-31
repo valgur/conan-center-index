@@ -1,4 +1,4 @@
 sources:
-  "3.12.4":
-    url: "https://github.com/colmap/colmap/archive/refs/tags/3.12.4.tar.gz"
-    sha256: "320cb5a411cd0aa713adc05e208ec34067638e776260efd8098271342d408997"
+  "3.12.5":
+    url: "https://github.com/colmap/colmap/archive/refs/tags/3.12.5.tar.gz"
+    sha256: "93dfb220cce24d988506bbb1d27d4278eacfd4e372df61d380559d414c1bd9e4"
