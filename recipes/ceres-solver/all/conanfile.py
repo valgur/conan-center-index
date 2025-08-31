@@ -26,7 +26,6 @@ class CeresSolverConan(ConanFile):
         "fPIC": [True, False],
         "use_cuda": [True, False],
         "use_eigen_metis": [True, False],
-        "use_glog":  [True, False], # TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
         "use_lapack": [True, False],
         "use_eigen_sparse": [True, False],
         "use_suitesparse": [True, False],
@@ -44,9 +43,8 @@ class CeresSolverConan(ConanFile):
         "fPIC": True,
         "use_cuda": False,
         "use_eigen_metis": True,
-        "use_glog": True,
         "use_lapack": True,
-        "use_eigen_sparse": True,
+        "use_eigen_sparse": True,  # uses LGPL-licensed parts of Eigen
         "use_suitesparse": True,
         "use_accelerate": True,
         "use_custom_blas": True,
@@ -58,7 +56,6 @@ class CeresSolverConan(ConanFile):
     }
     options_description = {
         "use_cuda": "Enable CUDA support.",
-        "use_glog": "If False, use a custom stripped down version of glog instead. Disabling glog has a big performance drawback.",
         "use_lapack": "Enable use of LAPACK directly within Ceres.",
         "use_eigen_sparse": "Enable Eigen as a sparse linear algebra library.",
         "use_suitesparse": "Enable SuiteSparse support.",
@@ -77,10 +74,15 @@ class CeresSolverConan(ConanFile):
     @property
     def _min_cppstd(self):
         if Version(self.version) >= "2.2.0":
-            return "17"
+            return 17
         if Version(self.version) >= "2.0.0":
-            return "14"
-        return "98"
+            return 14
+        return 98
+
+    @property
+    def _use_miniglog(self):
+        # https://github.com/ceres-solver/ceres-solver/blob/2.2.0/CMakeLists.txt#L168-L175
+        return Version(self.version, qualifier=True) < "2.3.0" and self.settings.os == "iOS"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -101,7 +103,6 @@ class CeresSolverConan(ConanFile):
 
         # https://github.com/ceres-solver/ceres-solver/blob/2.2.0/CMakeLists.txt#L168-L175
         if self.settings.os == "iOS":
-            del self.options.use_glog
             del self.options.use_lapack
             del self.options.use_suitesparse
 
@@ -113,7 +114,8 @@ class CeresSolverConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.get_safe("use_cuda"):
             del self.settings.cuda
-        self.options["eigen"].MPL2_only = False
+        if self.options.use_eigen_sparse:
+            self.options["eigen"].MPL2_only = False
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -126,7 +128,9 @@ class CeresSolverConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
-        if self.options.get_safe("use_glog"):
+        if Version(self.version, qualifier=True) >= "2.3.0":
+            self.requires("abseil/[>=20240116]", transitive_headers=True, transitive_libs=True)
+        elif not self._use_miniglog:
             self.requires("glog/0.6.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("use_suitesparse"):
             self.requires("suitesparse-spqr/[^4.3.4]")
@@ -146,6 +150,8 @@ class CeresSolverConan(ConanFile):
             self._utils.cuda_requires(self, "cublas")
             self._utils.cuda_requires(self, "cusparse")
             self._utils.cuda_requires(self, "cusolver")
+            if Version(self.version, qualifier=True) >= "2.3.0":
+                self._utils.cuda_requires(self, "cudss")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -188,11 +194,15 @@ class CeresSolverConan(ConanFile):
 
         tc.variables["CUSTOM_BLAS"] = self.options.use_custom_blas
         tc.variables["EIGENSPARSE"] = self.options.use_eigen_sparse
-        tc.variables["GFLAGS"] = False # useless for the lib itself, gflags is not a direct dependency
+        if Version(self.version, qualifier=True) < "2.3.0":
+            tc.variables["GFLAGS"] = False # useless for the lib itself, gflags is not a direct dependency
         tc.variables["LAPACK"] = self.options.get_safe("use_lapack", False)
-        tc.variables["MINIGLOG"] = not self.options.get_safe("use_glog", False)
+        tc.variables["MINIGLOG"] = self._use_miniglog
         tc.variables["SCHUR_SPECIALIZATIONS"] = self.options.use_schur_specializations
         tc.variables["SUITESPARSE"] = self.options.get_safe("use_suitesparse", False)
+        if self.options.get_safe("use_suitesparse"):
+            tc.variables["SuiteSparse_VERSION"] = str(self.dependencies["suitesparse-config"].ref.version)
+            tc.variables["SuiteSparse_Partition_FOUND"] = self.dependencies["suitesparse-cholmod"].options.build_partition
 
         # IOS_DEPLOYMENT_TARGET variable was added to iOS.cmake file in 1.12.0 version
         if self.settings.os == "iOS":
@@ -270,15 +280,28 @@ class CeresSolverConan(ConanFile):
         # see https://github.com/ceres-solver/ceres-solver/blob/2.2.0/cmake/CeresConfig.cmake.in#L334-L340
         self.cpp_info.components["ceres"].set_property("cmake_target_aliases", ["ceres"])
         self.cpp_info.components["ceres"].libs = [f"ceres{libsuffix}"]
-        if not self.options.use_glog:
-            self.cpp_info.components["ceres"].includedirs.append(os.path.join("include", "ceres", "internal", "miniglog"))
+        if self._use_miniglog:
+            self.cpp_info.components["ceres"].includedirs.append("include/ceres/internal/miniglog")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["ceres"].system_libs.extend(["m", "pthread"])
+            self.cpp_info.components["ceres"].system_libs = ["m", "pthread"]
         if self.options.get_safe("use_accelerate"):
-            self.cpp_info.components["ceres"].frameworks.append("Accelerate")
+            self.cpp_info.components["ceres"].frameworks = ["Accelerate"]
 
         requires = ["eigen::eigen"]
-        if self.options.get_safe("use_glog"):
+        if Version(self.version, qualifier=True) >= "2.3.0":
+            # Based on https://github.com/ceres-solver/ceres-solver/blob/93e66f0/bazel/ceres.bzl#L215-L222
+            requires.extend([
+                "abseil::absl_btree",
+                "abseil::absl_check",
+                "abseil::absl_fixed_array",
+                "abseil::absl_flat_hash_map",
+                "abseil::absl_flat_hash_set",
+                "abseil::absl_log",
+                "abseil::absl_strings",
+                "abseil::absl_time",
+                "abseil::absl_vlog_is_on",
+            ])
+        elif not self._use_miniglog:
             requires.append("glog::glog")
         if self.options.get_safe("use_suitesparse"):
             requires.append("suitesparse-cholmod::suitesparse-cholmod")
@@ -307,6 +330,8 @@ class CeresSolverConan(ConanFile):
                 "cusolver::cusolver_",
                 "cusparse::cusparse",
             ])
+            if Version(self.version, qualifier=True) >= "2.3.0":
+                self.cpp_info.components["ceres"].requires.append("cudss::cudss_")
             if Version(self.version) >= "2.2.0":
                 self.cpp_info.components["ceres_cuda_kernels"].set_property("cmake_target_name", "Ceres::ceres_cuda_kernels")
                 self.cpp_info.components["ceres_cuda_kernels"].libs.append(f"ceres_cuda_kernels{libsuffix}")
