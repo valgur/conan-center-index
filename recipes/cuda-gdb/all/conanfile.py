@@ -13,7 +13,7 @@ class CudaGdbConan(ConanFile):
         "CUDA-GDB is the NVIDIA tool for debugging CUDA applications running on Linux. "
         "CUDA-GDB is an extension to the x86-64 port of GDB, the GNU Project debugger."
     )
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cuda-gdb/"
     topics = ("cuda", "gdb", "debugger")
     package_type = "application"

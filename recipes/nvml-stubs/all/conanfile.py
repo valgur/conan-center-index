@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvmlStubsConan(ConanFile):
     name = "nvml-stubs"
     description = "NVML: NVIDIA Management Library stubs"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/management-library-nvml"
     topics = ("cuda", "nvidia", "management", "monitoring", "data-center", "gpu")
     package_type = "library"

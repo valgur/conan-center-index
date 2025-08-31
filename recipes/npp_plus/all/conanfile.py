@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NppPlusConan(ConanFile):
     name = "npp_plus"
     description = "NPP+: NVIDIA C++ 2D Image and Signal Processing Performance Primitives Library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/nppplus/"
     topics = ("cuda", "image-processing", "signal-processing", "performance-primitives")
     package_type = "library"

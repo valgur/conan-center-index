@@ -14,7 +14,7 @@ class NvshmemConan(ConanFile):
     name = "nvshmem"
     description = ("NVSHMEM is a parallel programming interface based on OpenSHMEM that provides"
                    " efficient and scalable communication for NVIDIA GPU clusters.")
-    license = "DocumentRef-License.txt:LicenseRef-NVSHMEM-End-User-License-Agreement AND BSD-3-Clause AND BSD-2-Clause AND mpich2"
+    license = "DocumentRef-License.txt:LicenseRef-NVSHMEM-License-Agreement AND BSD-3-Clause AND BSD-2-Clause AND mpich2"
     homepage = "https://developer.nvidia.com/nvshmem"
     topics = ("cuda", "shared-memory", "distributed-computing", "gpu-accelerated", "hpc")
     settings = "os", "arch", "compiler", "build_type", "cuda"

@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CulibosConan(ConanFile):
     name = "culibos"
     description = "CUDA internal backend thread abstraction layer library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "runtime")
     package_type = "static-library"

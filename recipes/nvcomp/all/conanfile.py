@@ -14,7 +14,7 @@ required_conan_version = ">=2.1"
 class NvCompConan(ConanFile):
     name = "nvcomp"
     description = "The nvCOMP library provides fast lossless data compression and decompression using a GPU"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://developer.nvidia.com/nvcomp/"
     topics = ("cuda", "compression", "snappy", "zstd", "deflate", "lz4")
     package_type = "library"

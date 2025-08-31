@@ -13,7 +13,7 @@ required_conan_version = ">=2.18"
 class CuFFTConan(ConanFile):
     name = "cufft"
     description = "cuFFT: CUDA Fast Fourier Transform library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cufft/"
     topics = ("cuda", "fft", "fftw", "fast-fourier-transform")
     package_type = "library"

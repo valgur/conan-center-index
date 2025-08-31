@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CudartConan(ConanFile):
     name = "cudart"
     description = "CUDA Runtime architecture dependent libraries"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "runtime")
     package_type = "library"

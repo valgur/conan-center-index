@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CudaOpenCLConan(ConanFile):
     name = "cuda-opencl"
     description = "NVIDIA Open Computing Language (OpenCL) ICD loader library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/opencl"
     topics = ("cuda", "nvidia", "opencl", "icd-loader")
     package_type = "shared-library"

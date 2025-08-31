@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvJpegConan(ConanFile):
     name = "nvjpeg"
     description = "nvJPEG: GPU-accelerated JPEG codec library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/nvjpeg/"
     topics = ("cuda", "jpeg", "codec")
     package_type = "library"

@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvRtcConan(ConanFile):
     name = "nvrtc"
     description = "NVRTC: a CUDA C++ to PTX runtime compilation library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/nvrtc/"
     topics = ("cuda", "ptx", "compiler")
     package_type = "library"

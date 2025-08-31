@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NvprofConan(ConanFile):
     name = "nvprof"
     description = "Tool for collecting and viewing CUDA application profiling data"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/profiler-users-guide/#nvprof"
     topics = ("cuda", "utilities", "profiler")
     package_type = "application"

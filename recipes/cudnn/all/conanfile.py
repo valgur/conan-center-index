@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CuDnnConan(ConanFile):
     name = "cudnn"
     description = "cuDNN: NVIDIA CUDA Deep Neural Network is a GPU-accelerated library of primitives for deep neural networks"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://developer.nvidia.com/cudnn"
     topics = ("cuda", "deep-learning", "neural-networks", "dnn", "gpu-acceleration")
     package_type = "library"

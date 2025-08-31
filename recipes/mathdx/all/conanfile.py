@@ -15,7 +15,7 @@ required_conan_version = ">=2.8"
 class MathDxConan(ConanFile):
     name = "mathdx"
     description = "NVIDIA Math Device Extensions (MathDx) libraries."
-    license = "DocumentRef-LICENSE.txt:LicenseRef-MathDx-Software-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cublasdx/"
     topics = ("cuda", "mathdx", "cuda-kernel", "blas", "cublas", "cufft", "cusolver", "nvcomp", "linear-algebra", "fft")
     package_type = "static-library"

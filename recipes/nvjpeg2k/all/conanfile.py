@@ -13,7 +13,7 @@ required_conan_version = ">=2.1"
 class NvJpeg2kConan(ConanFile):
     name = "nvjpeg2k"
     description = "The nvJPEG2000 library accelerates the decoding and encoding of JPEG2000 images on NVIDIA GPUs"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/nvjpeg2000/"
     topics = ("cuda", "jpeg2k", "codec")
     package_type = "library"

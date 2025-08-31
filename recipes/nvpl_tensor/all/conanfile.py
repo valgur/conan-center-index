@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NvplTensorConan(ConanFile):
     name = "nvpl_tensor"
     description = "NVPL TENSOR (NVIDIA Performance Libraries TENSOR) is part of NVIDIA Performance Libraries that provides tensor primitives."
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "tensor", "linear-algebra", "deep-learning", "multi-gpu")
     package_type = "shared-library"

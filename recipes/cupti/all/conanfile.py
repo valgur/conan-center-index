@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CuptiConan(ConanFile):
     name = "cupti"
     description = "CUPTI: NVIDIA CUDA profiling tools interface library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cupti/"
     topics = ("cuda", "profiling")
     package_type = "library"

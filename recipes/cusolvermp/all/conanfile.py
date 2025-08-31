@@ -13,7 +13,7 @@ class CusolvermpConan(ConanFile):
     name = "cusolvermp"
     description = ("NVIDIA cuSOLVERMp is a high-performance, distributed-memory, GPU-accelerated library"
                    " that provides tools for the solution of dense linear systems and eigenvalue problems.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cusolvermp/"
     topics = ("cuda", "linear-algebra", "solver", "matrix", "decomposition", "lapack", "distributed-computing", "hpc")
     package_type = "shared-library"

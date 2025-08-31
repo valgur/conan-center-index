@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class CuDssConan(ConanFile):
     name = "cudss"
     description = "NVIDIA cuDSS is a library of GPU-accelerated linear solvers with sparse matrices"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cudss/"
     topics = ("cuda", "linear-algebra", "sparse-matrix", "direct-solver")
     package_type = "library"

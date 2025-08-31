@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NvplFftConan(ConanFile):
     name = "nvpl_rand"
     description = "NVPL RAND library provides a collection of efficient pseudorandom and quasirandom number generators for ARM CPUs."
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "random", "rng")
     package_type = "shared-library"

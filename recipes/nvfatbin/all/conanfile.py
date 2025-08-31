@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvFatbinConan(ConanFile):
     name = "nvfatbin"
     description = "nvFatbin: NVIDIA compiler library for fat binary (fatbin) creation"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/nvfatbin/"
     topics = ("cuda", "fatbin", "ptx", "compiler")
     package_type = "library"

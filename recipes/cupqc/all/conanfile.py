@@ -12,7 +12,7 @@ class CuPqcConan(ConanFile):
     name = "cupqc"
     description = ("NVIDIA cuPQC is an SDK of optimized libraries for implementing"
                    " GPU-accelerated Post-Quantum Cryptography (PQC) workflows")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cupqc/"
     topics = ("cuda", "cryptography", "post-quantum", "nvidia", "gpu-acceleration")
     package_type = "static-library"

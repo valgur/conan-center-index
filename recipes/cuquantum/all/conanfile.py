@@ -11,7 +11,7 @@ class CuQuantumConan(ConanFile):
     name = "cuquantum"
     description = ("NVIDIA cuQuantum is an SDK of optimized libraries and tools that accelerate"
                    " quantum computing emulations at both the circuit and device level by orders of magnitude")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cuquantum"
     topics = ("cuda", "quantum-computing", "simulation", "nvidia")
     # static is also supported but requires an additional ExaTN dependency for cutensornet

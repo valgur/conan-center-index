@@ -13,7 +13,7 @@ required_conan_version = ">=2.1"
 class CuSparseConan(ConanFile):
     name = "cusparse"
     description = "cuSPARSE: the CUDA sparse matrix library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cusparse/"
     topics = ("cuda", "linear-algebra", "matrix", "sparse")
     package_type = "library"

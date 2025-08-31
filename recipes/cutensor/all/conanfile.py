@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CuTensorConan(ConanFile):
     name = "cutensor"
     description = "cuTENSOR: A High-Performance CUDA Library For Tensor Primitives"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cutensor/"
     topics = ("cuda", "tensor", "linear-algebra", "deep-learning", "multi-gpu")
     package_type = "library"

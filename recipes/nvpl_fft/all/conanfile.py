@@ -13,7 +13,7 @@ class NvplFftConan(ConanFile):
     name = "nvpl_fft"
     description = ("The NVIDIA Performance Libraries (NVPL) FFT library enables you to perform"
                    " Fast Fourier Transform (FFT) calculations on ARM CPUs.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "fft", "fftw", "fast-fourier-transform")
     package_type = "shared-library"

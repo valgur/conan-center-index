@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvvmConan(ConanFile):
     name = "nvvm"
     description = "NVVM: an optimizing compiler library that generates PTX from NVVM intermediate representation (IR)."
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/nvvm-ir-spec/"
     topics = ("cuda", "nvcc", "compiler", "intermediate-representation")
     package_type = "shared-library"

@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvJitLinkConan(ConanFile):
     name = "nvjitlink"
     description = "nvJitLink: NVIDIA compiler library for JIT LTO functionality"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/nvjitlink/"
     topics = ("cuda", "jit", "linker", "lto")
     package_type = "library"

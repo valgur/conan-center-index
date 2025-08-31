@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class CuxxfiltConan(ConanFile):
     name = "cuxxfilt"
     description = "cu++filt decodes (demangles) low-level identifiers that have been mangled by CUDA C++ into user-readable names."
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "demangler")
     package_type = "static-library"

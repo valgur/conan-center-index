@@ -12,7 +12,7 @@ class NvplBlasConan(ConanFile):
     name = "nvpl_blas"
     description = ("NVPL BLAS (NVIDIA Performance Libraries BLAS) is part of NVIDIA Performance Libraries"
                    " that provides standard Fortran 77 BLAS APIs as well as C (CBLAS).")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "blas", "linear-algebra")
     package_type = "shared-library"

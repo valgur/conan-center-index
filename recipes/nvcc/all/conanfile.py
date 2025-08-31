@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class NvccConan(ConanFile):
     name = "nvcc"
     description = "Compiler for CUDA applications"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "nvcc")
     package_type = "application"

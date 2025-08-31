@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NvTiffConan(ConanFile):
     name = "nvtiff"
     description = "nvTIFF is a GPU-accelerated TIFF encode/decode library built on the CUDA platform"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/nvtiff/"
     topics = ("cuda", "tiff", "codec")
     package_type = "library"

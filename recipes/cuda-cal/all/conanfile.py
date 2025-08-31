@@ -12,7 +12,7 @@ class CudaCalConan(ConanFile):
     name = "cuda-cal"
     description = ("Communication Abstraction Library (CAL) is a helper module for the cuSOLVERMp library"
                    " that allows it to efficiently perform communications between different GPUs.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cusolvermp/usage/cal.html"
     topics = ("cuda", "multi-gpu", "communication", "hpc")
     package_type = "shared-library"

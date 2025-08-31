@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class CudlaConan(ConanFile):
     name = "cudla"
     description = "NVIDIA Tegra Deep Learning Accelerator library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cudla"
     topics = ("cuda", "tegra", "deep-learning", "deep-learning-accelerator")
     package_type = "shared-library"

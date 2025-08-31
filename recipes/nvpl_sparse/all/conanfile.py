@@ -12,7 +12,7 @@ class NvplSparseConan(ConanFile):
     name = "nvpl_sparse"
     description = ("The NVIDIA Performance Libraries Sparse library contains a set of CPU-accelerated"
                    " basic linear algebra subroutines used for handling sparse matrices.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "linear-algebra", "matrix", "sparse")
     package_type = "shared-library"

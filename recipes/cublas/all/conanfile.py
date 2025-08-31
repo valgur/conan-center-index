@@ -11,7 +11,7 @@ required_conan_version = ">=2.18"
 class CublasConan(ConanFile):
     name = "cublas"
     description = "CUDA Basic Linear Algebra Subprograms"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cublas"
     topics = ("cuda", "blas", "linear-algebra")
     package_type = "library"

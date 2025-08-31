@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class NvdisasmConan(ConanFile):
     name = "nvdisasm"
     description = "nvdisasm extracts information from standalone cubin files and presents them in a human readable format"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "disassembler", "cubin", "ptx")
     package_type = "application"

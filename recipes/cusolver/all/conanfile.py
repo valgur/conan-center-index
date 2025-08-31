@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CuSolverConan(ConanFile):
     name = "cusolver"
     description = "cuSOLVER: a GPU-accelerated LAPACK-like library on dense and sparse linear algebra"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cusolver/"
     topics = ("cuda", "linear-algebra", "solver", "matrix", "decomposition", "lapack")
     package_type = "library"

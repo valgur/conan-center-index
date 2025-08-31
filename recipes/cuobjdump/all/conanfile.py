@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class CuobjdumpConan(ConanFile):
     name = "cuobjdump"
     description = "Utility to extract information from CUDA binary files"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "cubin", "ptx")
     package_type = "application"

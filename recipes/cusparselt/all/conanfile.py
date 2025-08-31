@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class CuSparseLtConan(ConanFile):
     name = "cusparselt"
     description = "cuSPARSELt: A High-Performance CUDA Library for Sparse Matrix-Matrix Multiplication"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cusparselt/"
     topics = ("cuda", "linear-algebra", "matrix", "sparse")
     package_type = "library"

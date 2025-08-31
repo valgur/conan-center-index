@@ -10,7 +10,7 @@ required_conan_version = ">=2.1"
 class CudaSanitizerApiConan(ConanFile):
     name = "cuda-sanitizer-api"
     description = "Provides a set of APIs to enable third party tools to write GPU sanitizing tools"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/compute-sanitizer/SanitizerApiGuide/"
     topics = ("cuda", "sanitizer")
     package_type = "shared-library"

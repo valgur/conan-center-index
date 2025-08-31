@@ -13,7 +13,7 @@ required_conan_version = ">=2.1"
 class CuRandConan(ConanFile):
     name = "curand"
     description = "cuRAND: CUDA random number generation library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/curand/"
     topics = ("cuda", "random", "rng")
     package_type = "library"

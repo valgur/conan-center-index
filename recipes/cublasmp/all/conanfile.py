@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 class CublasMpConan(ConanFile):
     name = "cublasmp"
     description = "cuBLASMp: a high-performance, multi-process, GPU-accelerated library for distributed basic dense linear algebra"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cublasmp/"
     topics = ("cuda", "blas", "linear-algebra", "distributed-computing", "hpc")
     package_type = "shared-library"

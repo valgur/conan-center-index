@@ -11,7 +11,7 @@ class CtadvisorConan(ConanFile):
     name = "ctadvisor"
     description = ("CUDA Compile Time Advisor (ctadvisor) is a tool that helps users analyze"
                    " the compilation time of their CUDA C++ code and provides suggestions to reduce it.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/cuda/cuda-binary-utilities/"
     topics = ("cuda", "utilities", "analyzer")
     package_type = "application"

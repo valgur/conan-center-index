@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class CudaProfilerApiConan(ConanFile):
     name = "cuda-profiler-api"
     description = "CUDA Profiler API Headers"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#range-replay-define-range"
     topics = ("cuda", "profiler")
     package_type = "header-library"

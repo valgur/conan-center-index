@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class CufftMpConan(ConanFile):
     name = "cufftmp"
     description = "cuFFTMp: cuFFT Multi-process library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Math-SDK-License-Agreement"
     homepage = "https://docs.nvidia.com/cuda/cufftmp/"
     topics = ("cuda", "fft", "fftw", "fast-fourier-transform", "distributed-computing", "hpc")
     package_type = "shared-library"

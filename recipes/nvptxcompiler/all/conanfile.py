@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class NvptxcompilerLibsConan(ConanFile):
     name = "nvptxcompiler"
     description = "CUDA PTX Compiler APIs"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "ptx", "jit", "compiler")
     package_type = "static-library"

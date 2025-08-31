@@ -12,7 +12,7 @@ class NvplLapackConan(ConanFile):
     name = "nvpl_lapack"
     description = ("NVPL LAPACK (NVIDIA Performance Libraries LAPACK) is part of NVIDIA Performance Libraries"
                    " that provides standard Fortran 90 LAPACK and LAPACKE APIs.")
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-Software-License-Agreement"
     homepage = "https://docs.nvidia.com/nvpl"
     topics = ("cuda", "nvpl", "lapack", "lapacke", "linear-algebra", "matrix-factorization")
     package_type = "shared-library"

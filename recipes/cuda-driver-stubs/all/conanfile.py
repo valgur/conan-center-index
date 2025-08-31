@@ -11,7 +11,7 @@ required_conan_version = ">=2.1"
 class CudaDriverStubsConan(ConanFile):
     name = "cuda-driver-stubs"
     description = "Stubs for the CUDA Driver library (libcuda.so)"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement AND MIT"  # MIT is for the vendored FindCUDA.cmake
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA AND MIT"  # MIT is for the vendored FindCUDA.cmake
     homepage = "https://developer.nvidia.com/cuda-toolkit"
     topics = ("cuda", "driver")
     package_type = "shared-library"

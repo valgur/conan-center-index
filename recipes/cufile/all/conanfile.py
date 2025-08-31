@@ -13,7 +13,7 @@ required_conan_version = ">=2.18"
 class CuFileConan(ConanFile):
     name = "cufile"
     description = "NVIDIA GPUDirect Storage cuFile library"
-    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-End-User-License-Agreement"
+    license = "DocumentRef-LICENSE:LicenseRef-NVIDIA-CUDA-Toolkit-EULA"
     homepage = "https://docs.nvidia.com/gpudirect-storage/api-reference-guide/"
     topics = ("cuda", "gpudirect", "rdma")
     package_type = "library"
