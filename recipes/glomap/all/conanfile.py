@@ -13,35 +13,55 @@ class GlomapConan(ConanFile):
     name = "glomap"
     description = "GLOMAP is a general purpose global structure-from-motion pipeline for image-based reconstruction"
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/colmap/glomap"
     topics = ("sfm", "structure-from-motion", "3d-reconstruction", "computer-vision", "colmap")
-
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type", "cuda"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "cuda": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "cuda": False,
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-utils/latest"
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
+
     def export_sources(self):
         export_conandata_patches(self)
+
+    def package_id(self):
+        if self.info.options.cuda:
+            # No device code is built for CUDA
+            del self.info.settings.cuda.architectures
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.cuda:
+            del self.settings.cuda
+        else:
+            self.options["colmap"].cuda = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True, options={"use_suitesparse": True})
-        self.requires("colmap/3.10", transitive_headers=True, transitive_libs=True)
-        self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
+        self.requires("colmap/[^3.10]", transitive_headers=True, transitive_libs=True)
+        self.requires("poselib/[^2.0.5]", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/[^5.3.0]")
         self.requires("openmp/system")
-        self.requires("poselib/2.0.3", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
+        if self.options.cuda:
+            self._utils.cuda_requires(self, "cudart")
+            self._utils.cuda_requires(self, "curand")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -49,7 +69,7 @@ class GlomapConan(ConanFile):
             raise ConanInvalidConfiguration("'-o ceres-solver/*:use_suitesparse=True' is required")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.28 <5]")
+        self.tool_requires("cmake/[>=3.28]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -57,9 +77,10 @@ class GlomapConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["FETCH_COLMAP"] = False
-        tc.variables["FETCH_POSELIB"] = False
-        tc.variables["OPENMP_ENABLED"] = True
+        tc.cache_variables["CUDA_ENABLED"] = self.options.cuda
+        tc.cache_variables["FETCH_COLMAP"] = False
+        tc.cache_variables["FETCH_POSELIB"] = False
+        tc.cache_variables["TESTS_ENABLED"] = False
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -78,4 +99,4 @@ class GlomapConan(ConanFile):
         self.cpp_info.libs = ["glomap"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
+            self.cpp_info.system_libs = ["m"]
