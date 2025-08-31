@@ -28,7 +28,7 @@ class GflagsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "nothreads": True,
+        "nothreads": False,
         "namespace": "gflags",
     }
     implements = ["auto_shared_fpic"]
