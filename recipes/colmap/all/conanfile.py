@@ -41,16 +41,13 @@ class ColmapConan(ConanFile):
         "openmp": True,
         "tools": False,
     }
+    implements = ["auto_shared_fpic"]
 
     python_requires = "conan-utils/latest"
 
     @property
     def _utils(self):
         return self.python_requires["conan-utils"].module
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         if not self.options.lsd:
@@ -61,6 +58,7 @@ class ColmapConan(ConanFile):
         self.options["ceres-solver"].use_schur_specializations = True
         self.options["ceres-solver"].use_suitesparse = True
         self.options["ceres-solver"].use_lapack = True
+        self.options["ceres-solver"].use_cuda = self.options.cuda
         self.options["boost"].with_program_options = True
         self.options["boost"].with_graph = True
 
@@ -75,7 +73,7 @@ class ColmapConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, transitive_libs=True)
-        self.requires("ceres-solver/[^2.2.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("ceres-solver/[^2.2.0, include_prerelease]", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("poselib/[^2.0.5]")
         self.requires("faiss/[^1.12.0]")
