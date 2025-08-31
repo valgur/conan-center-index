@@ -1,12 +1,9 @@
 sources:
-  "0.3.0.cci.20230620":
-    url: "https://github.com/kosma/minmea/archive/e368d847d75abd891c651f7d30ce5efb6681adb7.tar.gz"
-    sha256: "9b845dfc7f4475c17710a0ac0823b11a6946df7b20dfacd02b03921826eeab3a"
+  "0.3.0+git.20250828":
+    url: "https://github.com/kosma/minmea/archive/e106a8b8ef5f26d460849f307ece5ab254534248.tar.gz"
+    sha256: "c121c450e9bad0b7ec9e7282dfb125ffc9b6043a89f2ea46b6e6ff70f8fa025e"
 patches:
-  "0.3.0.cci.20230620":
-    - patch_file: "patches/001-disable-pkgconfig-libcheck.patch"
-      patch_description: "Do not search for libcheck - Exclusive for testing"
-      patch_type: "conan"
+  "0.3.0+git.20250828":
     - patch_file: "patches/002-windows-support.patch"
       patch_description: "Manage compat header file for Windows"
       patch_type: "portability"

@@ -11,8 +11,7 @@ required_conan_version = ">=2.4"
 class MinmeaConan(ConanFile):
     name = "minmea"
     description = "a lightweight GPS NMEA 0183 parser library in pure C"
-    license = ("WTFPL", "MIT", "LGPL-3.0-or-later")
-    url = "https://github.com/conan-io/conan-center-index"
+    license = "WTFPL OR MIT OR LGPL-3.0-or-later"
     homepage = "https://github.com/kosma/minmea"
     topics = ("gps", "NMEA", "parser")
     package_type = "library"
@@ -43,9 +42,11 @@ class MinmeaConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", "cmake_minimum_required(VERSION 3.3)", "cmake_minimum_required(VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["MINMEA_ENABLE_TESTING"] = False
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["MINMEA_INCLUDE_COMPAT"] = "1"
         tc.generate()
