@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -12,33 +11,22 @@ required_conan_version = ">=2.1"
 
 class MoldConan(ConanFile):
     name = "mold"
-    description = (
-        "mold is a faster drop-in replacement for existing Unix linkers. "
-        "It is several times faster than the LLVM lld linker."
-    )
-    license = ("AGPL-3.0", "MIT")
-    url = "https://github.com/conan-io/conan-center-index"
+    description = "mold is a faster drop-in replacement for existing Unix linkers."
+    license = "MIT"
     homepage = "https://github.com/rui314/mold/"
     topics = ("ld", "linkage", "compilation", "pre-built")
-
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_mimalloc": [True, False],
     }
     default_options = {
-        "with_mimalloc": False,
+        "with_mimalloc": True,
     }
 
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
-
-    def configure(self):
-        if Version(self.version) < "2.0.0":
-            self.license = "AGPL-3.0"
-        else:
-            self.license = "MIT"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -49,9 +37,6 @@ class MoldConan(ConanFile):
         self.requires("xxhash/[>=0.8.1 <0.9]")
         if self.options.with_mimalloc:
             self.requires("mimalloc/[^2.1.7]")
-        if Version(self.version) < "2.2.0":
-            # Newer versions use vendored-in BLAKE3
-            self.requires("openssl/[>=1.1 <4]")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -59,30 +44,32 @@ class MoldConan(ConanFile):
     def validate_build(self):
         # perform these checks in validate_build() - since the compiler is removed from the package_id,
         # this lets the compatibility plugin consider the executable built with other compilers
-        if Version(self.version) >= "2.34.0":
-            # mold has required C+20 since 1.4.1. However, C++20 features are used for the first time in 2.34.0.
-            check_min_cppstd(self, 20)
         if self.settings.compiler in ["gcc", "clang", "intel-cc"] and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration('Mold can only be built with libstdc++11; specify mold:compiler.libcxx=libstdc++11 in your build profile')
         if self.settings.compiler == "msvc":
             raise ConanInvalidConfiguration(f'{self.name} cannot be built on {self.settings.os}.')
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "10":
             raise ConanInvalidConfiguration("GCC version 10 or higher required")
-        if self.settings.compiler in ('clang', 'apple-clang') and Version(self.settings.compiler.version) < "12":
+        if self.settings.compiler in ["clang", "apple-clang"] and Version(self.settings.compiler.version) < "12":
             raise ConanInvalidConfiguration("Clang version 12 or higher required")
-        if Version(self.version) >= "2.34.0" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14":
             raise ConanInvalidConfiguration("Apple-Clang version 14 or higher required due to C++20 features")
         if self.settings.compiler == "apple-clang" and "armv8" == self.settings.arch :
             raise ConanInvalidConfiguration(f'{self.name} is still not supported by Mac M1.')
-        if Version(self.version) == "2.33.0" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14":
-            raise ConanInvalidConfiguration(f'{self.ref} doesn\'t support Apple-Clang < 14.')
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18.0 <5]")
+        self.tool_requires("cmake/[>=3.18.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Make sure these have been unvendored correctly.
+        for dep in ["mimalloc", "xxhash", "zlib", "zstd"]:
+            # TODO: blake3, rust-demangle
+            rmdir(self, os.path.join("third-party", dep))
+        replace_in_file(self, "lib/common.h",
+                        '#include "../third-party/xxhash/xxhash.h"',
+                        "#include <xxhash.h>")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -98,17 +85,7 @@ class MoldConan(ConanFile):
         cd.set_property("zstd", "cmake_target_name", "zstd::zstd")
         cd.generate()
 
-    def _patch_sources(self):
-        # Make sure these have been unvendored correctly.
-        for dep in ["mimalloc", "xxhash", "zlib", "zstd"]:
-            # TODO: blake3, rust-demangle
-            rmdir(self, os.path.join(self.source_folder, "third-party", dep))
-        replace_in_file(self, os.path.join(self.source_folder, "lib", "common.h"),
-                        '#include "../third-party/xxhash/xxhash.h"',
-                        "#include <xxhash.h>")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
