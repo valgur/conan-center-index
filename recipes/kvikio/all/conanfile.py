@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -30,11 +31,11 @@ class KvikIoConan(ConanFile):
         "with_cuda": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -44,12 +45,12 @@ class KvikIoConan(ConanFile):
         if self.options.remote_support:
             self.requires("libcurl/[>=7.78 <9]", transitive_headers=True)
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cufile", transitive_headers=True)
-            self._utils.cuda_requires(self, "nvtx", transitive_headers=True)
+            self.cuda.requires("cufile", transitive_headers=True)
+            self.cuda.requires("nvtx", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
-        self._utils.validate_cuda_settings(self)
+        self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30.4]")

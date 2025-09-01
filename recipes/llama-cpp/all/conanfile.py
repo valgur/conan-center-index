@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -38,11 +39,11 @@ class LlamaCppConan(ConanFile):
 
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -56,7 +57,7 @@ class LlamaCppConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 17)
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
             if self.version == "b4570" and Version(self.settings.cuda.version) >= "13.0":
                 raise ConanInvalidConfiguration(f"{self.ref} does not support CUDA 13 or newer")
 
@@ -72,8 +73,8 @@ class LlamaCppConan(ConanFile):
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "cublas")
+            self.cuda.requires("cudart")
+            self.cuda.requires("cublas")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -101,8 +102,8 @@ class LlamaCppConan(ConanFile):
         tc.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

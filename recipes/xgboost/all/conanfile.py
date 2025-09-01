@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -49,11 +50,11 @@ class XgboostConan(ConanFile):
         "plugin_sycl": "SYCL plugin (requires Intel icpx compiler)",
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -76,7 +77,7 @@ class XgboostConan(ConanFile):
         if self.options.get_safe("plugin_federated"):
             self.requires("grpc/[^1.50.2]")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart")
+            self.cuda.requires("cudart")
             self.requires("nccl/[^2]")
             self.requires("rmm/[>=24.04.00]")
 
@@ -85,7 +86,7 @@ class XgboostConan(ConanFile):
         if self.options.get_safe("plugin_federated") and not self.options.shared:
             raise ConanInvalidConfiguration("Cannot build static lib with federated learning support")
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
@@ -120,8 +121,8 @@ class XgboostConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

@@ -29,11 +29,11 @@ class CuSparseConan(ConanFile):
         "use_stubs": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -56,29 +56,24 @@ class CuSparseConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "12.6":
             self.requires("nvjitlink/[^13]")
         elif Version(self.version) >= "12.0":
             self.requires("nvjitlink/[^12]")
         if not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcusparse")
+        self.cuda.validate_package("libcusparse")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["nvjitlink"])
+            self.cuda.require_shared_deps(["nvjitlink"])
         if self.options.shared and Version(self.version) >= "12.6" and Version(self.settings.cuda.version) < "13":
             raise ConanInvalidConfiguration("cuSPARSE 12.6+ requires CUDA 13.0 or higher when shared=True for compatibility with nvjitlink.")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcusparse")
+        self.cuda.download_package("libcusparse")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -96,8 +91,7 @@ class CuSparseConan(ConanFile):
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
-        v = self._cuda_version
-        self.cpp_info.set_property("pkg_config_name", f"cusparse-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"cusparse-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::cusparse{suffix}")
         if self.options.get_safe("cmake_alias"):
             alias = "cusparse_static" if self.options.shared else "cusparse"

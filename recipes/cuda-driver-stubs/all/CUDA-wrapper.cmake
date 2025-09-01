@@ -252,7 +252,7 @@ cuda_find_helper_file(make2cmake cmake)
 cuda_find_helper_file(run_nvcc cmake)
 # include("${CMAKE_CURRENT_LIST_DIR}/FindCUDA/select_compute_arch.cmake")
 
-# Mock implementation, since the cuda.architectures setting together with NvccToolchain should be used instead.
+# Mock implementation, since the cuda.architectures setting together with CudaToolchain should be used instead.
 macro(cuda_select_nvcc_arch_flags _var)
   set(${_var} "")
 endmacro()

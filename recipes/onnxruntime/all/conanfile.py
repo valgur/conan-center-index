@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -41,11 +42,11 @@ class OnnxRuntimeConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -88,16 +89,16 @@ class OnnxRuntimeConan(ConanFile):
             self.requires("xnnpack/[>=cci.20230715]")
         if self.options.with_cuda:
             # Included in the public onnxruntime/core/providers/cuda/cuda_context.h header
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
             self.requires("cutlass/[^3.9.2]", options={"install_examples_headers": True})
             if self.options.with_cuda == "full":
                 self.requires("cudnn-frontend/[^1]")
                 self.requires("cudnn/[^9]", transitive_headers=True)
-                self._utils.cuda_requires(self, "cublas", transitive_headers=True)
-                self._utils.cuda_requires(self, "curand")
-                self._utils.cuda_requires(self, "cufft")
+                self.cuda.requires("cublas", transitive_headers=True)
+                self.cuda.requires("curand")
+                self.cuda.requires("cufft")
             if self.options.cuda_profiling:
-                self._utils.cuda_requires(self, "cupti")
+                self.cuda.requires("cupti")
             if self.options.nvtx_profile:
                 self.requires("nvtx/[^3]")
             if self.options.with_nccl:
@@ -179,8 +180,8 @@ class OnnxRuntimeConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

@@ -1,0 +1,15 @@
+# Add the following to ~/.conan2/settings_user.yml to enable CUDA support in Conan
+cuda:
+    nvcc:
+        # e.g. cuda.version=12 or cuda.version=12.9, which will be translated into a [~12] or [~12.9] version range.
+        version: [ANY]
+        # takes a list of comma-separated compute capability values
+        architectures: [
+            ANY,
+            all, all-major, native,
+            # 80, 80-real, 80-virtual ... etc values supported by CUDA_ARCHITECTURES in CMake.
+            # See also https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#gpu-name-gpuname-arch
+        ]
+        # Set platform=sbsa on CUDA 12 and earlier for aarch64 SBSA systems (i.e. not Tegra/Jetson).
+        # Does not need to be set for CUDA 13 and later where all aarch64 plaforms are SBSA compliant.
+        platform: [null, sbsa]

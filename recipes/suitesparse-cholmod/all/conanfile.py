@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -39,11 +40,11 @@ class SuiteSparseCholmodConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _license_is_gpl(self):
@@ -72,15 +73,15 @@ class SuiteSparseCholmodConan(ConanFile):
         # but it has been modified to not conflict with the general version
 
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
-            self._utils.cuda_requires(self, "cublas", transitive_headers=True)
-            self._utils.cuda_requires(self, "nvrtc")
+            self.cuda.requires("cudart", transitive_headers=True)
+            self.cuda.requires("cublas", transitive_headers=True)
+            self.cuda.requires("nvrtc")
 
     def validate(self):
         if self.options.build_supernodal and not self.dependencies["openblas"].options.build_lapack:
             raise ConanInvalidConfiguration("-o openblas/*:build_lapack=True is required when build_supernodal=True")
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
@@ -117,7 +118,7 @@ class SuiteSparseCholmodConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            tc = self._utils.NvccToolchain(self)
+            tc = self.cuda.CudaToolchain()
             tc.generate()
 
     def build(self):

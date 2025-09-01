@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -28,11 +29,11 @@ class CuTensorConan(ConanFile):
         "cutensorMg": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if Version(self.version) >= "2.3":
@@ -50,18 +51,17 @@ class CuTensorConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcutensor")
-        cuda_version = Version(self.settings.cuda.version)
-        if Version(self.version) < "2.3" and cuda_version >= "13":
+        self.cuda.validate_package("libcutensor")
+        if Version(self.version) < "2.3" and self.cuda.version >= 13:
             raise ConanInvalidConfiguration(f"{self.ref} requires CUDA < 13, but cuda.version={self.settings.cuda.version}")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["cublas"])
+            self.cuda.require_shared_deps(["cublas"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcutensor")
+        self.cuda.download_package("libcutensor")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

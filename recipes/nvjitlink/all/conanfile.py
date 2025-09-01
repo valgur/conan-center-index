@@ -28,11 +28,11 @@ class NvJitLinkConan(ConanFile):
         "use_stubs": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -53,20 +53,15 @@ class NvJitLinkConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
-        self.requires(f"nvptxcompiler/[~{self.settings.cuda.version}]", transitive_headers=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("nvptxcompiler", transitive_headers=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libnvjitlink")
+        self.cuda.validate_package("libnvjitlink")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libnvjitlink")
+        self.cuda.download_package("libnvjitlink")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -87,8 +82,7 @@ class NvJitLinkConan(ConanFile):
 
     def package_info(self):
         suffix = "" if self.options.shared else "_static"
-        v = self._cuda_version
-        self.cpp_info.set_property("pkg_config_name", f"nvjitlink-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"nvjitlink-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::nvJitLink{suffix}")
         if self.options.get_safe("cmake_alias"):
             alias_suffix = "_static" if self.options.shared else ""

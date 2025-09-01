@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -31,11 +32,11 @@ class SuiteSparseSpqrConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if self.options.shared:
@@ -57,9 +58,9 @@ class SuiteSparseSpqrConan(ConanFile):
         self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
 
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
-            self._utils.cuda_requires(self, "cublas", transitive_headers=True)
-            self._utils.cuda_requires(self, "nvrtc")
+            self.cuda.requires("cudart", transitive_headers=True)
+            self.cuda.requires("cublas", transitive_headers=True)
+            self.cuda.requires("nvrtc")
 
     def validate(self):
         if not self.dependencies["openblas"].options.build_lapack:
@@ -67,7 +68,7 @@ class SuiteSparseSpqrConan(ConanFile):
         if self.options.cuda:
             if not self.dependencies["suitesparse-cholmod"].options.cuda:
                 raise ConanInvalidConfiguration("suitesparse-spqr/*:cuda=True option requires suitesparse-cholmod/*:cuda=True")
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
@@ -102,7 +103,7 @@ class SuiteSparseSpqrConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            tc = self._utils.NvccToolchain(self)
+            tc = self.cuda.CudaToolchain()
             tc.generate()
 
     def build(self):

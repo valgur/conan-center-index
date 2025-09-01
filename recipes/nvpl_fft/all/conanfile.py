@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -19,11 +20,11 @@ class NvplFftConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,7 +40,7 @@ class NvplFftConan(ConanFile):
             raise ConanInvalidConfiguration("NVPL libraries are only supported on armv8")
 
     def build(self):
-        self._utils.download_cuda_package(self, "nvpl_fft", platform_id="linux-sbsa")
+        self.cuda.download_package("nvpl_fft", platform_id="linux-sbsa")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

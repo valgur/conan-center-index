@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -29,25 +30,25 @@ class NvBenchConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "nvml-stubs", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cupti", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("nvml-stubs", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cupti", transitive_headers=True, transitive_libs=True)
         self.requires("fmt/[*]")
         self.requires("nlohmann_json/[^3]")
 
     def validate(self):
         check_min_cppstd(self, 17)
-        self._utils.validate_cuda_settings(self)
+        self.cuda.validate_settings()
         if not self.dependencies["cupti"].options.shared:
             raise ConanInvalidConfiguration("nvbench requires cupti to be built as a shared library")
 
@@ -86,8 +87,8 @@ class NvBenchConan(ConanFile):
         deps.build_context_build_modules.append("rapids-cmake")
         deps.generate()
 
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

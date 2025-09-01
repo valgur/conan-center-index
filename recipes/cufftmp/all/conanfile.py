@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -17,11 +18,11 @@ class CufftMpConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -34,17 +35,17 @@ class CufftMpConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         self.requires("nvshmem/[^3.1]", run=True)
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuFFTMp is only supported on Linux")
-        self._utils.validate_cuda_package(self, "libcufftmp")
-        self._utils.require_shared_deps(self, ["nvshmem"])
+        self.cuda.validate_package("libcufftmp")
+        self.cuda.require_shared_deps(["nvshmem"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcufftmp")
+        self.cuda.download_package("libcufftmp")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

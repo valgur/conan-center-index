@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -16,11 +17,11 @@ class CudaSanitizerApiConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -32,14 +33,14 @@ class CudaSanitizerApiConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         self.requires("libvdpau/[^1.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_sanitizer_api")
+        self.cuda.validate_package("cuda_sanitizer_api")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_sanitizer_api", platform_id="linux-x86_64")
+        self.cuda.download_package("cuda_sanitizer_api", platform_id="linux-x86_64")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

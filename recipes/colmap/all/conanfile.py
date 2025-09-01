@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -43,11 +44,11 @@ class ColmapConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if not self.options.lsd:
@@ -98,8 +99,8 @@ class ColmapConan(ConanFile):
             self.requires("glew/2.2.0")
             self.requires("opengl/system")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "curand", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("curand", transitive_headers=True, transitive_libs=True)
         # TODO: unvendor VLFeat, PoissonRecon, LSD, SiftGPU
         # self.requires("vlfeat/0.9.21", transitive_headers=True, transitive_libs=True)
 
@@ -157,8 +158,8 @@ class ColmapConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def _patch_sources(self):
         for module in Path(self.source_folder, "cmake").glob("Find*.cmake"):

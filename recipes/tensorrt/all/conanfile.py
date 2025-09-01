@@ -37,11 +37,11 @@ class TensorRtConan(ConanFile):
         "nvinfer_builder_resource_win": False,  # Windows builder resource library used for cross-platform support - 1.1 GB, skip by default
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,9 +62,9 @@ class TensorRtConan(ConanFile):
         self.info.options.rm_safe("cmake_alias")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if Version(self.version) < "10.0":
-            self._utils.cuda_requires(self, "cublas")
+            self.cuda.requires("cublas")
             self.requires("cudnn/[^8]")
 
         # TensorRT archives also used to provide libonnx_proto.a (merged into nvonnxparser since 10.13.2).
@@ -88,7 +88,7 @@ class TensorRtConan(ConanFile):
         if self._cuda_version not in self.conan_data["sources"][self.version][self._platform]:
             raise ConanInvalidConfiguration(f"{self.ref} {self._platform} does not support CUDA {self._cuda_version}")
         if Version(self.version) < "10.0" and self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["cublas", "cudnn"])
+            self.cuda.require_shared_deps(["cublas", "cudnn"])
 
     def build(self):
         get(self, **self.conan_data["sources"][self.version][self._platform][self._cuda_version],

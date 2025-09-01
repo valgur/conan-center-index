@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -41,11 +42,11 @@ class TensorpipeConan(ConanFile):
         "cma": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def config_options(self):
         if self.settings.os != "Linux":
@@ -67,16 +68,16 @@ class TensorpipeConan(ConanFile):
         self.requires("libnop/cci.20211103")
         self.requires("libuv/[^1.45.0]")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cuda-driver-stubs")
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, libs=False)
-            self._utils.cuda_requires(self, "nvml-stubs", libs=False)
+            self.cuda.requires("cuda-driver-stubs")
+            self.cuda.requires("cudart", transitive_headers=True, libs=False)
+            self.cuda.requires("nvml-stubs", libs=False)
 
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Windows")
         check_min_cppstd(self, 17)
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

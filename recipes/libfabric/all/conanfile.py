@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -83,11 +84,11 @@ class LibfabricConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def config_options(self):
         if Version(self.version) < "2.0":
@@ -117,8 +118,8 @@ class LibfabricConan(ConanFile):
         if self.options.efa or self.options.verbs:
             self.requires("rdma-core/[*]")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "nvml-stubs")
+            self.cuda.requires("cudart")
+            self.cuda.requires("nvml-stubs")
             if self.options.gdrcopy:
                 self.requires("gdrcopy/[^2.5]")
         if self.options.lttng:

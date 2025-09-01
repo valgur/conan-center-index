@@ -27,11 +27,11 @@ class NvJpeg2kConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,20 +49,16 @@ class NvJpeg2kConan(ConanFile):
         del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
-    @cached_property
-    def _cuda_version(self):
-        return self.dependencies["cudart"].ref.version
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libnvjpeg_2k")
+        self.cuda.validate_package("libnvjpeg_2k")
         if Version(self.settings.cuda.version) >= 13 and Version(self.version) < "0.9":
             raise ConanInvalidConfiguration(f"CUDA {self.settings.cuda.version} requires nvjpeg2k >= 0.9")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libnvjpeg_2k")
+        self.cuda.download_package("libnvjpeg_2k")
         if self.version == "0.9.0.43":
             # Fix 'error: unknown type name ‘nvjpeg2kQualityType’; did you mean ‘nvjpeg2kQualityType_t’?'
             replace_in_file(self, os.path.join(self.source_folder, "include/nvjpeg2k.h"),
@@ -76,7 +72,7 @@ class NvJpeg2kConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
-        libdir = os.path.join(self.source_folder, "lib", str(self._cuda_version.major))
+        libdir = os.path.join(self.source_folder, "lib", str(self.cuda.version.major))
         if self.settings.os == "Linux":
             if self.options.shared:
                 copy(self, "*.so*", libdir, os.path.join(self.package_folder, "lib"))
@@ -89,9 +85,8 @@ class NvJpeg2kConan(ConanFile):
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
         alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
-        v = self._cuda_version
         # Neither the CMake nor .pc name is official
-        self.cpp_info.set_property("pkg_config_name", f"nvjpeg2k-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"nvjpeg2k-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::nvjpeg2k{suffix}")
         if self.options.get_safe("cmake_alias"):
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::nvjpeg2k{alias_suffix}"])

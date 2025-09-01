@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -33,11 +34,11 @@ class AdaptiveCppConan(ConanFile):
         "boost/*:with_fiber": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if not self.options.cuda:
@@ -56,13 +57,13 @@ class AdaptiveCppConan(ConanFile):
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         self.requires("libnuma/[^2.0.14]")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart")
+            self.cuda.requires("cudart")
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The recipe currently only supports Linux.")
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("clang/<host_version>")

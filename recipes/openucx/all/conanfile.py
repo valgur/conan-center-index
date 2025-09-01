@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -94,11 +95,11 @@ class OpenUCXConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -124,9 +125,9 @@ class OpenUCXConan(ConanFile):
         if self.options.openmp:
             self.requires("openmp/system")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cuda-driver-stubs")
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "nvml-stubs")
+            self.cuda.requires("cuda-driver-stubs")
+            self.cuda.requires("cudart")
+            self.cuda.requires("nvml-stubs")
         if self.options.xpmem:
             self.requires("xpmem/[^2.6.5]")
 
@@ -200,8 +201,8 @@ class OpenUCXConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def _patch_sources(self):
         if self.options.cuda and not self.dependencies["cudart"].options.shared:

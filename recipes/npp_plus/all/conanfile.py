@@ -30,11 +30,11 @@ class NppPlusConan(ConanFile):
     # Provides NPP headers and symbols
     provides = ["npp"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -56,20 +56,16 @@ class NppPlusConan(ConanFile):
         del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
-    @cached_property
-    def _cuda_version(self):
-        return self.dependencies["cudart"].ref.version
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libnpp_plus")
+        self.cuda.validate_package("libnpp_plus")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libnpp_plus")
+        self.cuda.download_package("libnpp_plus")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
@@ -45,11 +46,11 @@ class HwlocConan(ConanFile):
     }
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if not self.options.with_cuda:
@@ -65,8 +66,8 @@ class HwlocConan(ConanFile):
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "nvml-stubs")
+            self.cuda.requires("cudart")
+            self.cuda.requires("nvml-stubs")
         if self.options.with_opencl:
             self.requires("opencl-icd-loader/[*]")
         if self.options.with_oneapi:
@@ -78,7 +79,7 @@ class HwlocConan(ConanFile):
 
     def validate(self):
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):

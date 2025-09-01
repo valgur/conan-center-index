@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanException
@@ -30,11 +31,11 @@ class FlannConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,13 +56,13 @@ class FlannConan(ConanFile):
         # https://github.com/flann-lib/flann/blob/1.9.2/src/cpp/flann/algorithms/nn_index.h#L323
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if Version(self.version) >= "1.9.2":
             check_min_cppstd(self, 11)
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         if self.options.with_cuda:
@@ -83,7 +84,7 @@ class FlannConan(ConanFile):
                             'add_library(flann SHARED "")',
                             "add_library(flann SHARED empty.cpp)")
         if Version(self.version) > "1.9.2":
-            # Don't set CUDA arch flags, let NvccToolchain handle it
+            # Don't set CUDA arch flags, let CudaToolchain handle it
             replace_in_file(self, "src/cpp/CMakeLists.txt", " ;-gencode=", '") #')
 
     def generate(self):
@@ -108,8 +109,8 @@ class FlannConan(ConanFile):
         cd.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

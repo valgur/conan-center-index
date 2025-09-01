@@ -42,10 +42,6 @@ class MathDxConan(ConanFile):
         return self.python_requires["conan-utils"].module
 
     @property
-    def _cuda_version(self):
-        return self.dependencies["cudart"].ref.version
-
-    @property
     def _min_cuda_version(self):
         if self.options.cusolverdx or self.options.nvcompdx:
             return "12.6.3"
@@ -59,7 +55,7 @@ class MathDxConan(ConanFile):
 
     @property
     def _use_fatbin(self):
-        return self._cuda_version >= "12.8"
+        return self.cuda.version >= "12.8"
 
     def configure(self):
         if self._header_only:
@@ -86,9 +82,9 @@ class MathDxConan(ConanFile):
         if not self._header_only and not self._use_fatbin:
             if self.settings.os != "Linux" and self.settings.arch != "x86_64":
                 raise ConanInvalidConfiguration("Only x86_64 Linux is supported for CUDA version < 12.8 due to a lack of .fatbin support")
-        self._utils.validate_cuda_settings(self)
-        self._utils.check_min_cuda_architecture(self, 70)
-        if self._cuda_version < self._min_cuda_version:
+        self.cuda.validate_settings()
+        self.cuda.check_min_cuda_architecture(70)
+        if self.cuda.version < self._min_cuda_version:
             raise ConanInvalidConfiguration(f"cudart {self._min_cuda_version} or higher is required")
 
         compiler_version = Version(self.settings.compiler.version)

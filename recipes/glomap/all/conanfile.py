@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -29,11 +30,11 @@ class GlomapConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -60,8 +61,8 @@ class GlomapConan(ConanFile):
         self.requires("suitesparse-cholmod/[^5.3.0]")
         self.requires("openmp/system")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "curand")
+            self.cuda.requires("cudart")
+            self.cuda.requires("curand")
 
     def validate(self):
         check_min_cppstd(self, 17)

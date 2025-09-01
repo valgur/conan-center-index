@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -33,11 +34,11 @@ class KinetoConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -46,7 +47,7 @@ class KinetoConan(ConanFile):
         self.requires("fmt/[*]")
         self.requires("dynolog/0.5.1-git.20250624")
         if self.options.with_cupti:
-            self._utils.cuda_requires(self, "cupti", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cupti", transitive_headers=True, transitive_libs=True)
         if self.options.with_roctracer:
             raise ConanInvalidConfiguration("ROCm support is not implemented yet")
         if self.options.with_xpupti:
@@ -55,7 +56,7 @@ class KinetoConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 17)
         if self.options.with_cupti:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22]")

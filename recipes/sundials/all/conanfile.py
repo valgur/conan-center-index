@@ -1,6 +1,7 @@
 import glob
 import os
 import shutil
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -59,11 +60,11 @@ class SundialsConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if self.options.shared:
@@ -100,10 +101,10 @@ class SundialsConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system")
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cudart")
+            self.cuda.requires("cudart")
             if self.options.index_size == 32:
-                self._utils.cuda_requires(self, "cusparse")
-                self._utils.cuda_requires(self, "cusolver")
+                self.cuda.requires("cusparse")
+                self.cuda.requires("cusolver")
 
     def validate(self):
         if self.options.with_klu and self.options.precision != "double":
@@ -118,7 +119,7 @@ class SundialsConan(ConanFile):
         if self.options.with_mpi and not self.dependencies["openmpi"].options.enable_cxx:
             raise ConanInvalidConfiguration("-o openmpi/*:enable_cxx=True is required for -o sundials/*:with_mpi=True")
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
@@ -207,8 +208,8 @@ class SundialsConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def _patch_sources(self):
         if self.options.get_safe("with_ginkgo"):

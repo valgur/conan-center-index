@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import stdcpp_library, check_min_cppstd
@@ -35,11 +36,11 @@ class FaissRecipe(ConanFile):
         "with_mkl": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -68,15 +69,15 @@ class FaissRecipe(ConanFile):
         else:
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "cublas")
-            self._utils.cuda_requires(self, "curand")
-            self.requires(f"cuda-profiler-api/[~{self.settings.cuda.version}]")
+            self.cuda.requires("cudart")
+            self.cuda.requires("cublas")
+            self.cuda.requires("curand")
+            self.cuda.requires("cuda-profiler-api")
 
     def validate(self):
         check_min_cppstd(self, 17)
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
@@ -111,8 +112,8 @@ class FaissRecipe(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

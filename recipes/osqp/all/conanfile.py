@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -32,11 +33,11 @@ class OsqpConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if self.options.shared:
@@ -49,9 +50,9 @@ class OsqpConan(ConanFile):
 
     def requirements(self):
         if self.options.backend == "cuda":
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "cublas")
-            self._utils.cuda_requires(self, "cusparse")
+            self.cuda.requires("cudart")
+            self.cuda.requires("cublas")
+            self.cuda.requires("cusparse")
         elif self.options.backend == "mkl":
             self.requires("onemkl/[*]")
 
@@ -59,7 +60,7 @@ class OsqpConan(ConanFile):
         if Version(self.version) < "1.0" and self.options.backend != "builtin":
             raise ConanInvalidConfiguration("Alternative backends are only supported in osqp >= 1.0.0")
         if self.options.backend == "cuda":
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
@@ -100,8 +101,8 @@ class OsqpConan(ConanFile):
         deps.generate()
 
         if self.options.backend == "cuda":
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

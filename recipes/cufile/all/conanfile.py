@@ -31,11 +31,11 @@ class CuFileConan(ConanFile):
         "tools": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -46,25 +46,20 @@ class CuFileConan(ConanFile):
         del self.info.settings.cuda.version
         del self.info.settings.cuda.architectures
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if self.options.cufile_rdma:
             self.requires("rdma-core/[*]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuFile is only available on Linux")
-        self._utils.validate_cuda_package(self, "libcufile")
+        self.cuda.validate_package("libcufile")
         if self.options.shared:
-            self._utils.require_shared_deps(self, ["rdma-core"])
+            self.cuda.require_shared_deps(["rdma-core"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcufile")
+        self.cuda.download_package("libcufile")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -87,13 +82,12 @@ class CuFileConan(ConanFile):
 
         suffix = "" if self.options.shared else "_static"
         alias_suffix = "_static" if self.options.shared else ""
-        v = self._cuda_version
 
         self.cpp_info.components["cufile_"].set_property("cmake_target_name", f"CUDA::cuFile{suffix}")
         if self.options.cmake_alias:
             self.cpp_info.components["cufile_"].set_property("cmake_target_aliases", [f"CUDA::cuFile{alias_suffix}"])
-        self.cpp_info.components["cufile_"].set_property("pkg_config_name", f"cufile-{v.major}.{v.minor}")
-        self.cpp_info.components["cufile_"].set_property("component_version", f"{v.major}.{v.minor}")
+        self.cpp_info.components["cufile_"].set_property("pkg_config_name", f"cufile-{self.cuda.version}")
+        self.cpp_info.components["cufile_"].set_property("component_version", str(self.cuda.version))
         self.cpp_info.components["cufile_"].libs = [f"cufile{suffix}"]
         if not self.options.shared:
             self.cpp_info.components["cufile_"].system_libs = ["rt", "pthread", "m", "gcc_s", "stdc++"]
@@ -103,8 +97,8 @@ class CuFileConan(ConanFile):
             self.cpp_info.components["cufile_rdma"].set_property("cmake_target_name", f"CUDA::cuFile_rdma{suffix}")
             if self.options.cmake_alias:
                 self.cpp_info.components["cufile_rdma"].set_property("cmake_target_aliases", [f"CUDA::cuFile_rdma{alias_suffix}"])
-            self.cpp_info.components["cufile_rdma"].set_property("pkg_config_name", f"cufile_rdma-{v.major}.{v.minor}")
-            self.cpp_info.components["cufile_rdma"].set_property("component_version", f"{v.major}.{v.minor}")
+            self.cpp_info.components["cufile_rdma"].set_property("pkg_config_name", f"cufile_rdma-{self.cuda.version}")
+            self.cpp_info.components["cufile_rdma"].set_property("component_version", str(self.cuda.version))
             self.cpp_info.components["cufile_rdma"].libs = [f"cufile_rdma{suffix}"]
             self.cpp_info.components["cufile_rdma"].requires = [
                 "cufile_",

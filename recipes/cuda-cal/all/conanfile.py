@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -18,11 +19,11 @@ class CudaCalConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -34,7 +35,7 @@ class CudaCalConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         self.requires("ucc/[^1]", options={"cuda": True})
 
     def validate(self):
@@ -42,11 +43,11 @@ class CudaCalConan(ConanFile):
             raise ConanInvalidConfiguration("CAL is only supported on Linux")
         if not self.dependencies["cudart"].options.shared:
             raise ConanInvalidConfiguration("CAL requires -o cudart/*:shared=True")
-        self._utils.validate_cuda_package(self, "libcal")
-        self._utils.require_shared_deps(self, ["ucc"])
+        self.cuda.validate_package("libcal")
+        self.cuda.require_shared_deps(["ucc"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcal")
+        self.cuda.download_package("libcal")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

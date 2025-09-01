@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -17,11 +18,11 @@ class CtadvisorConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -33,10 +34,10 @@ class CtadvisorConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_ctadvisor")
+        self.cuda.validate_package("cuda_ctadvisor")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_ctadvisor")
+        self.cuda.download_package("cuda_ctadvisor")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

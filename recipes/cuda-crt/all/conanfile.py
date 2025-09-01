@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -17,11 +18,11 @@ class CudaCrtConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def _cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     @property
     def _package(self):
@@ -37,10 +38,10 @@ class CudaCrtConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
-        self._utils.validate_cuda_package(self, self._package)
+        self._cuda.validate_package(self._package)
 
     def build(self):
-        self._utils.download_cuda_package(self, self._package)
+        self._cuda.download_package(self._package)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

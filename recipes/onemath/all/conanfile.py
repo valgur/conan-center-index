@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -62,11 +63,11 @@ class OneMathConan(ConanFile):
         "onemkl/*:sycl": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _all_backends(self):
@@ -102,15 +103,15 @@ class OneMathConan(ConanFile):
             self.requires("portfft/[*]")
 
         if self.options.cublas:
-            self._utils.cuda_requires(self, "cublas")
+            self.cuda.requires("cublas")
         if self.options.curand:
-            self._utils.cuda_requires(self, "curand")
+            self.cuda.requires("curand")
         if self.options.cusolver:
-            self._utils.cuda_requires(self, "cusolver")
+            self.cuda.requires("cusolver")
         if self.options.cufft:
-            self._utils.cuda_requires(self, "cufft")
+            self.cuda.requires("cufft")
         if self.options.cusparse:
-            self._utils.cuda_requires(self, "cusparse")
+            self.cuda.requires("cusparse")
 
         # AdaptiveCpp / hipSYCL is disabled as most of the backends don't really successfully
         # compile with it due to SYCL extensions being used.

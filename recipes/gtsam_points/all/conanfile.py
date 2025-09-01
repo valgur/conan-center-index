@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -32,11 +33,11 @@ class GtsamPointsPackage(ConanFile):
         "boost/*:with_graph": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if not self.options.cuda:
@@ -58,14 +59,14 @@ class GtsamPointsPackage(ConanFile):
         if self.options.tbb:
             self.requires("onetbb/[>=2021 <2023]")
         if self.options.cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
         if self.options.openmp and self.options.tbb:
             raise ConanInvalidConfiguration("Cannot enable both openmp and tbb options at the same time.")
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
         for comp in ["filesystem", "graph"]:
             if not self.dependencies["boost"].options.get_safe(f"with_{comp}"):
                 raise ConanInvalidConfiguration(f"-o boost/*:with_{comp}=True is required")
@@ -82,7 +83,7 @@ class GtsamPointsPackage(ConanFile):
         rmdir(self, os.path.join(self.source_folder, "thirdparty"))
         # Let Conan manage the C++ standard and also the CUDA standard indirectly
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
-        # Let NvccToolchain manage the CUDA architecture
+        # Let CudaToolchain manage the CUDA architecture
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CUDA_ARCHITECTURES", "# set(CMAKE_CUDA_ARCHITECTURES")
         # Don't build utility functions for cusparse and curand that are not used anywhere
         replace_in_file(self, "CMakeLists.txt", " src/gtsam_points/cuda/check_error_cusolver.cu", "")
@@ -101,8 +102,8 @@ class GtsamPointsPackage(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

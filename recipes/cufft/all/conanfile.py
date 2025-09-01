@@ -31,11 +31,11 @@ class CuFFTConan(ConanFile):
         "nocallback": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -63,23 +63,18 @@ class CuFFTConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcufft")
-        if self._cuda_version.major != Version(self.settings.cuda.version).major:
-            raise ConanInvalidConfiguration(f"{self.ref} expects CUDA v{self._cuda_version.major}, but cuda.version={self.settings.cuda.version}")
+        self.cuda.validate_package("libcufft")
+        if self.cuda.version.major != Version(self.settings.cuda.version).major:
+            raise ConanInvalidConfiguration(f"{self.ref} expects CUDA v{self.cuda.version.major}, but cuda.version={self.settings.cuda.version}")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcufft")
+        self.cuda.download_package("libcufft")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -107,8 +102,7 @@ class CuFFTConan(ConanFile):
         else:
             suffix = "_static"
 
-        v = self._cuda_version
-        self.cpp_info.components["cufft_"].set_property("pkg_config_name", f"cufft-{v.major}.{v.minor}")
+        self.cpp_info.components["cufft_"].set_property("pkg_config_name", f"cufft-{self.cuda.version}")
         self.cpp_info.components["cufft_"].set_property("cmake_target_name", f"CUDA::cufft{suffix}")
         if self.options.get_safe("cmake_alias"):
             aliases = ["CUDA::cufft", "CUDA::cufft_static", "CUDA::cufft_static_nocallback"]
@@ -123,7 +117,7 @@ class CuFFTConan(ConanFile):
             self.cpp_info.components["cufft_"].requires.append("culibos::culibos")
 
         suffix = "" if self.options.get_safe("shared", True) else "_static"
-        self.cpp_info.components["cufftw"].set_property("pkg_config_name", f"cufftw-{v.major}.{v.minor}")
+        self.cpp_info.components["cufftw"].set_property("pkg_config_name", f"cufftw-{self.cuda.version}")
         self.cpp_info.components["cufftw"].set_property("cmake_target_name", f"CUDA::cufftw{suffix}")
         if self.options.get_safe("cmake_alias"):
             alias = "cufftw_static" if self.options.shared else "cufftw"

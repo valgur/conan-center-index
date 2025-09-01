@@ -30,11 +30,11 @@ class CuSolverConan(ConanFile):
         "cusolverMg": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,26 +58,21 @@ class CuSolverConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cublas", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
-            self._utils.cuda_requires(self, "culibos")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcusolver")
+        self.cuda.validate_package("libcusolver")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["cublas", "cusparse"])
-        self._utils.require_shared_deps(self, ["rdma-core"])
+            self.cuda.require_shared_deps(["cublas", "cusparse"])
+        self.cuda.require_shared_deps(["rdma-core"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcusolver")
+        self.cuda.download_package("libcusolver")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -99,9 +94,8 @@ class CuSolverConan(ConanFile):
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
-        v = self._cuda_version
-        self.cpp_info.components["cusolver_"].set_property("pkg_config_name", f"cusolver-{v.major}.{v.minor}")
-        self.cpp_info.components["cusolver_"].set_property("component_version", f"{v.major}.{v.minor}")
+        self.cpp_info.components["cusolver_"].set_property("pkg_config_name", f"cusolver-{self.cuda.version}")
+        self.cpp_info.components["cusolver_"].set_property("component_version", str(self.cuda.version))
         self.cpp_info.components["cusolver_"].set_property("cmake_target_name", f"CUDA::cusolver{suffix}")
         if self.options.get_safe("cmake_alias"):
             alias_suffix = "_static" if self.options.shared else ""

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
@@ -43,11 +44,11 @@ class ZfpConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if self.options.shared:
@@ -63,11 +64,11 @@ class ZfpConan(ConanFile):
             # https://github.com/LLNL/zfp/blob/1.0.1/include/zfp/internal/array/store.hpp#L130
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.cuda.requires("cudart")
 
     def validate(self):
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         if self.options.with_cuda:
@@ -100,8 +101,8 @@ class ZfpConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

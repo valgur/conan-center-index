@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -35,11 +36,11 @@ class CuDnnConan(ConanFile):
         "cmake_alias": "Always create both shared and static CMake targets regardless of shared=True/False.",
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -57,22 +58,22 @@ class CuDnnConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cublas")
-        self._utils.cuda_requires(self, "nvrtc")
-        self._utils.cuda_requires(self, "nvptxcompiler")
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas")
+        self.cuda.requires("nvrtc")
+        self.cuda.requires("nvptxcompiler")
         if self.settings.os == "Linux":
             self.requires("zlib-ng/[^2.0]")
             if not self.options.shared:
-                self._utils.cuda_requires(self, "culibos")
+                self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cudnn")
+        self.cuda.validate_package("cudnn")
         if not self.options.train and not self.options.infer:
             raise ConanInvalidConfiguration("At least one of 'train' or 'infer' options must be enabled.")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cudnn")
+        self.cuda.download_package("cudnn")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

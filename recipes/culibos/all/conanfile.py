@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -18,11 +19,11 @@ class CulibosConan(ConanFile):
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -40,10 +41,10 @@ class CulibosConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("culibos is only available and needed on Linux")
-        self._utils.validate_cuda_package(self, self._package)
+        self.cuda.validate_package(self._package)
 
     def build(self):
-        self._utils.download_cuda_package(self, self._package)
+        self.cuda.download_package(self._package)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

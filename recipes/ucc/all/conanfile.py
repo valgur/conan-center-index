@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -45,11 +46,11 @@ class UccConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if not self.options.cuda:
@@ -70,9 +71,9 @@ class UccConan(ConanFile):
             "verbs": self.options.mlx5,
         })
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cuda-driver-stubs")
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "nvml-stubs")
+            self.cuda.requires("cuda-driver-stubs")
+            self.cuda.requires("cudart")
+            self.cuda.requires("nvml-stubs")
         if self.options.nccl:
             self.requires("nccl/[^2]")
         if self.options.mlx5:
@@ -98,8 +99,8 @@ class UccConan(ConanFile):
             VirtualRunEnv(self).generate(scope="build")
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self, skip_arch_flags=True)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain(skip_arch_flags=True)
+            cuda_tc.generate()
 
         def enable_disable(opt, val):
             return f"--enable-{opt}" if val else f"--disable-{opt}"
@@ -136,7 +137,7 @@ class UccConan(ConanFile):
             "TLCP_UCP_EXAMPLE_ENABLED_FALSE=y",
         ])
         if self.options.cuda:
-            tc.configure_args.append(f"--with-nvcc-gencode={' '.join(nvcc_tc.arch_flags)}")
+            tc.configure_args.append(f"--with-nvcc-gencode={' '.join(cuda_tc.arch_flags)}")
         tc.generate()
 
         deps = AutotoolsDeps(self)

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -49,11 +50,11 @@ class DlibConan(ConanFile):
         "with_cuda": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -88,10 +89,10 @@ class DlibConan(ConanFile):
 
         if self.options.with_cuda:
             # Used in public dlib/cuda/cuda_utils.h
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "cublas")
-            self._utils.cuda_requires(self, "cusolver")
-            self._utils.cuda_requires(self, "curand")
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cublas")
+            self.cuda.requires("cusolver")
+            self.cuda.requires("curand")
             self.requires("cudnn/[>=8 <10]")
 
     def validate(self):
@@ -99,7 +100,7 @@ class DlibConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} does not support shared on Windows. See https://github.com/davisking/dlib/issues/1483.")
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         if self.options.with_cuda:
@@ -167,7 +168,7 @@ class DlibConan(ConanFile):
         tc.cache_variables["DLIB_GIF_SUPPORT"] = self.options.with_gif
         tc.cache_variables["DLIB_USE_MKL_FFT"] = False
         tc.cache_variables["DLIB_USE_CUDA"] = self.options.with_cuda
-        tc.cache_variables["DLIB_USE_CUDA_COMPUTE_CAPABILITIES"] = ","  # Let NvccToolchain manage this
+        tc.cache_variables["DLIB_USE_CUDA_COMPUTE_CAPABILITIES"] = ","  # Let CudaToolchain manage this
         # Skip the unnecessary test compiles that don't play well with Conan
         tc.cache_variables["cuda_test_compile_worked"] = True
         tc.cache_variables["cudnn_test_compile_worked"] = True
@@ -186,8 +187,8 @@ class DlibConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         self._patch_sources()

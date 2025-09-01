@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -18,11 +19,11 @@ class NvccConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,11 +40,11 @@ class NvccConan(ConanFile):
 
     @property
     def _host_platform_id(self):
-        return self._utils.cuda_platform_id(self.settings)
+        return self.cuda.get_platform_id(self.settings)
 
     @property
     def _target_platform_id(self):
-        return self._utils.cuda_platform_id(self.settings_target)
+        return self.cuda.get_platform_id(self.settings_target)
 
     def validate(self):
         if self._host_platform_id is None:
@@ -60,17 +61,17 @@ class NvccConan(ConanFile):
 
     def package(self):
         host_folder = os.path.join(self.source_folder, "host")
-        self._utils.download_cuda_package(self, "cuda_nvcc", scope="host", destination=host_folder)
+        self.cuda.download_package("cuda_nvcc", scope="host", destination=host_folder)
         if self._external_nvvm:
             # using nvvm via a separate Conan package almost works, but device code LTO fails in mathdx with
             # nvlink fatal   : elfLink linker library load error
             # bundling nvvm back into nvcc for this reason.
-            self._utils.download_cuda_package(self, "libnvvm", scope="host", destination=host_folder)
+            self.cuda.download_package("libnvvm", scope="host", destination=host_folder)
         if self._cross_toolchain:
             target_folder = os.path.join(self.source_folder, "target")
-            self._utils.download_cuda_package(self, "cuda_nvcc", scope="target", destination=target_folder)
+            self.cuda.download_package("cuda_nvcc", scope="target", destination=target_folder)
             if self._external_nvvm:
-                self._utils.download_cuda_package(self, "libnvvm", scope="target", destination=target_folder)
+                self.cuda.download_package("libnvvm", scope="target", destination=target_folder)
         else:
             target_folder = host_folder
         copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))

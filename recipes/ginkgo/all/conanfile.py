@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -40,11 +41,11 @@ class GinkgoConan(ConanFile):
         "bfloat16": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -77,11 +78,11 @@ class GinkgoConan(ConanFile):
             # Not used in any public headers
             self.requires("openmp/system")
         if self.options.cuda:
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "cublas")
-            self._utils.cuda_requires(self, "cusparse")
-            self._utils.cuda_requires(self, "curand")
-            self._utils.cuda_requires(self, "cufft")
+            self.cuda.requires("cudart")
+            self.cuda.requires("cublas")
+            self.cuda.requires("cusparse")
+            self.cuda.requires("curand")
+            self.cuda.requires("cufft")
             self.requires("nvtx/[^3]")
 
     def validate(self):
@@ -94,7 +95,7 @@ class GinkgoConan(ConanFile):
                 raise ConanInvalidConfiguration("Ginkgo does not support mixing static CRT and shared library")
 
         if self.options.cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
@@ -135,8 +136,8 @@ class GinkgoConan(ConanFile):
         deps.generate()
 
         if self.options.cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

@@ -258,11 +258,11 @@ class FFMpegConan(ConanFile):
 
     languages = ["C"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _version_supports_libsvtav1(self):
@@ -387,7 +387,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_libdrm"):
             self.requires("libdrm/[~2.4.119]")
         if self.options.with_cuda:
-            self.requires(f"npp/[~{self.settings.cuda.version}]")
+            self.cuda.requires("npp")
             cuda_major = Version(self.settings.cuda.version).major
             self.requires(f"ffnvcodec/[^{cuda_major}]")
         elif self.options.with_ffnvcodec:
@@ -761,8 +761,8 @@ class FFMpegConan(ConanFile):
         if self.options.with_cuda:
             # FFMpeg embeds a handwritten .ptx as a C array and JIT-s it at runtime
             # instead of building for specific architectures.
-            nvcc_tc = self._utils.NvccToolchain(self, skip_arch_flags=True)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain(skip_arch_flags=True)
+            cuda_tc.generate()
 
     def build(self):
         self._patch_sources()

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -114,7 +115,11 @@ class LibtorchConan(ConanFile):
     }
     no_copy_source = True
 
-    python_requires = "conan-utils/latest"
+    python_requires = ["conan-cuda/latest", "conan-utils/latest"]
+
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _utils(self):
@@ -279,27 +284,27 @@ class LibtorchConan(ConanFile):
             if self.options.with_ucc:
                 self.requires("ucc/[^1.5.0]")
         if self.options.with_cuda:
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "cublas", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "cufft", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "curand", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "nvml-stubs", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "nvtx", transitive_headers=True, transitive_libs=True)
-            self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cufft", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("curand", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("nvml-stubs", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("nvtx", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
             self.requires("cutlass/[*]", transitive_headers=True, transitive_libs=True)
             if self.options.with_cusparselt:
-                self._utils.cuda_requires(self, "cusparselt")
+                self.cuda.requires("cusparselt")
             if not self.options.build_lazy_cuda_linalg:
-                self._utils.cuda_requires(self, "cusolver")
+                self.cuda.requires("cusolver")
             if self.options.with_cudnn:
                 self.requires("cudnn/[>=8.5 <10]", transitive_headers=True, transitive_libs=True)
                 self.requires("cudnn-frontend/[^1.13]", transitive_headers=True, transitive_libs=True)
             if self.options.with_cudss:
-                self._utils.cuda_requires(self, "cudss")
+                self.cuda.requires("cudss")
             if self.options.with_cufile:
-                self._utils.cuda_requires(self, "cufile")
+                self.cuda.requires("cufile")
             if self.options.with_nvrtc:
-                self._utils.cuda_requires(self, "nvrtc", transitive_headers=True, transitive_libs=True)
+                self.cuda.requires("nvrtc", transitive_headers=True, transitive_libs=True)
             if self.options.with_nccl:
                 self.requires("nccl/[^2]", transitive_headers=True, transitive_libs=True)
             if self.options.get_safe("with_nvshmem"):
@@ -458,8 +463,8 @@ class LibtorchConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
         # To install pyyaml
         venv = self._utils.PythonVenv(self)

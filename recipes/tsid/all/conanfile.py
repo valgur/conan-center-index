@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -32,11 +33,11 @@ class TsidConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def configure(self):
         if self.options.shared:

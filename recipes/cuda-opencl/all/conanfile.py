@@ -4,7 +4,6 @@ from functools import cached_property
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -20,15 +19,15 @@ class CudaOpenCLConan(ConanFile):
 
     provides = ["opencl-icd-loader", "opencl-headers"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
+
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
             self.package_type = "static-library"
-
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,20 +38,15 @@ class CudaOpenCLConan(ConanFile):
         del self.info.settings.cuda.version
         del self.info.settings.cuda.architectures
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     @property
     def _package_name(self):
-        return "cuda_opencl" if self._cuda_version >= 12 else "cuda_cudart"
+        return "cuda_opencl" if self.cuda.version >= 12 else "cuda_cudart"
 
     def validate(self):
-        self._utils.validate_cuda_package(self, self._package_name)
+        self.cuda.validate_package(self._package_name)
 
     def build(self):
-        self._utils.download_cuda_package(self, self._package_name)
+        self.cuda.download_package(self._package_name)
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -63,11 +57,10 @@ class CudaOpenCLConan(ConanFile):
             copy(self, "OpenCL.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        v = self._cuda_version
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_target_name", "CUDA::OpenCL")
         self.cpp_info.set_property("cmake_module_file_name", "OpenCL")
         self.cpp_info.set_property("cmake_module_target_name", "OpenCL::OpenCL")
-        self.cpp_info.set_property("pkg_config_name", f"opencl-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"opencl-{self.cuda.version}")
         self.cpp_info.libs = ["OpenCL"]
         self.cpp_info.bindirs = []

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -26,11 +27,11 @@ class CuDfConan(ConanFile):
         "nanoarrow/*:with_cuda": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -39,10 +40,10 @@ class CuDfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "nvcomp")
-        self._utils.cuda_requires(self, "nvtx", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cucollections", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("nvcomp")
+        self.cuda.requires("nvtx", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cucollections", transitive_headers=True, transitive_libs=True)
         self.requires("bshoshany-thread-pool/[^4.1.0]", transitive_headers=True, transitive_libs=True)
         self.requires("dlpack/[^1]")
         self.requires("flatbuffers/[~24.3.25]")
@@ -56,8 +57,8 @@ class CuDfConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 20)
-        self._utils.validate_cuda_settings(self)
-        self._utils.require_shared_deps(self, ["nvrtc"])
+        self.cuda.validate_settings()
+        self.cuda.require_shared_deps(["nvrtc"])
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30.4]")
@@ -130,8 +131,8 @@ class CuDfConan(ConanFile):
         deps.set_property("nanoarrow", "cmake_target_name", "nanoarrow")
         deps.generate()
 
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

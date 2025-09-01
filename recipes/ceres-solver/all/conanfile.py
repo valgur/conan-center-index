@@ -1,5 +1,6 @@
 import os
 import textwrap
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -65,7 +66,11 @@ class CeresSolverConan(ConanFile):
                                       "Can impact compilation time and memory usage and binary size."),
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = ["conan-cuda/latest", "conan-utils/latest"]
+
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _utils(self):
@@ -146,18 +151,18 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_OpenMP"):
             self.requires("openmp/system")
         if self.options.get_safe("use_cuda"):
-            self._utils.cuda_requires(self, "cudart")
-            self._utils.cuda_requires(self, "cublas")
-            self._utils.cuda_requires(self, "cusparse")
-            self._utils.cuda_requires(self, "cusolver")
+            self.cuda.requires("cudart")
+            self.cuda.requires("cublas")
+            self.cuda.requires("cusparse")
+            self.cuda.requires("cusolver")
             if Version(self.version, qualifier=True) >= "2.3.0":
-                self._utils.cuda_requires(self, "cudss")
+                self.cuda.requires("cudss")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
 
         if self.options.get_safe("use_cuda"):
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
         if self.options.get_safe("use_eigen_metis") and not self.options.use_eigen_sparse:
             raise ConanInvalidConfiguration("use_eigen_metis requires use_eigen_sparse=True")
@@ -179,7 +184,7 @@ class CeresSolverConan(ConanFile):
         apply_conandata_patches(self)
         copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake"))
         if Version(self.version) >= "2.2.0":
-            # Don't force CMAKE_CUDA_ARCHITECTURES, let NvccToolchain handle it
+            # Don't force CMAKE_CUDA_ARCHITECTURES, let CudaToolchain handle it
             replace_in_file(self, "CMakeLists.txt",
                             "CMAKE_CUDA_ARCHITECTURES",
                             "CMAKE_CUDA_ARCHITECTURES_ignored")
@@ -239,8 +244,8 @@ class CeresSolverConan(ConanFile):
         deps.generate()
 
         if Version(self.version) >= "2.2.0" and self.options.use_cuda:
-            tc = self._utils.NvccToolchain(self)
-            tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -26,11 +27,11 @@ class CudartConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -46,16 +47,16 @@ class CudartConan(ConanFile):
         v = Version(self.version)
         self.requires(f"cuda-crt/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
         self.requires(f"cuda-driver-stubs/[~{v.major}.{v.minor}]", transitive_headers=True, transitive_libs=True)
-        cccl_range = self._utils.get_version_range("cuda-cccl", self.version)
+        cccl_range = self.cuda.get_version_range("cuda-cccl", self.version)
         self.requires(f"cuda-cccl/[{cccl_range}]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_cudart")
+        self.cuda.validate_package("cuda_cudart")
         if not Version(self.version).in_range(f"~{self.settings.cuda.version}"):
             raise ConanInvalidConfiguration(f"Version {self.version} is not compatible with the cuda.version {self.settings.cuda.version} setting")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_cudart")
+        self.cuda.download_package("cuda_cudart")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

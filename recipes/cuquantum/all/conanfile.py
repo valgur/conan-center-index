@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -18,11 +19,11 @@ class CuQuantumConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -35,20 +36,20 @@ class CuQuantumConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cusolver")
-        self._utils.cuda_requires(self, "cublas")
-        self._utils.cuda_requires(self, "cusparse")
-        self._utils.cuda_requires(self, "nvjitlink")
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cusolver")
+        self.cuda.requires("cublas")
+        self.cuda.requires("cusparse")
+        self.cuda.requires("nvjitlink")
         self.requires("cutensor/[^2]")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuquantum")
+        self.cuda.validate_package("cuquantum")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["cutensor", "cusolver", "cublas", "cusparse", "nvjitlink"])
+            self.cuda.require_shared_deps(["cutensor", "cusolver", "cublas", "cusparse", "nvjitlink"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuquantum")
+        self.cuda.download_package("cuquantum")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

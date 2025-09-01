@@ -26,11 +26,11 @@ class CuptiConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -47,21 +47,16 @@ class CuptiConan(ConanFile):
         del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_cupti")
+        self.cuda.validate_package("cuda_cupti")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["libvdpau"])
+            self.cuda.require_shared_deps(["libvdpau"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_cupti")
+        self.cuda.download_package("cuda_cupti")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -24,11 +25,11 @@ class CuSparseLtConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -45,14 +46,14 @@ class CuSparseLtConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcusparse_lt")
+        self.cuda.validate_package("libcusparse_lt")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcusparse_lt")
+        self.cuda.download_package("libcusparse_lt")
         # Fix C compatibility
         replace_in_file(self, os.path.join(self.source_folder, "include", "cusparseLt.h"),
                         "#include <cstddef>",

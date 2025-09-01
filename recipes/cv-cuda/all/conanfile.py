@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -27,27 +28,27 @@ class CvCudaConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cublas")
-        self._utils.cuda_requires(self, "cusolver")
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas")
+        self.cuda.requires("cusolver")
         # cuRAND headers are only used to define curandState*
-        self._utils.cuda_requires(self, "curand", libs=False)
+        self.cuda.requires("curand", libs=False)
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("CV-CUDA is only supported on Linux")
         check_min_cppstd(self, 17)
-        self._utils.validate_cuda_settings(self)
+        self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20.1]")
@@ -74,8 +75,8 @@ class CvCudaConan(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

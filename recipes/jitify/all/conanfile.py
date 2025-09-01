@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -29,11 +30,11 @@ class JitifyConan(ConanFile):
         "with_nvtx": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -53,15 +54,15 @@ class JitifyConan(ConanFile):
             self.info.settings.clear()
 
     def requirements(self):
-        self._utils.cuda_requires(self, "nvrtc", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("nvrtc", transitive_headers=True, transitive_libs=True)
         if self.options.v2:
             if Version(self.settings.cuda.version) >= "12.0":
-                self._utils.cuda_requires(self, "nvjitlink", transitive_headers=True, transitive_libs=True)
+                self.cuda.requires("nvjitlink", transitive_headers=True, transitive_libs=True)
             if self.options.with_nvtx:
-                self._utils.cuda_requires(self, "nvtx", transitive_headers=True, transitive_libs=True)
+                self.cuda.requires("nvtx", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_settings(self)
+        self.cuda.validate_settings()
         check_min_cppstd(self, 17)
 
     def source(self):

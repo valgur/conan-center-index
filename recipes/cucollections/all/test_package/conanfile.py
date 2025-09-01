@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import can_run
@@ -9,11 +10,11 @@ class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type", "cuda"
     generators = "CMakeToolchain", "CMakeDeps"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         cmake_layout(self)
@@ -26,8 +27,8 @@ class TestPackageConan(ConanFile):
         self.tool_requires("cmake/[>=3.18]")
 
     def generate(self):
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        tc = self.cuda.CudaToolchain()
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

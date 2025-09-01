@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -24,19 +25,19 @@ class NvvmConan(ConanFile):
         "target_arch": None,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     @property
     def _host_platform_id(self):
-        return self._utils.cuda_platform_id(self.settings)
+        return self.cuda.get_platform_id(self.settings)
 
     @property
     def _target_platform_id(self):
-        return self._utils.cuda_platform_id(self.settings_target)
+        return self.cuda.get_platform_id(self.settings_target)
 
     @property
     def _cross_toolchain(self):
@@ -63,10 +64,10 @@ class NvvmConan(ConanFile):
     def package(self):
         pkg = "libnvvm" if Version(self.version) >= "13.0" else "cuda_nvcc"
         host_folder = os.path.join(self.source_folder, "host")
-        self._utils.download_cuda_package(self, pkg, scope="host", destination=host_folder)
+        self.cuda.download_package(pkg, scope="host", destination=host_folder)
         if self._cross_toolchain:
             target_folder = os.path.join(self.source_folder, "target")
-            self._utils.download_cuda_package(self, pkg, scope="target", destination=target_folder)
+            self.cuda.download_package(pkg, scope="target", destination=target_folder)
         else:
             target_folder = host_folder
         copy(self, "LICENSE", host_folder, os.path.join(self.package_folder, "licenses"))

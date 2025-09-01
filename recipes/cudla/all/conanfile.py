@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -23,11 +24,11 @@ class CudlaConan(ConanFile):
         "use_stubs": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,13 +40,13 @@ class CudlaConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcudla")
+        self.cuda.validate_package("libcudla")
         # libstdc++11 requirement applies to just the C++ API, so skipping the check
         # if self.settings.compiler.libcxx != "libstdc++11":
         #     raise ConanInvalidConfiguration("cudla requires libstdc++11")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcudla")
+        self.cuda.download_package("libcudla")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -53,9 +54,8 @@ class CudlaConan(ConanFile):
         copy(self, "*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        v = Version(self.version)
         self.cpp_info.set_property("cmake_target_name", "CUDA::cudla")
-        self.cpp_info.set_property("pkg_config_name", f"libcudla-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"libcudla-{self.cuda.version}")
         self.cpp_info.libs = ["cudla"]
         if self.options.use_stubs:
             self.cpp_info.libdirs = ["lib/stubs", "lib"]

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -17,11 +18,11 @@ class CudaProfilerApiConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -30,11 +31,10 @@ class CudaProfilerApiConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        v = Version(self.version)
-        self.requires(f"cudart/[~{v.major}.{v.minor}]")
+        self.requires(f"cudart/[~{self.cuda.version}]")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_profiler_api", platform_id="linux-x86_64")
+        self.cuda.download_package("cuda_profiler_api", platform_id="linux-x86_64")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

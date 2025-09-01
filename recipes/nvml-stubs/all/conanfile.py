@@ -26,11 +26,11 @@ class NvmlStubsConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows" or Version(self.version) < "12.4":
@@ -47,16 +47,11 @@ class NvmlStubsConan(ConanFile):
         del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_nvml_dev")
+        self.cuda.validate_package("cuda_nvml_dev")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_nvml_dev")
+        self.cuda.download_package("cuda_nvml_dev")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -72,8 +67,7 @@ class NvmlStubsConan(ConanFile):
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
         alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
-        v = self._cuda_version
-        self.cpp_info.set_property("pkg_config_name", f"nvidia-ml-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"nvidia-ml-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::nvml{suffix}")
         if self.options.get_safe("cmake_alias"):
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::nvml{alias_suffix}"])

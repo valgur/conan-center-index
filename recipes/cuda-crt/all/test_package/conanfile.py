@@ -21,7 +21,6 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        self.run("nvcc --version")
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")

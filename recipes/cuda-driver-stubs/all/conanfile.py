@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -17,11 +18,11 @@ class CudaDriverStubsConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def export_sources(self):
         copy(self, "CUDAToolkit-wrapper.cmake", self.recipe_folder, self.export_sources_folder)
@@ -37,18 +38,17 @@ class CudaDriverStubsConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "cuda_cudart")
+        self.cuda.validate_package("cuda_cudart")
 
     def build(self):
-        self._utils.download_cuda_package(self, "cuda_cudart")
+        self.cuda.download_package("cuda_cudart")
 
     def _write_cuda_version(self):
         file = os.path.join(self.package_folder, "share", "conan", "CUDA-wrapper.cmake")
         content = load(self, file)
-        v = Version(self.version)
-        content = content.replace("@CUDA_VERSION@", f"{v.major}.{v.minor}")
-        content = content.replace("@CUDA_VERSION_MAJOR@", str(v.major))
-        content = content.replace("@CUDA_VERSION_MINOR@", str(v.minor))
+        content = content.replace("@CUDA_VERSION@", str(self.cuda.version))
+        content = content.replace("@CUDA_VERSION_MAJOR@", str(self.cuda.version.major))
+        content = content.replace("@CUDA_VERSION_MINOR@", str(self.cuda.version.minor))
         save(self, file, content)
 
     def _write_findcuda_license(self):
@@ -79,8 +79,7 @@ class CudaDriverStubsConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "CUDA::cuda_driver")
-        v = Version(self.version)
-        self.cpp_info.set_property("pkg_config_name", f"cudart-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"cudart-{self.cuda.version}")
         self.cpp_info.libs = ["cuda"]
 
         # Also install the wrapper for FindCUDAToolkit.cmake as cuda-driver-stubs is the root dependency for all other CUDA toolkit packages

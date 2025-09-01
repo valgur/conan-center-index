@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -27,11 +28,11 @@ class VilibConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -42,13 +43,13 @@ class VilibConan(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True, options={"highgui": True})
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Shared builds on Windows are not supported")
-        self._utils.validate_cuda_settings(self)
+        self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
@@ -67,8 +68,8 @@ class VilibConan(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

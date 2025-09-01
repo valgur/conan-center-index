@@ -31,11 +31,11 @@ class CuDssConan(ConanFile):
         "mtlayer_omp": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -60,8 +60,8 @@ class CuDssConan(ConanFile):
         return self.dependencies["cudart"].ref.version
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cublas")
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas")
         if self.options.commlayer_nccl:
             self.requires("nccl/[^2]")
         if self.options.commlayer_mpi:
@@ -69,12 +69,12 @@ class CuDssConan(ConanFile):
         # gomp or vcomp140 from the system is required for OpenMP support
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcudss")
+        self.cuda.validate_package("libcudss")
         if self.options.get_safe("shared", True):
-            self._utils.require_shared_deps(self, ["cublas", "nccl", "openmpi"])
+            self.cuda.require_shared_deps(["cublas", "nccl", "openmpi"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcudss")
+        self.cuda.download_package("libcudss")
         # TODO: build the commlayer and mtlayer components from the provided sources
 
     def package(self):

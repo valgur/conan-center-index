@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -26,17 +27,17 @@ class PopSiftConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -47,7 +48,7 @@ class PopSiftConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Don't override the architecture versions set by NvccToolchain
+        # Don't override the architecture versions set by CudaToolchain
         replace_in_file(self, "CMakeLists.txt",
                         "set(CMAKE_CUDA_ARCHITECTURES",
                         "message(TRACE # set(CMAKE_CUDA_ARCHITECTURES")
@@ -67,8 +68,8 @@ class PopSiftConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

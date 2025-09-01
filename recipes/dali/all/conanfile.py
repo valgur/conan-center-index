@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, check_min_cstd
@@ -62,11 +63,11 @@ class DaliConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -89,26 +90,26 @@ class DaliConan(ConanFile):
         self.requires("boost/[^1.71]", libs=False)
         self.requires("protobuf/[>=3]")
         self.requires("opencv/[^4.9]")
-        self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cufft")
-        self._utils.cuda_requires(self, "curand", libs=False)
-        self._utils.cuda_requires(self, "npp")
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cufft")
+        self.cuda.requires("curand", libs=False)
+        self.cuda.requires("npp")
         self.requires("nvimgcodec/0.5.0")  # 0.6.0 is not yet supported as of v1.51.0
         self.requires("nvtx/[^3]")
         if self.options.with_cufile:
-            self._utils.cuda_requires(self, "cufile")
+            self.cuda.requires("cufile")
         if self.options.with_cvcuda:
             self.requires("cv-cuda/[>=0.15.0 <1]")
         if self.options.with_nvdec:
-            self._utils.cuda_requires(self, "nvidia-video-codec-sdk")
+            self.cuda.requires("nvidia-video-codec-sdk")
         if self.options.with_nvof:
-            self._utils.cuda_requires(self, "nvidia-optical-flow-sdk")
+            self.cuda.requires("nvidia-optical-flow-sdk")
         if self.options.with_nvjpeg:
-            self._utils.cuda_requires(self, "nvjpeg")
+            self.cuda.requires("nvjpeg")
         if self.options.with_nvjpeg2k:
-            self._utils.cuda_requires(self, "nvjpeg2k")
+            self.cuda.requires("nvjpeg2k")
         if self.options.with_nvml:
-            self._utils.cuda_requires(self, "nvml-stubs")
+            self.cuda.requires("nvml-stubs")
         if self.options.with_nvcomp:
             self.requires("nvcomp/[^4]")
         if self.options.with_awssdk:
@@ -234,8 +235,8 @@ class DaliConan(ConanFile):
         deps.set_property("lmdb", "cmake_file_name", "LMDB")
         deps.generate()
 
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
         # Hacky fix for stub_codegen.py calls
         env = Environment()

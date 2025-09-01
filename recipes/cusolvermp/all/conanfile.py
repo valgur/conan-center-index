@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -19,11 +20,11 @@ class CusolvermpConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -37,10 +38,10 @@ class CusolvermpConan(ConanFile):
 
     def requirements(self):
         cuda_major = Version(self.settings.cuda.version).major
-        self._utils.cuda_requires(self, "cusolver", transitive_headers=True, transitive_libs=True)
-        self._utils.cuda_requires(self, "cusparse", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cusolver", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
         if cuda_major >= 12:
-            self.requires(f"nvjitlink/[~{self.settings.cuda.version}]")
+            self.cuda.requires("nvjitlink")
         if Version(self.version) >= "0.7":
             self.requires("nccl/[^2]", transitive_headers=True)
         elif cuda_major == 12:
@@ -51,11 +52,11 @@ class CusolvermpConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuSOLVERMp is only supported on Linux")
-        self._utils.validate_cuda_package(self, "libcusolvermp")
-        self._utils.require_shared_deps(self, ["cusolver", "cusparse", "nccl", "nvjitlink"])
+        self.cuda.validate_package("libcusolvermp")
+        self.cuda.require_shared_deps(["cusolver", "cusparse", "nccl", "nvjitlink"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcusolvermp")
+        self.cuda.download_package("libcusolvermp")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

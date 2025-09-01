@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.files import *
@@ -27,11 +28,11 @@ class CublasConan(ConanFile):
         "use_stubs": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -53,15 +54,15 @@ class CublasConan(ConanFile):
         del self.info.options.cmake_alias
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if self.settings.os == "Linux" and not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcublas")
+        self.cuda.validate_package("libcublas")
 
     def package(self):
-        self._utils.download_cuda_package(self, "libcublas", destination=self.package_folder)
+        self.cuda.download_package("libcublas", destination=self.package_folder)
         mkdir(self, os.path.join(self.package_folder, "licenses"))
         os.rename(os.path.join(self.package_folder, "LICENSE"), os.path.join(self.package_folder, "licenses", "LICENSE"))
         rmdir(self, os.path.join(self.package_folder, "pkg-config"))
@@ -79,13 +80,12 @@ class CublasConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "none")
 
-        v = Version(self.version)
         lib = "cublas" if self.options.shared else "cublas_static"
         self.cpp_info.components["cublas_"].set_property("cmake_target_name", f"CUDA::{lib}")
         if self.options.cmake_alias:
             alias = "cublas_static" if self.options.get_safe("shared", True) else "cublas"
             self.cpp_info.components["cublas_"].set_property("cmake_target_aliases", [f"CUDA::{alias}"])
-        self.cpp_info.components["cublas_"].set_property("pkg_config_name", f"cublas-{v.major}.{v.minor}")
+        self.cpp_info.components["cublas_"].set_property("pkg_config_name", f"cublas-{self.cuda.version}")
         self.cpp_info.components["cublas_"].libs = [lib]
         self.cpp_info.components["cublas_"].srcdirs = ["share/cublas/src"]
         if self.options.get_safe("use_stubs"):

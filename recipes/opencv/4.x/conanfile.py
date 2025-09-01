@@ -1,6 +1,7 @@
 import os
 import re
 import textwrap
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -256,11 +257,11 @@ class OpenCVConan(ConanFile):
     }
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _is_cl_like(self):
@@ -1264,15 +1265,15 @@ class OpenCVConan(ConanFile):
             self.requires("coin-clp/[^1.17.6]")
         if self.options.with_cuda:
             # Used in opencv2/cudev/ public headers
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True)
+            self.cuda.requires("cudart", transitive_headers=True)
             if self.options.with_cublas:
-                self._utils.cuda_requires(self, "cublas")
+                self.cuda.requires("cublas")
             if self.options.with_cufft:
-                self._utils.cuda_requires(self, "cufft")
+                self.cuda.requires("cufft")
             if self.options.get_safe("dnn_cuda"):
                 self.requires("cudnn/[>=8 <10]")
             if any(self.options.get_safe(mod) for mod in ["cudaarithm", "cudaimgproc", "cudafilters", "cudawarping"]):
-                self._utils.cuda_requires(self, "npp")
+                self.cuda.requires("npp")
         if self.options.parallel == "openmp":
             self.requires("openmp/system")
         elif self.options.parallel == "tbb":
@@ -1413,7 +1414,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_jpeg2000") == "openjpeg" and Version(self.version) < "4.3.0":
             raise ConanInvalidConfiguration("openjpeg is not available for OpenCV before 4.3.0")
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
             if Version(self.version) <= "4.12.0" and Version(self.settings.cuda.version) >= "13.0":
                 raise ConanInvalidConfiguration(f"{self.ref} does not support CUDA 13+")
 
@@ -1514,7 +1515,7 @@ class OpenCVConan(ConanFile):
              "  target_link_libraries(${the_module} PUBLIC CUDA::toolkit)\n"
              "endif()\n",
              append=True)
-        # Let NvccToolchain manage CUDA architecture flags
+        # Let CudaToolchain manage CUDA architecture flags
         replace_in_file(self, "cmake/OpenCVDetectCUDA.cmake",
                         "ocv_set_cuda_arch_bin_and_ptx(",
                         "# ocv_set_cuda_arch_bin_and_ptx(")
@@ -1770,8 +1771,8 @@ class OpenCVConan(ConanFile):
             deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def _patch_sources(self):
         ## Robust handling of wayland

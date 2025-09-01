@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -37,11 +38,11 @@ class CCTagConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -71,12 +72,12 @@ class CCTagConan(ConanFile):
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True,
                       options={comp: True for comp in self._apps_opencv_components} if self.options.apps else {})
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.cuda.requires("cudart")
 
     def validate(self):
         check_min_cppstd(self, 14)
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         if self.options.with_cuda:
@@ -102,7 +103,7 @@ class CCTagConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt",
                         "cuda_find_library_local_first(CUDA_CUDADEVRT_LIBRARY ",
                         "set(CUDA_CUDADEVRT_LIBRARY CUDA::cudadevrt) #")
-        # Let NvccToolchain manage the CUDA arch flags
+        # Let CudaToolchain manage the CUDA arch flags
         replace_in_file(self, "CMakeLists.txt", "if(CCTAG_CUDA_CC_CURRENT_ONLY)", "if(1)\nelseif(0)")
 
     def generate(self):
@@ -119,7 +120,7 @@ class CCTagConan(ConanFile):
         tc.variables["CCTAG_WITH_CUDA"] = self.options.with_cuda
         tc.variables["CCTAG_CUDA_CC_CURRENT_ONLY"] = False
         tc.variables["CCTAG_NVCC_WARNINGS"] = False
-        tc.variables["CCTAG_CUDA_CC_LIST_INIT"] = ""  # managed by NvccToolchain
+        tc.variables["CCTAG_CUDA_CC_LIST_INIT"] = ""  # managed by CudaToolchain
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0177"] = "NEW"
         tc.generate()
 
@@ -127,8 +128,8 @@ class CCTagConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

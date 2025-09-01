@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -37,11 +38,11 @@ class StdgpuConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _min_cppstd(self):
@@ -67,7 +68,7 @@ class StdgpuConan(ConanFile):
         if self.options.backend == "openmp":
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         elif self.options.backend == "cuda":
-            self._utils.cuda_requires(self, "cudart", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
@@ -77,7 +78,7 @@ class StdgpuConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
         if self.options.backend == "cuda":
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
             if Version(self.settings.cuda.version) >= "12.0":
                 raise ConanInvalidConfiguration("CUDA 12 and newer are not supported yet.")
 
@@ -111,8 +112,8 @@ class StdgpuConan(ConanFile):
         deps.generate()
 
         if self.options.backend == "cuda":
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         if self.options.backend == "cuda":

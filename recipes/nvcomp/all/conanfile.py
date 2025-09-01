@@ -28,11 +28,11 @@ class NvCompConan(ConanFile):
         "cmake_alias": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,15 +45,11 @@ class NvCompConan(ConanFile):
         del self.info.settings.cuda.architectures
         self.info.settings.rm_safe("cmake_alias")
 
-    @cached_property
-    def _cuda_version(self):
-        return self.dependencies["cudart"].ref.version
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "nvcomp")
+        self.cuda.validate_package("nvcomp")
         # libstdc++11 requirement applies to just the C++ API, so skipping the check
         # if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
         #     raise ConanInvalidConfiguration("nvcomp requires libstdc++11")
@@ -66,7 +62,7 @@ class NvCompConan(ConanFile):
             # The library files have a dependency on MSVC 140.1 runtime. Leaving it up to the user to ensure it's available.
 
     def build(self):
-        self._utils.download_cuda_package(self, "nvcomp")
+        self.cuda.download_package("nvcomp")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

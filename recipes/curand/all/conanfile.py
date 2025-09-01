@@ -29,11 +29,11 @@ class CuRandConan(ConanFile):
         "use_stubs": False,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -56,23 +56,18 @@ class CuRandConan(ConanFile):
         self.info.settings.rm_safe("cmake_alias")
         self.info.settings.rm_safe("use_stubs")
 
-    @cached_property
-    def _cuda_version(self):
-        url = self.conan_data["sources"][self.version]["url"]
-        return Version(url.rsplit("_")[1].replace(".json", ""))
-
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if not self.options.shared:
-            self.requires(f"culibos/[~{self.settings.cuda.version}]")
+            self.cuda.requires("culibos")
 
     def validate(self):
-        self._utils.validate_cuda_package(self, "libcurand")
+        self.cuda.validate_package("libcurand")
         if Version(self.settings.cuda.version).major == 11 and Version(self.version) >= "10.4":
             raise ConanInvalidConfiguration("CUDA 11 is only compatible with cuRAND 10.3 or lower")
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcurand")
+        self.cuda.download_package("libcurand")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -89,8 +84,7 @@ class CuRandConan(ConanFile):
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
-        v = self._cuda_version
-        self.cpp_info.set_property("pkg_config_name", f"curand-{v.major}.{v.minor}")
+        self.cpp_info.set_property("pkg_config_name", f"curand-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::curand{suffix}")
         if self.options.get_safe("cmake_alias"):
             alias = "curand_static" if self.options.shared else "curand"

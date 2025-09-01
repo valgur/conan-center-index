@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -18,11 +19,11 @@ class CublasMpConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type", "cuda"
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -35,7 +36,7 @@ class CublasMpConan(ConanFile):
 
     def requirements(self):
         cuda_major = Version(self.settings.cuda.version).major
-        self.requires(f"cublas/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
         self.requires("nvshmem/[^3.1]", run=True)
         if Version(self.version) >= "0.5":
             self.requires("nccl/[^2.18.5]", transitive_headers=True)
@@ -47,11 +48,11 @@ class CublasMpConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("cuBLASMp is only supported on Linux")
-        self._utils.validate_cuda_package(self, "libcublasmp")
-        self._utils.require_shared_deps(self, ["cudart", "cublas", "nvshmem", "nccl", "nvshmem"])
+        self.cuda.validate_package("libcublasmp")
+        self.cuda.require_shared_deps(["cudart", "cublas", "nvshmem", "nccl", "nvshmem"])
 
     def build(self):
-        self._utils.download_cuda_package(self, "libcublasmp")
+        self.cuda.download_package("libcublasmp")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))

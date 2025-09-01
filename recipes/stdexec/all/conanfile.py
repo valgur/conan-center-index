@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -43,11 +44,11 @@ class StdexecConan(ConanFile):
     implements = ["auto_header_only", "auto_shared_fpic"]
     no_copy_source = True
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     @property
     def _sender_receiver_revision(self):
@@ -75,7 +76,7 @@ class StdexecConan(ConanFile):
 
     def requirements(self):
         if self.options.enable_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+            self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
             self.requires("nvtx/[^3.0]", transitive_headers=True, transitive_libs=True)
         if self.options.enable_tbb:
             self.requires("onetbb/[>=2021]", transitive_headers=True, transitive_libs=True)
@@ -91,7 +92,7 @@ class StdexecConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 20)
         if self.options.enable_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25.0 <5]")
@@ -118,8 +119,8 @@ class StdexecConan(ConanFile):
             cmake.build()
 
             if self.options.enable_cuda:
-                nvcc_tc = self._utils.NvccToolchain(self)
-                nvcc_tc.generate()
+                cuda_tc = self.cuda.CudaToolchain()
+                cuda_tc.generate()
 
     def _write_version_header(self):
         v = Version(self._exported_version)

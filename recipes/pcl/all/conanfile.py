@@ -155,11 +155,11 @@ class PclConan(ConanFile):
         "use_sse": True,
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     # The component details have been extracted from their CMakeLists.txt files using
     # https://gist.github.com/valgur/e54e39b6a8931b58cc1776515104c828
@@ -442,12 +442,12 @@ class PclConan(ConanFile):
             if Version(self.version) < "1.15.1" and Version(self.settings.cuda.version).major == 12:
                 self.requires("cuda-cccl/[^2 <2.8]")
             else:
-                self._utils.cuda_requires(self, "cuda-cccl")
-            self._utils.cuda_requires(self, "cudart")
+                self.cuda.requires("cuda-cccl")
+            self.cuda.requires("cudart")
             if self.options.gpu_people:
-                self._utils.cuda_requires(self, "npp")
+                self.cuda.requires("npp")
             if self.options.gpu_tracking:
-                self._utils.cuda_requires(self, "curand")
+                self.cuda.requires("curand")
 
         # TODO:
         # self.requires("openni/x.x.x", transitive_headers=True)
@@ -478,11 +478,10 @@ class PclConan(ConanFile):
                     )
         check_min_cppstd(self, 17)
         if self._is_enabled("cuda"):
-            self._utils.validate_cuda_settings(self)
-            cuda_version = Version(self.settings.cuda.version)
-            if cuda_version >= "13.0" and Version(self.version) < "1.15.1":
+            self.cuda.validate_settings()
+            if self.cuda.version >= "13.0" and Version(self.version) < "1.15.1":
                 raise ConanInvalidConfiguration("CUDA 13 or newer is only supported since PCL 1.15.1")
-            if cuda_version >= "12.0":
+            if self.cuda.version >= "12.0":
                 for mod in ["gpu_people", "gpu_kinfu", "gpu_kinfu_large_scale"]:
                     if self.options.get_safe(mod):
                         raise ConanInvalidConfiguration(f"{mod} module does not support CUDA 12 or newer")
@@ -609,8 +608,8 @@ class PclConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

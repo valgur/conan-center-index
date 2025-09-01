@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -41,11 +42,11 @@ class LightGBMConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -67,12 +68,12 @@ class LightGBMConan(ConanFile):
         if self.options.get_safe("with_openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_cuda:
-            self.requires(f"cudart/[~{self.settings.cuda.version}]")
+            self.cuda.requires("cudart")
 
     def validate(self):
         check_min_cppstd(self, 11)
         if self.options.with_cuda:
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
             if not self.options.with_openmp:
                 raise ConanInvalidConfiguration("-o with_cuda=True requires -o with_openmp=True")
 
@@ -99,7 +100,7 @@ class LightGBMConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt",
                         'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")',
                         'link_libraries(OpenMP::OpenMP_CXX)')
-        # Let NvccToolchain handle CUDA architectures
+        # Let CudaToolchain handle CUDA architectures
         if Version(self.version) >= "4.6.0":
             replace_in_file(self, "CMakeLists.txt", " CUDA_ARCHITECTURES ", " # CUDA_ARCHITECTURES ")
 
@@ -119,8 +120,8 @@ class LightGBMConan(ConanFile):
         deps.generate()
 
         if self.options.with_cuda:
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -66,11 +67,11 @@ class OneDNNConan(ConanFile):
         "install_dev_headers": "Install internal headers in addition to public ones (for OpenVINO recipe).",
     }
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -103,7 +104,7 @@ class OneDNNConan(ConanFile):
             self.requires("opencl-icd-loader/[*]")
             self.requires("opencl-headers/[*]", transitive_headers=True)
         if self.options.get_safe("gpu_vendor") == "nvidia":
-            self._utils.cuda_requires(self, "cublas")
+            self.cuda.requires("cublas")
             self.requires("cudnn/[>=8 <10]")
 
         # Unvendored third-party dependencies
@@ -132,7 +133,7 @@ class OneDNNConan(ConanFile):
         if self.options.blas_vendor == "external":
             raise ConanInvalidConfiguration("blas_vendor=external is not yet supported.")
         if self.options.get_safe("gpu_vendor") == "nvidia":
-            self._utils.validate_cuda_settings(self)
+            self.cuda.validate_settings()
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18]")
@@ -188,8 +189,8 @@ class OneDNNConan(ConanFile):
         deps.generate()
 
         if self.options.get_safe("gpu_vendor") == "nvidia":
-            nvcc_tc = self._utils.NvccToolchain(self)
-            nvcc_tc.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)

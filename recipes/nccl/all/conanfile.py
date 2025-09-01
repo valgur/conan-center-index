@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -32,11 +33,11 @@ class NcclConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-utils/latest"
+    python_requires = "conan-cuda/latest"
 
-    @property
-    def _utils(self):
-        return self.python_requires["conan-utils"].module
+    @cached_property
+    def cuda(self):
+        return self.python_requires["conan-cuda"].module.Interface(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,7 +46,7 @@ class NcclConan(ConanFile):
         del self.info.settings.cuda.version
 
     def requirements(self):
-        self.requires(f"cudart/[~{self.settings.cuda.version}]", transitive_headers=True, transitive_libs=True)
+        self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         if self.options.with_ibverbs or self.options.with_mlx5:
             self.requires("rdma-core/[*]")
 
@@ -64,8 +65,8 @@ class NcclConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        nvcc_tc = self._utils.NvccToolchain(self)
-        nvcc_tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
         # Copy cudart and its deps into a single dir to keep things simple for some hard-coded logic in the makefiles.
         fake_cuda_home = os.path.join(self.build_folder, "cuda_home")
@@ -89,11 +90,11 @@ class NcclConan(ConanFile):
         tc.make_args.append("NVCC=nvcc")
         tc.make_args.append(f"CUDA_HOME={self.dependencies['cudart'].package_folder}")
         tc.make_args.append(f"CUDA_LIB={self.dependencies['cudart'].cpp_info.libdirs[0]}")
-        tc.make_args.append(f"NVCC_GENCODE={' '.join(nvcc_tc.cudaflags)}")
+        tc.make_args.append(f"NVCC_GENCODE={' '.join(cuda_tc.cudaflags)}")
         tc.make_args.append(f"INCFLAGS+={incflags}")
         tc.make_args.append(f"CXXFLAGS+={incflags} -fPIC {tc_vars.get('CXXFLAGS', '')} {tc_vars.get('CPPFLAGS', '')}")
         tc.make_args.append(f"LDFLAGS+={ldflags} {tc_vars.get('LDFLAGS', '')}")
-        tc.make_args.append(f"NVLDFLAGS+={ldflags} {' '.join(nvcc_tc.cudaflags)}")
+        tc.make_args.append(f"NVLDFLAGS+={ldflags} {' '.join(cuda_tc.cudaflags)}")
         tc.make_args.append(f"RDMA_CORE={'1' if self.options.with_ibverbs else '0'}")
         tc.make_args.append(f"MLX5DV={'1' if self.options.with_mlx5 else '0'}")
         tc.make_args.append(f"CC={tc_vars.get('CC', 'cc')}")
