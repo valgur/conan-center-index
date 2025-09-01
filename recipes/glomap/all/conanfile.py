@@ -55,7 +55,7 @@ class GlomapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("colmap/[^3.10]", transitive_headers=True, transitive_libs=True)
+        self.requires("colmap/[^3.12]", transitive_headers=True, transitive_libs=True)
         self.requires("poselib/[^2.0.5]", transitive_headers=True, transitive_libs=True)
         self.requires("suitesparse-cholmod/[^5.3.0]")
         self.requires("openmp/system")
