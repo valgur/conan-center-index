@@ -245,6 +245,7 @@ class CeresSolverConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.configure()
+        self._utils.limit_build_jobs(self, gb_mem_per_job=1)
         cmake.build()
 
     def package(self):
