@@ -74,6 +74,9 @@ class GlomapConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Don't enable CUDA as a language in CMake:
+        # requires nvcc despite no device code being built
+        replace_in_file(self, "cmake/FindDependencies.cmake", "enable_language(CUDA)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
