@@ -44,11 +44,15 @@ class ColmapConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    python_requires = "conan-cuda/latest"
+    python_requires = "conan-cuda/latest", "conan-utils/latest"
 
     @cached_property
     def cuda(self):
         return self.python_requires["conan-cuda"].module.Interface(self)
+
+    @property
+    def _utils(self):
+        return self.python_requires["conan-utils"].module
 
     def configure(self):
         if not self.options.lsd:
@@ -183,6 +187,7 @@ class ColmapConan(ConanFile):
         self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
+        self._utils.limit_build_jobs(self, gb_mem_per_job=1)
         cmake.build()
 
     def package(self):
