@@ -71,12 +71,14 @@ class CudartConan(ConanFile):
                 copy(self, "libcudart_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
             copy(self, "libcudadevrt.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.version >= 13 else os.path.join(self.source_folder, "bin")
             if self.options.shared:
-                copy(self, "cudart.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
-                copy(self, "*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
+                copy(self, "cudart.lib", lib_dir, os.path.join(self.package_folder, "lib"))
+                copy(self, "*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
             else:
-                copy(self, "cudart_static.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
-            copy(self, "cudadevrt.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+                copy(self, "cudart_static.lib", lib_dir, os.path.join(self.package_folder, "lib"))
+            copy(self, "cudadevrt.lib", lib_dir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         lib = "cudart" if self.options.shared else "cudart_static"
