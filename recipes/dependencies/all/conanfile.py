@@ -11,10 +11,8 @@ required_conan_version = ">=2.1"
 class DependenciesConan(ConanFile):
     name = "dependencies"
     description = ("Dependencies can help Windows developers troubleshooting their DLL-loading dependency issues. "
-                   "It is a rewrite of the legacy Dependency Walker software, which was shipped along Windows SDKs, "
-                   "but whose development stopped around 2006.")
+                   "It is a rewrite of the legacy Dependency Walker software.")
     license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lucasg/Dependencies"
     topics = ("windows", "dll", "debugging", "pre-built")
     package_type = "application"
@@ -25,7 +23,6 @@ class DependenciesConan(ConanFile):
 
     def package_id(self):
         del self.info.settings.compiler
-        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -33,16 +30,16 @@ class DependenciesConan(ConanFile):
         if self.settings.arch not in ["x86_64", "x86"]:
             raise ConanInvalidConfiguration("Dependencies is only available for x86_64 and x86 architectures")
 
-    def build(self):
-        get(self, **self.conan_data["sources"][self.version][str(self.settings.arch)], strip_root=False)
-        download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
-
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.exe", self.source_folder, os.path.join(self.package_folder, "bin"))
-        copy(self, "*.dll", self.source_folder, os.path.join(self.package_folder, "bin"),
-             excludes=["msvcp*.dll", "msvcr*.dll", "vcruntime*.dll"])
-        copy(self, "*.config", self.source_folder, os.path.join(self.package_folder, "bin"))
+        download(self, **self.conan_data["sources"][self.version]["license"],
+                 filename=os.path.join(self.package_folder, "licenses", "LICENSE"))
+        get(self, **self.conan_data["sources"][self.version][str(self.settings.arch)], strip_root=False,
+            destination=os.path.join(self.package_folder, "bin"))
+        rm(self, "msvcp*.dll", os.path.join(self.package_folder, "bin"))
+        rm(self, "msvcr*.dll", os.path.join(self.package_folder, "bin"))
+        rm(self, "vcruntime*.dll", os.path.join(self.package_folder, "bin"))
+        if self.settings.build_type not in ["Debug", "RelWithDebInfo"]:
+            rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
