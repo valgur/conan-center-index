@@ -4,7 +4,6 @@ from functools import cached_property
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -62,7 +61,7 @@ class CudaDriverStubsConan(ConanFile):
         if self.settings.os == "Linux":
             copy(self, "libcuda.so", os.path.join(self.source_folder, "lib", "stubs"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cuda.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "cuda.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
 
         cmake_dir = os.path.join(self.package_folder, "share", "conan")
         copy(self, "CUDAToolkit-wrapper.cmake", self.export_sources_folder, cmake_dir)

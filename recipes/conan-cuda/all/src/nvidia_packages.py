@@ -50,11 +50,12 @@ def get_redistrib_info(conanfile):
     return redistrib_info
 
 
-def get_package_info(conanfile: ConanFile, package_name: str):
+def get_package_info(conanfile: ConanFile, package_name: str, ignore_version=False):
     redistrib_info = get_redistrib_info(conanfile)
     package_info = redistrib_info[package_name]
     package_info["base_url"] = redistrib_info["base_url"]
-    assert package_info["version"] == conanfile.version, f"Version mismatch for {package_name}: {package_info['version']} != {conanfile.version}"
+    if not ignore_version:
+        assert package_info["version"] == conanfile.version, f"Version mismatch for {package_name}: {package_info['version']} != {conanfile.version}"
     return package_info
 
 
@@ -102,7 +103,7 @@ def _chmod_plus_w(path):
         os.chmod(path, os.stat(path).st_mode | stat.S_IWUSR)
 
 
-def download_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, platform_id=None, **kwargs):
+def download_package(conanfile: ConanFile, package_name: str, scope="host", destination=None, platform_id=None, ignore_version=False, **kwargs):
     destination = destination or conanfile.source_folder
     if scope == "host":
         settings = conanfile.settings
@@ -112,7 +113,7 @@ def download_package(conanfile: ConanFile, package_name: str, scope="host", dest
         settings = conanfile.settings_target
     else:
         raise ConanInvalidConfiguration(f"Unknown scope: {scope}")
-    package_info = get_package_info(conanfile, package_name)
+    package_info = get_package_info(conanfile, package_name, ignore_version=ignore_version)
     platform_id = platform_id or get_platform_id(conanfile, settings)
     archive_info = package_info[platform_id]
     if "cuda_variant" in package_info:

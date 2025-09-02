@@ -29,12 +29,12 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
-        self.tool_requires("cmake/[>=3.18 <5]")
+        self.tool_requires("cmake/[>=3.18]")
         self.tool_requires("cuobjdump/[*]")
 
     def generate(self):
-        tc = self.cuda.CudaToolchain()
-        tc.generate()
+        cuda_tc = self.cuda.CudaToolchain()
+        cuda_tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -44,6 +44,8 @@ class TestPackageConan(ConanFile):
     def test(self):
         self.run("nvcc --version")
         bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+        if self.settings.os == "Windows":
+            bin_path += ".exe"
         if can_run(self):
             self.run(bin_path, env="conanrun")
         self.run(f'cuobjdump "{bin_path}"')

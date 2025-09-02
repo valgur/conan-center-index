@@ -83,6 +83,11 @@ class NvccConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "include", "crt"))
         copy(self, "*", os.path.join(target_folder, "nvvm"), os.path.join(self.package_folder, "nvvm"))
         copy(self, "cicc*", os.path.join(host_folder, "nvvm", "bin"), os.path.join(self.package_folder, "nvvm", "bin"))
+        if self.settings.os == "Windows":
+            self.cuda.download_package("visual_studio_integration", scope="host", destination=self.source_folder, ignore_version=True)
+            copy(self, "*",
+                 os.path.join(self.source_folder, "visual_studio_integration"),
+                 os.path.join(self.package_folder, "extras", "visual_studio_integration"))
 
     def package_info(self):
         ext = ".exe" if self.settings.os == "Windows" else ""

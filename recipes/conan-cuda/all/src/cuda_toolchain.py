@@ -1,9 +1,13 @@
+import os
 import re
+import textwrap
 from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMakeToolchain
 from conan.tools.env import Environment
+from conan.tools.files import replace_in_file, save
 from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.scm import Version
 
@@ -12,9 +16,9 @@ from .utils import cuda_supported_arch_ranges
 
 class CudaToolchain:
     def __init__(self, conanfile: ConanFile, skip_arch_flags=False):
-        self.conanfile = conanfile
+        self._conanfile = conanfile
 
-        cuda_version = self.conanfile.settings.get_safe("cuda.version")
+        cuda_version = self._conanfile.settings.get_safe("cuda.version")
         if not cuda_version:
             raise ConanInvalidConfiguration("'cuda.version' setting must be defined, e.g. 'cuda.version=12.1'.")
 
@@ -28,32 +32,50 @@ class CudaToolchain:
         self.cudaflags = []
         if not skip_arch_flags:
             self.cudaflags.extend(self.arch_flags)
-        if "cudart" in self.conanfile.dependencies.host:
-            runtime_type = "shared" if self.conanfile.dependencies.host["cudart"].options.shared else "static"
-            self.cudaflags.append(f"--cudart={runtime_type}")
-            for pkg in ["cudart", "cuda-crt", "cuda-driver-stubs", "libcudacxx", "thrust", "cub"]:
-                if pkg in self.conanfile.dependencies.host:
-                    pkg_info = self.conanfile.dependencies.host[pkg].cpp_info
-                    for path in pkg_info.libdirs:
+        if "cudart" in self._conanfile.dependencies.host:
+            runtime_type = "shared" if self._conanfile.dependencies.host["cudart"].options.shared else "static"
+            # This exact format is required to match CMake internals
+            # https://github.com/Kitware/CMake/blob/v4.1.1/Modules/CMakeDetermineCompilerId.cmake#L703
+            self.cudaflags.extend(["-cudart", runtime_type])
+        for pkg in ["cudart", "cuda-crt", "cuda-driver-stubs", "libcudacxx", "thrust", "cub"]:
+            if pkg in self._conanfile.dependencies.host:
+                pkg_info = self._conanfile.dependencies.host[pkg].cpp_info
+                for path in pkg_info.libdirs:
+                    if self._is_msvc:
+                        self.cudaflags.append(f"-LIBPATH:{path}")
+                    else:
                         self.cudaflags.append(f"-L{path}")
-                    for path in pkg_info.includedirs:
-                        self.cudaflags.append(f"-I{path}")
-        self.cudaflags.extend(self.conanfile.conf.get("user.tools.build:cudaflags", check_type=list, default=[]))
+                for path in pkg_info.includedirs:
+                    self.cudaflags.append(f"-I{path}")
+        self.cudaflags.extend(self._conanfile.conf.get("user.tools.build:cudaflags", check_type=list, default=[]))
         self.extra_cudaflags = []
 
     @cached_property
+    def _is_msvc(self):
+        return self._conanfile.settings.compiler == "msvc"
+
+    @cached_property
+    def _is_visual_studio_generator(self):
+        if not self._is_msvc:
+            return False
+        generator = self._conanfile.conf.get("tools.cmake.cmaketoolchain:generator")
+        return generator is None or "Visual Studio" in generator
+
+    @cached_property
     def _host_compiler(self):
-        return AutotoolsToolchain(self.conanfile).vars().get("CC", None)
+        if self._is_msvc:
+            return None
+        return AutotoolsToolchain(self._conanfile).vars().get("CC", None)
 
     @cached_property
     def architectures(self):
-        return str(self.conanfile.settings.cuda.architectures).strip().split(",")
+        return str(self._conanfile.settings.cuda.architectures).strip().split(",")
 
     @cached_property
     def arch_flags(self):
         # https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#gpu-name-gpuname-arch
 
-        cuda_major = int(Version(self.conanfile.settings.cuda.version).major.value)
+        cuda_major = int(Version(self._conanfile.settings.cuda.version).major.value)
         supported_arch_range = cuda_supported_arch_ranges[cuda_major]
 
         flags = []
@@ -90,7 +112,7 @@ class CudaToolchain:
     def environment(self):
         env = Environment()
         flags = " ".join(self.cudaflags + self.extra_cudaflags).strip()
-        env.define("NVCC_PREPEND_FLAGS", flags)
+        env.define("NVCC_APPEND_FLAGS", flags)
         if self._host_compiler:
             env.define_path("NVCC_CCBIN", self._host_compiler)
             # Initialize CMAKE_CUDA_COMPILER
@@ -99,11 +121,41 @@ class CudaToolchain:
         env.define("CUDAFLAGS", flags)
         # Initialize CMAKE_CUDA_ARCHITECTURES. Requires CMake >= 3.20.
         env.define("CUDAARCHS", ";".join(self.architectures))
+        if self._is_msvc:
+            # nvcc does not correctly propagate -LIBPATH or -Xlinker /LIBPATH to link.exe, so we need to pass them via an env var instead.
+            env.append("LINK", " ".join(f for f in self.cudaflags if f.startswith("-LIBPATH:")), separator=" ")
         return env
 
     def generate(self, env=None, scope="build"):
         env = env or self.environment()
-        env.vars(self.conanfile, scope).save_script("nvcc_toolchain")
+        env_vars = env.vars(self._conanfile, scope)
+        env_vars.save_script("cuda_toolchain")
+        if os.path.exists("conan_toolchain.cmake"):
+            # There's a weird edge case where CMAKE_CUDA_FLAGS is not yet initialized from CUDAFLAGS,
+            # but CUDA CompilerID detection looks for '-cudart shared` in CMAKE_CUDA_FLAGS.
+            # Set CMAKE_CUDA_FLAGS via the toolchain as well to work around this.
+            save(self._conanfile, "conan_toolchain.cmake",
+                 textwrap.dedent("""
+                    # Injected by CudaToolchain
+                    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} $ENV{CUDAFLAGS}")
+                """), append=True)
+            if self._is_visual_studio_generator:
+                # Help MSVC find visual_studio_integration by extending CMAKE_GENERATOR_TOOLSET
+                cmake_tc = CMakeToolchain(self._conanfile)
+                vs_toolset = cmake_tc.blocks["generic_system"].context()["toolset"]
+                cuda_toolset = "cuda=" + self._conanfile.dependencies.build["nvcc"].package_folder.replace("\\", "/")
+                replace_in_file(self._conanfile, "conan_toolchain.cmake",
+                                f'set(CMAKE_GENERATOR_TOOLSET "{vs_toolset}"',
+                                f'set(CMAKE_GENERATOR_TOOLSET "{vs_toolset},{cuda_toolset}"')
+                # https://github.com/conan-io/conan/issues/17289#issuecomment-3001221611
+                build_type = self._conanfile.settings.get_safe("build_type", "Release")
+                save(self._conanfile, "conan_toolchain.cmake",
+                     textwrap.dedent(f"""
+                        if (NOT DEFINED CMAKE_TRY_COMPILE_CONFIGURATION)
+                            set(CMAKE_TRY_COMPILE_CONFIGURATION "{build_type}")
+                        endif()
+                     """),
+                     append=True)
 
 
 def validate_settings(conanfile: ConanFile):
