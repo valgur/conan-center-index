@@ -2,6 +2,7 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
 from conan.tools.files import *
@@ -63,10 +64,26 @@ class JitifyConan(ConanFile):
     def validate(self):
         self.cuda.validate_settings()
         check_min_cppstd(self, 17)
+        if self.settings.compiler == "msvc":
+            # MSVC can't handle the whole header files being embedded as string literals:
+            #   error C2026: string too big, trailing characters truncated
+            raise ConanInvalidConfiguration("MSVC is currently not supported")
+
+    def build_requirements(self):
+        if not self.options.get_safe("header_only"):
+            self.tool_requires(f"nvcc/[~{self.settings.cuda.version}]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Fix an invalid path string
+        replace_in_file(self, "jitify2.hpp",
+                        r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA",
+                        r"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA")
+        # Fix invalid char* concatenation
+        replace_in_file(self, "jitify2.hpp",
+                        'std::string path = tmpdir + "__jitify_" + std::to_string(uid);',
+                        'std::string path = std::string(tmpdir) + "__jitify_" + std::to_string(uid);')
 
     def generate(self):
         if not self.options.get_safe("header_only"):
@@ -75,6 +92,8 @@ class JitifyConan(ConanFile):
             tc.generate()
             deps = CMakeDeps(self)
             deps.generate()
+            cuda_tc = self.cuda.CudaToolchain()
+            cuda_tc.generate()
 
     def build(self):
         if not self.options.get_safe("header_only"):
