@@ -32,44 +32,53 @@ endif()
 
 # FreeImage
 
-file(GLOB FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/*.cpp ${FREEIMAGE_FOLDER}/Source/FreeImage/*.c)
-list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginG3.cpp)
+file(GLOB FREEIMAGE_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+    Source/FreeImage/*.cpp
+    Source/FreeImage/*.c
+)
+list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginG3.cpp)
 if(NOT FREEIMAGE_WITH_PNG)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginPNG.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginPNG.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_JPEG)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginJPEG.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginJPEG.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_OPENJPEG)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginJP2.cpp)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginJ2K.cpp)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/J2KHelper.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginJP2.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginJ2K.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/J2KHelper.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_WEBP)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginWebP.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginWebP.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_JXR)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginJXR.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginJXR.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_RAW)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginRAW.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginRAW.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_OPENEXR)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginEXR.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginEXR.cpp)
 endif()
 if(NOT FREEIMAGE_WITH_TIFF)
-    list(REMOVE_ITEM FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImage/PluginTIFF.cpp)
+    list(REMOVE_ITEM FREEIMAGE_SOURCES Source/FreeImage/PluginTIFF.cpp)
 endif()
 if(MSVC)
-    list(APPEND FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/FreeImage.rc)
-endif(MSVC)
+    list(APPEND FREEIMAGE_SOURCES FreeImage.rc)
+endif()
 
-file(GLOB FREEIMAGETOOLKIT_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImageToolkit/*.cpp ${FREEIMAGE_FOLDER}/Source/FreeImageToolkit/*.c)
-list(REMOVE_ITEM FREEIMAGETOOLKIT_SOURCES ${FREEIMAGE_FOLDER}/Source/FreeImageToolkit/JPEGTransform.cpp)
+file(GLOB FREEIMAGETOOLKIT_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+    Source/FreeImageToolkit/*.cpp
+    Source/FreeImageToolkit/*.c
+)
+list(REMOVE_ITEM FREEIMAGETOOLKIT_SOURCES Source/FreeImageToolkit/JPEGTransform.cpp)
 
-file(GLOB METADATA_SOURCES ${FREEIMAGE_FOLDER}/Source/Metadata/*.cpp ${FREEIMAGE_FOLDER}/Source/Metadata/*.c)
+file(GLOB METADATA_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+    Source/Metadata/*.cpp
+    Source/Metadata/*.c
+)
 if(NOT FREEIMAGE_WITH_TIFF)
-   list(REMOVE_ITEM METADATA_SOURCES ${FREEIMAGE_FOLDER}/Source/Metadata/XTIFF.cpp)
+   list(REMOVE_ITEM METADATA_SOURCES Source/Metadata/XTIFF.cpp)
 endif()
 
 add_library(FreeImage ${FREEIMAGE_SOURCES} ${FREEIMAGETOOLKIT_SOURCES} ${METADATA_SOURCES})
@@ -81,10 +90,10 @@ set_target_properties(FreeImage PROPERTIES
     VISIBILITY_INLINES_HIDDEN ON
 )
 target_include_directories(FreeImage PRIVATE
-    ${FREEIMAGE_FOLDER}/Source
-    ${FREEIMAGE_FOLDER}/Source/FreeImage
-    ${FREEIMAGE_FOLDER}/Source/FreeImageToolkit
-    ${FREEIMAGE_FOLDER}/Source/Metadata
+    Source
+    Source/FreeImage
+    Source/FreeImageToolkit
+    Source/Metadata
 )
 target_link_libraries(FreeImage PRIVATE ZLIB::ZLIB)
 if(FREEIMAGE_WITH_PNG)
@@ -130,16 +139,19 @@ install(TARGETS FreeImage
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-set(FREEIMAGE_HEADERS ${FREEIMAGE_FOLDER}/Source/FreeImage.h)
-install(FILES ${FREEIMAGE_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES Source/FreeImage.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 # FreeImagePlus
 
-set(FREEIMAGEPLUS_HEADERS ${FREEIMAGE_FOLDER}/Wrapper/FreeImagePlus/FreeImagePlus.h)
-file(GLOB FREEIMAGEPLUS_SOURCES ${FREEIMAGE_FOLDER}/Wrapper/FreeImagePlus/src/*.cpp ${FREEIMAGE_FOLDER}/Wrapper/FreeImagePlus/src/*.c)
+file(GLOB FREEIMAGEPLUS_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+    Wrapper/FreeImagePlus/src/*.cpp
+    Wrapper/FreeImagePlus/src/*.c
+)
 if(MSVC)
-    list(APPEND FREEIMAGE_SOURCES ${FREEIMAGE_FOLDER}/Wrapper/FreeImagePlus/FreeImagePlus.rc)
-endif(MSVC)
+    list(APPEND FREEIMAGE_SOURCES Wrapper/FreeImagePlus/FreeImagePlus.rc)
+endif()
 add_library(FreeImagePlus ${FREEIMAGEPLUS_SOURCES})
 target_compile_features(FreeImagePlus PUBLIC cxx_std_11)
 set_target_properties(FreeImagePlus PROPERTIES
@@ -150,8 +162,8 @@ set_target_properties(FreeImagePlus PROPERTIES
 )
 target_link_libraries(FreeImagePlus PUBLIC FreeImage)
 target_include_directories(FreeImagePlus PRIVATE
-    ${FREEIMAGE_FOLDER}/Wrapper/FreeImagePlus
-    ${FREEIMAGE_FOLDER}/Source
+    Wrapper/FreeImagePlus
+    Source
 )
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(FreeImagePlus PRIVATE FIP_EXPORTS)
@@ -162,4 +174,6 @@ install(TARGETS FreeImagePlus
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(FILES ${FREEIMAGEPLUS_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES Wrapper/FreeImagePlus/FreeImagePlus.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)

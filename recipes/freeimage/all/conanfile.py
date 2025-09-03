@@ -48,7 +48,7 @@ class FreeImageConan(ConanFile):
     implements = ["auto_shared_fpic"]
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
 
     def layout(self):
@@ -85,7 +85,6 @@ class FreeImageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["FREEIMAGE_FOLDER"] = self.source_folder.replace("\\", "/")
         tc.variables["FREEIMAGE_WITH_JPEG"] = bool(self.options.with_jpeg)
         tc.variables["FREEIMAGE_WITH_OPENJPEG"] = self.options.with_jpeg2000
         tc.variables["FREEIMAGE_WITH_PNG"] = self.options.with_png
@@ -110,7 +109,7 @@ class FreeImageConan(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def package(self):
