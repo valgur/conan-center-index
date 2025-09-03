@@ -49,8 +49,9 @@ class CuDnnConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.shared
             self.package_type = "shared-library"
-        if Version(self.version) < "9.10":
             del self.options.precompiled
+        if Version(self.version) < "9.10":
+            self.options.get_safe("precompiled")
 
     def configure(self):
         if self.options.legacy_api:
