@@ -37,21 +37,23 @@ class RapidsLoggerConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30.4]")
+        self.tool_requires("rapids-cmake/25.08.00")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        replace_in_file(self, "CMakeLists.txt",
-                        "  rapids_cpm_spdlog(",
-                        "  find_package(spdlog REQUIRED CONFIG)\n"
-                        '  message(TRACE "rapids_cpm_spdlog()"')
-        replace_in_file(self, "CMakeLists.txt", "set_target_properties(spdlog ", "# ")
+        save(self, "rapids_config.cmake", "find_package(rapids-cmake REQUIRED)\n")
+        replace_in_file(self, "CMakeLists.txt", "set_target_properties(spdlog ", "find_package(spdlog REQUIRED) # ")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_TESTS"] = False
+        tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
+        tc.cache_variables["CMAKE_PREFIX_PATH"] = self.generators_folder.replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.build_context_activated.append("rapids-cmake")
+        deps.build_context_build_modules.append("rapids-cmake")
         deps.generate()
 
     def build(self):
