@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -50,16 +50,8 @@ class NvCompConan(ConanFile):
 
     def validate(self):
         self.cuda.validate_package("nvcomp")
-        # libstdc++11 requirement applies to just the C++ API, so skipping the check
-        # if self.settings.os == "Linux" and self.settings.compiler.libcxx != "libstdc++11":
-        #     raise ConanInvalidConfiguration("nvcomp requires libstdc++11")
         if self.settings.os == "Windows" and not is_msvc(self):
             raise ConanInvalidConfiguration("nvcomp only supports MSVC on Windows")
-        if is_msvc(self):
-            if not is_msvc_static_runtime(self):
-                # The bundled .cmake config files force linking against libcmt.lib
-                raise ConanInvalidConfiguration("nvcomp requires MSVC static runtime (e.g. /MT) to be enabled")
-            # The library files have a dependency on MSVC 140.1 runtime. Leaving it up to the user to ensure it's available.
 
     def build(self):
         self.cuda.download_package("nvcomp")
@@ -77,7 +69,7 @@ class NvCompConan(ConanFile):
                 copy(self, "*_static.a", libdir, os.path.join(self.package_folder, "lib"))
         else:
             if self.options.shared:
-                copy(self, "*.dll", libdir, os.path.join(self.package_folder, "bin"))
+                copy(self, "*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
                 copy(self, "*.lib", libdir, os.path.join(self.package_folder, "lib"), excludes="*_static.lib")
                 copy(self, "nvcomp_device_static.lib", libdir, os.path.join(self.package_folder, "lib"))
             else:
@@ -96,6 +88,8 @@ class NvCompConan(ConanFile):
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["nvcomp_"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
         self.cpp_info.components["nvcomp_"].requires = ["cudart::cudart_"]
+        if not self.options.shared:
+            self.cpp_info.components["nvcomp_"].defines.append("NVCOMP_STATIC_DEFINE")
 
         suffix = "" if self.options.shared else "_static"
         alias_suffix = "_static" if self.options.shared else ""
@@ -107,6 +101,8 @@ class NvCompConan(ConanFile):
         self.cpp_info.components["nvcomp_cpu"].libs = [f"nvcomp_cpu{suffix}"]
         if self.settings.os == "Linux" and not self.options.shared:
             self.cpp_info.components["nvcomp_cpu"].system_libs = ["rt", "pthread", "m", "dl", "gcc_s", "stdc++"]
+        if not self.options.shared:
+            self.cpp_info.components["nvcomp_cpu"].defines.append("NVCOMP_STATIC_DEFINE")
 
         if Version(self.version) < "5.0":
             self.cpp_info.components["nvcomp_device"].set_property("cmake_target_name", "nvcomp::nvcomp_device_static")
