@@ -33,7 +33,10 @@ class NvmlStubsConan(ConanFile):
         return self.python_requires["conan-cuda"].module.Interface(self, enable_private=True)
 
     def config_options(self):
-        if self.settings.os == "Windows" or Version(self.version) < "12.4":
+        if self.settings.os == "Windows":
+            del self.options.shared
+            self.package_type = "static-library"
+        elif Version(self.version) < "12.4":
             del self.options.shared
             self.package_type = "shared-library"
 

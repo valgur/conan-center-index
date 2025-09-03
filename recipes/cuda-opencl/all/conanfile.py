@@ -40,7 +40,7 @@ class CudaOpenCLConan(ConanFile):
 
     @property
     def _package_name(self):
-        return "cuda_opencl" if self.cuda.version >= 12 else "cuda_cudart"
+        return "cuda_opencl" if self.cuda.major >= 12 else "cuda_cudart"
 
     def validate(self):
         self.cuda.validate_package(self._package_name)

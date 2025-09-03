@@ -57,7 +57,7 @@ class NppConan(ConanFile):
 
     def requirements(self):
         self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
-        if not self.options.shared:
+        if self.settings.os == "Linux" and not self.options.shared:
             self.cuda.requires("culibos")
 
     def validate(self):
@@ -76,8 +76,10 @@ class NppConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-            copy(self, "*.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.major >= 13 else os.path.join(self.source_folder, "bin")
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
+            copy(self, "*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
+            copy(self, "*.lib", lib_dir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"

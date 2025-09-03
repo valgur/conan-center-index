@@ -7,7 +7,6 @@ from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -52,7 +51,7 @@ class NcclConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(f"{self.name} only supports Linux.")
+            raise ConanInvalidConfiguration("NCCL is only available on Linux")
         check_min_cppstd(self, 17 if self.cuda.major >= 13 else 14)
         if self.options.with_mlx5 and not self.dependencies["rdma-core"].options.build_libmlx5:
             raise ConanInvalidConfiguration("rdma-core must be built with 'build_libmlx5=True' to use the 'with_mlx5' option.")

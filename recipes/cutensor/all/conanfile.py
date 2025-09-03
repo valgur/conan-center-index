@@ -55,7 +55,7 @@ class CuTensorConan(ConanFile):
 
     def validate(self):
         self.cuda.validate_package("libcutensor")
-        if Version(self.version) < "2.3" and self.cuda.version >= 13:
+        if Version(self.version) < "2.3" and self.cuda.major >= 13:
             raise ConanInvalidConfiguration(f"{self.ref} requires CUDA < 13, but cuda.version={self.settings.cuda.version}")
         if self.options.get_safe("shared", True):
             self.cuda.require_shared_deps(["cublas"])

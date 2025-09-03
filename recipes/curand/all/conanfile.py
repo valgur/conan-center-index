@@ -58,12 +58,12 @@ class CuRandConan(ConanFile):
 
     def requirements(self):
         self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
-        if not self.options.shared:
+        if self.settings.os == "Linux" and not self.options.shared:
             self.cuda.requires("culibos")
 
     def validate(self):
         self.cuda.validate_package("libcurand")
-        if Version(self.settings.cuda.version).major == 11 and Version(self.version) >= "10.4":
+        if self.cuda.version.major == 11 and Version(self.version) >= "10.4":
             raise ConanInvalidConfiguration("CUDA 11 is only compatible with cuRAND 10.3 or lower")
 
     def build(self):
@@ -79,16 +79,18 @@ class CuRandConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-            copy(self, "*.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.major >= 13 else os.path.join(self.source_folder, "bin")
+            copy(self, "*.lib", lib_dir, os.path.join(self.package_folder, "lib"))
+            copy(self, "*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
+        alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
         self.cpp_info.set_property("pkg_config_name", f"curand-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::curand{suffix}")
         if self.options.get_safe("cmake_alias"):
-            alias = "curand_static" if self.options.shared else "curand"
-            self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::{alias}"])
+            self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::curand{alias_suffix}"])
         self.cpp_info.libs = [f"curand{suffix}"]
         if self.options.get_safe("use_stubs"):
             self.cpp_info.libdirs = ["lib/stubs", "lib"]

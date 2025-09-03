@@ -62,14 +62,14 @@ class CuSparseConan(ConanFile):
             self.requires("nvjitlink/[^13]")
         elif Version(self.version) >= "12.0":
             self.requires("nvjitlink/[^12]")
-        if not self.options.shared:
+        if self.settings.os == "Linux" and not self.options.shared:
             self.cuda.requires("culibos")
 
     def validate(self):
         self.cuda.validate_package("libcusparse")
         if self.options.get_safe("shared", True):
             self.cuda.require_shared_deps(["nvjitlink"])
-        if self.options.shared and Version(self.version) >= "12.6" and Version(self.settings.cuda.version) < "13":
+        if self.options.get_safe("shared", True) and Version(self.version) >= "12.6" and self.cuda.major < 13:
             raise ConanInvalidConfiguration("cuSPARSE 12.6+ requires CUDA 13.0 or higher when shared=True for compatibility with nvjitlink.")
 
     def build(self):
@@ -86,15 +86,17 @@ class CuSparseConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cusparse*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-            copy(self, "cusparse.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.major >= 13 else os.path.join(self.source_folder, "bin")
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
+            copy(self, "cusparse*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
+            copy(self, "cusparse.lib", lib_dir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
         self.cpp_info.set_property("pkg_config_name", f"cusparse-{self.cuda.version}")
         self.cpp_info.set_property("cmake_target_name", f"CUDA::cusparse{suffix}")
         if self.options.get_safe("cmake_alias"):
-            alias = "cusparse_static" if self.options.shared else "cusparse"
+            alias = "cusparse_static" if self.options.get_safe("shared", True) else "cusparse"
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.libs = [f"cusparse{suffix}"]
         self.cpp_info.srcdirs = ["share/cusparse/src"]

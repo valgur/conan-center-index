@@ -75,7 +75,7 @@ class CublasConan(ConanFile):
         else:
             move_folder_contents(self, os.path.join(self.package_folder, "lib", "x64"),
                                  os.path.join(self.package_folder, "lib"))
-            if self.cuda.version >= 13:
+            if self.cuda.major >= 13:
                 move_folder_contents(self, os.path.join(self.package_folder, "bin", "x64"),
                                      os.path.join(self.package_folder, "bin"))
 

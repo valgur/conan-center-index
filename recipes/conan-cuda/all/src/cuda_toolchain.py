@@ -42,7 +42,7 @@ class CudaToolchain:
                 pkg_info = self._conanfile.dependencies.host[pkg].cpp_info
                 for path in pkg_info.libdirs:
                     if self._is_msvc:
-                        self.cudaflags.append(f"-LIBPATH:{path}")
+                        self.cudaflags.append(f"/LIBPATH:{path}")
                     else:
                         self.cudaflags.append(f"-L{path}")
                 for path in pkg_info.includedirs:
@@ -111,7 +111,8 @@ class CudaToolchain:
 
     def environment(self):
         env = Environment()
-        flags = " ".join(self.cudaflags + self.extra_cudaflags).strip()
+        flags_combined = self.cudaflags + self.extra_cudaflags
+        flags = " ".join(f for f in flags_combined if not f.startswith("/LIBPATH")).strip()
         env.define("NVCC_APPEND_FLAGS", flags)
         if self._host_compiler:
             env.define_path("NVCC_CCBIN", self._host_compiler)
@@ -123,7 +124,7 @@ class CudaToolchain:
         env.define("CUDAARCHS", ";".join(self.architectures))
         if self._is_msvc:
             # nvcc does not correctly propagate -LIBPATH or -Xlinker /LIBPATH to link.exe, so we need to pass them via an env var instead.
-            env.append("LINK", " ".join(f for f in self.cudaflags if f.startswith("-LIBPATH:")), separator=" ")
+            env.append("LINK", " ".join(f for f in flags_combined if f.startswith("/LIBPATH:")), separator=" ")
         return env
 
     def generate(self, env=None, scope="build"):

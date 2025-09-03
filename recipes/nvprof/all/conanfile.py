@@ -2,6 +2,7 @@ import os
 from functools import cached_property
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -17,6 +18,9 @@ class NvprofConan(ConanFile):
     topics = ("cuda", "utilities", "profiler")
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type", "cuda"
+    default_options = {
+        "cupti/*:shared": True,
+    }
 
     python_requires = "conan-cuda/latest"
 
@@ -34,10 +38,12 @@ class NvprofConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def validate(self):
+        if self.cuda.major != Version(self.version).major:
+            raise ConanInvalidConfiguration(f"{self.version} is not compatible with cuda.version={self.settings.cuda.version}")
         self.cuda.validate_package("cuda_nvprof")
 
     def requirements(self):
-        self.cuda.requires("cupti", run=True, visible=True, options={"shared": True})
+        self.cuda.requires("cupti", run=True, visible=True)
 
     def build(self):
         self.cuda.download_package("cuda_nvprof")

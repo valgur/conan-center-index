@@ -62,7 +62,7 @@ class CuSolverConan(ConanFile):
         self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
         self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
-        if not self.options.shared:
+        if self.settings.os == "Linux" and not self.options.shared:
             self.cuda.requires("culibos")
 
     def validate(self):
@@ -86,11 +86,13 @@ class CuSolverConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cusolver*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-            copy(self, "cusolver.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.major >= 13 else os.path.join(self.source_folder, "bin")
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
+            copy(self, "cusolver*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
+            copy(self, "cusolver.lib", lib_dir, os.path.join(self.package_folder, "lib"))
             if self.options.cusolverMg:
-                copy(self, "cusolverMg*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-                copy(self, "cusolverMg.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+                copy(self, "cusolverMg*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
+                copy(self, "cusolverMg.lib", lib_dir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
@@ -98,7 +100,7 @@ class CuSolverConan(ConanFile):
         self.cpp_info.components["cusolver_"].set_property("component_version", str(self.cuda.version))
         self.cpp_info.components["cusolver_"].set_property("cmake_target_name", f"CUDA::cusolver{suffix}")
         if self.options.get_safe("cmake_alias"):
-            alias_suffix = "_static" if self.options.shared else ""
+            alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
             self.cpp_info.components["cusolver_"].set_property("cmake_target_aliases", [f"CUDA::cusolver{alias_suffix}"])
         self.cpp_info.components["cusolver_"].libs = [f"cusolver{suffix}"]
         if self.options.get_safe("use_stubs"):

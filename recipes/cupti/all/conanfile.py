@@ -4,7 +4,6 @@ from functools import cached_property
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -52,8 +51,6 @@ class CuptiConan(ConanFile):
 
     def validate(self):
         self.cuda.validate_package("cuda_cupti")
-        if self.options.get_safe("shared", True):
-            self.cuda.require_shared_deps(["libvdpau"])
 
     def build(self):
         self.cuda.download_package("cuda_cupti")
@@ -73,7 +70,7 @@ class CuptiConan(ConanFile):
     def package_info(self):
         # cupti
         suffix = "" if self.options.get_safe("shared", True) else "_static"
-        alias_suffix = "_static" if self.options.shared else ""
+        alias_suffix = "_static" if self.options.get_safe("shared", True) else ""
         self.cpp_info.components["cupti_"].set_property("cmake_target_name", f"CUDA::cupti{suffix}")
         if self.options.get_safe("cmake_alias"):
             self.cpp_info.components["cupti_"].set_property("cmake_target_aliases", [f"CUDA::cupti{alias_suffix}"])

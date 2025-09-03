@@ -68,14 +68,14 @@ class CuSparseLtConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
-            copy(self, "cusparseLt*.dll", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "bin"))
+            copy(self, "cusparseLt*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "cusparseLt.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         suffix = "" if self.options.get_safe("shared", True) else "_static"
         self.cpp_info.set_property("cmake_target_name", f"CUDA::cusparseLt{suffix}")
         if self.options.get_safe("cmake_alias"):
-            alias = "cusparseLt_static" if self.options.shared else "cusparseLt"
+            alias = "cusparseLt_static" if self.options.get_safe("shared", True) else "cusparseLt"
             self.cpp_info.set_property("cmake_target_aliases", [f"CUDA::{alias}"])
         self.cpp_info.libs = [f"cusparseLt{suffix}"]
         self.cpp_info.requires = ["cudart::cudart_", "cusparse::cusparse"]

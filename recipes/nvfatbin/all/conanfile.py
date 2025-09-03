@@ -69,11 +69,13 @@ class NvFatbinConan(ConanFile):
             else:
                 copy(self, "*_static.a", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
+            bin_dir = os.path.join(self.source_folder, "bin", "x64") if self.cuda.major >= 13 else os.path.join(self.source_folder, "bin")
+            lib_dir = os.path.join(self.source_folder, "lib", "x64")
             if self.options.shared:
-                copy(self, "nvfatbin*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
-                copy(self, "nvfatbin.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+                copy(self, "nvfatbin*.dll", bin_dir, os.path.join(self.package_folder, "bin"))
+                copy(self, "nvfatbin.lib", lib_dir, os.path.join(self.package_folder, "lib"))
             else:
-                copy(self, "*_static.lib", os.path.join(self.source_folder, "lib", "x64"), os.path.join(self.package_folder, "lib"))
+                copy(self, "*_static.lib", lib_dir, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         suffix = "" if self.options.shared else "_static"
