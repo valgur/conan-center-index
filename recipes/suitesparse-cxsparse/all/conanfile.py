@@ -61,6 +61,7 @@ class SuiteSparseCxsparseConan(ConanFile):
         tc.variables["SUITESPARSE_DEMOS"] = False
         tc.variables["SUITESPARSE_USE_FORTRAN"] = False  # Fortran sources are translated to C instead
         tc.variables["CXSPARSE_USE_COMPLEX"] = self._complex_supported
+        tc.variables["BUILD_TESTING"] = False
         tc.generate()
 
         deps = CMakeDeps(self)

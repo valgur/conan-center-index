@@ -66,6 +66,7 @@ class SuiteSparseGraphBlasConan(ConanFile):
         tc.variables["SUITESPARSE_USE_STRICT"] = True  # require dependencies to be handled explicitly
         tc.variables["SUITESPARSE_USE_FORTRAN"] = False  # Fortran sources are translated to C instead
         tc.variables["SUITESPARSE_DEMOS"] = False
+        tc.variables["BUILD_TESTING"] = False
         tc.generate()
 
         deps = CMakeDeps(self)

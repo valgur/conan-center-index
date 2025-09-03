@@ -95,6 +95,7 @@ class SuiteSparseSpqrConan(ConanFile):
         tc.variables["BLAS_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_LIBRARIES"] = "OpenBLAS::OpenBLAS"
         tc.variables["LAPACK_FOUND"] = True
+        tc.variables["BUILD_TESTING"] = False
         if self.options.cuda:
             tc.variables["CMAKE_CUDA_ARCHITECTURES"] = str(self.settings.cuda.architectures).replace(",", ";")
         tc.generate()
