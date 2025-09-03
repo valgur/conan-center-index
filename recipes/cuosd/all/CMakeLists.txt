@@ -6,6 +6,7 @@ option(ENABLE_PANGO "Enable PangoCairo text backend" OFF)
 option(ENABLE_STB   "Enable stb_truetype text backend" OFF)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to use")
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 add_library(cuosd
     src/cuosd.cpp
@@ -15,6 +16,7 @@ add_library(cuosd
     src/textbackend/stb.cpp
 )
 target_include_directories(cuosd PUBLIC src)
+target_compile_definitions(cuosd PRIVATE _USE_MATH_DEFINES)
 
 find_package(CUDAToolkit REQUIRED)
 target_link_libraries(cuosd PUBLIC CUDA::cudart)

@@ -3,6 +3,7 @@ from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -39,6 +40,12 @@ class CuOSDConan(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src/libraries/cuOSD"))
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+            self.options.text_backend = "none"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -49,6 +56,11 @@ class CuOSDConan(ConanFile):
             self.requires("pango/[^1.54.0]")
         elif self.options.text_backend == "stb":
             self.requires("stb/[*]")
+
+    def validate(self):
+        if self.options.text_backend == "stb" and self.settings.os == "Windows":
+            # stb.cpp uses POSIX includes for filesystem operations
+            raise ConanInvalidConfiguration("-o text_backend=stb is not supported on Windows")
 
     def validate_build(self):
         check_min_cppstd(self, 17)
@@ -61,6 +73,7 @@ class CuOSDConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         rm(self, "stb_*.h", "libraries/cuOSD/src/textbackend")
 
     def generate(self):

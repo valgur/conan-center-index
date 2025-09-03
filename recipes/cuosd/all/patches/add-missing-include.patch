@@ -1,0 +1,10 @@
+--- a/libraries/cuOSD/src/textbackend/backend.hpp
++++ b/libraries/cuOSD/src/textbackend/backend.hpp
+@@ -27,6 +27,7 @@
+ #include <vector>
+ #include <memory>
+ #include <tuple>
++#include <string>
+ 
+ // #define ENABLE_TEXT_BACKEND_PANGO
+ // #define ENABLE_TEXT_BACKEND_STB
