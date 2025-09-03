@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 project(test_package LANGUAGES CUDA CXX)
 
+if(MSVC)
+    string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler=/Zc:__cplusplus")
+endif()
+
 find_package(nvbench REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cu)

@@ -22,10 +22,12 @@ class NvBenchConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "tools": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "tools": False,
         "cupti/*:shared": True,
     }
     implements = ["auto_shared_fpic"]
@@ -35,6 +37,15 @@ class NvBenchConan(ConanFile):
     @cached_property
     def cuda(self):
         return self.python_requires["conan-cuda"].module.Interface(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            # symbols are not exported for a shared build
+            del self.options.shared
+            del self.options.fPIC
+            self.package_type = "static-library"
+            # Fails to link
+            self.options.tools = False
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -49,7 +60,7 @@ class NvBenchConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 17)
         self.cuda.validate_settings()
-        if not self.dependencies["cupti"].options.shared:
+        if not self.dependencies["cupti"].options.get_safe("shared", True):
             raise ConanInvalidConfiguration("nvbench requires cupti to be built as a shared library")
 
     def build_requirements(self):
@@ -72,11 +83,19 @@ class NvBenchConan(ConanFile):
         replace_in_file(self, "exec/CMakeLists.txt",
                         "set_target_properties(nvbench.ctl PROPERTIES",
                         'set_target_properties(nvbench.ctl PROPERTIES LINKER_LANGUAGE CXX')
+        # Don't generate and symlink compile_commands.json
+        save(self, "cmake/NVBenchClangdCompileInfo.cmake", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.get_safe("shared", False)
         tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
         tc.cache_variables["CMAKE_PREFIX_PATH"] = self.generators_folder.replace("\\", "/")
+        tc.cache_variables["NVBench_ENABLE_WERROR"] = False
+        tc.cache_variables["CMAKE_CUDA_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
+        if self.settings.compiler == "msvc":
+            tc.extra_cxxflags.append("/Zc:__cplusplus")
+            tc.preprocessor_definitions["FMT_UNICODE"] = 0
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -88,9 +107,13 @@ class NvBenchConan(ConanFile):
         deps.generate()
 
         cuda_tc = self.cuda.CudaToolchain()
+        if self.settings.compiler == "msvc":
+            cuda_tc.extra_cudaflags.append("-Xcompiler=/Zc:__cplusplus")
         cuda_tc.generate()
 
     def build(self):
+        if not self.options.tools:
+            save(self, os.path.join(self.source_folder, "exec", "CMakeLists.txt"), "")
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -101,9 +124,11 @@ class NvBenchConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         # Move .o files
-        for obj_file in Path(self.package_folder, "lib").rglob("*.o"):
-            obj_file.rename(Path(self.package_folder, "lib", obj_file.name))
-        rmdir(self, next(Path(self.package_folder, "lib").glob("objects-*")))
+        libdir = Path(self.package_folder, "lib")
+        obj_suffix = "obj" if self.settings.compiler == "msvc" else "o"
+        for obj_file in libdir.rglob(f"*.{obj_suffix}"):
+            obj_file.rename(libdir / obj_file.name)
+        rmdir(self, next(libdir.glob("objects-*")))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "nvbench")
@@ -117,12 +142,15 @@ class NvBenchConan(ConanFile):
             "fmt::fmt",
             "nlohmann_json::nlohmann_json"
         ]
+        if self.settings.compiler == "msvc":
+            self.cpp_info.components["nvbench_"].cxxflags.append("/Zc:__cplusplus")
 
+        obj_suffix = "obj" if self.settings.compiler == "msvc" else "o"
         self.cpp_info.components["main"].set_property("cmake_target_name", "nvbench::main")
-        self.cpp_info.components["main"].objects = ["lib/main.cu.o"]
+        self.cpp_info.components["main"].objects = [f"lib/main.cu.{obj_suffix}"]
         self.cpp_info.components["main"].requires = ["nvbench_"]
         self.cpp_info.components["main"].defines.append("FMT_USE_BITINT=0")
-        if not self.settings.compiler == "msvc":
+        if self.settings.compiler != "msvc":
             self.cpp_info.components["main"].cxxflags = [
                 "-Wall",
                 "-Wcast-qual",
