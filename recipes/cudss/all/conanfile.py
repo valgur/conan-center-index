@@ -28,7 +28,7 @@ class CuDssConan(ConanFile):
         "cmake_alias": True,
         "commlayer_nccl": False,
         "commlayer_mpi": False,
-        "mtlayer_omp": False,
+        "mtlayer_omp": True,
     }
 
     python_requires = "conan-cuda/latest"
@@ -62,10 +62,11 @@ class CuDssConan(ConanFile):
     def requirements(self):
         self.cuda.requires("cudart", transitive_headers=True, transitive_libs=True)
         self.cuda.requires("cublas")
-        if self.options.commlayer_nccl:
-            self.requires("nccl/[^2]")
-        if self.options.commlayer_mpi:
-            self.requires("openmpi/[>=4 <6]")
+        if self.settings.os == "Linux":
+            if self.options.commlayer_nccl:
+                self.requires("nccl/[^2]")
+            if self.options.commlayer_mpi:
+                self.requires("openmpi/[>=4 <6]")
         # gomp or vcomp140 from the system is required for OpenMP support
 
     def validate(self):
@@ -94,7 +95,7 @@ class CuDssConan(ConanFile):
                 copy(self, "libcudss_mtlayer_gomp.so*", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
         else:
             copy(self, "cudss.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
-            copy(self, "cudss64_*.dll", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "bin"))
+            copy(self, "cudss64_*.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
             if self.options.mtlayer_omp:
                 copy(self, "cudss_mtlayer_vcomp140.lib", os.path.join(self.source_folder, "lib"), os.path.join(self.package_folder, "lib"))
                 copy(self, "cudss_mtlayer_vcomp140.dll", os.path.join(self.source_folder, "bin"), os.path.join(self.package_folder, "bin"))
@@ -125,5 +126,8 @@ class CuDssConan(ConanFile):
                 self.cpp_info.components["cudss_commlayer_mpi"].requires = ["openmpi::openmpi"]
         if self.options.mtlayer_omp:
             self.cpp_info.components["cudss_mtlayer_omp"].set_property("cmake_target_name", "cudss_mtlayer_omp")
-            self.cpp_info.components["cudss_mtlayer_omp"].libs = ["cudss_mtlayer_gomp" if self.settings.os == "Linux" else "cudss_mtlayer_vcomp140"]
-            self.cpp_info.components["cudss_mtlayer_omp"].system_libs = ["gomp"]
+            if self.settings.os == "Linux":
+                self.cpp_info.components["cudss_mtlayer_omp"].libs = ["cudss_mtlayer_gomp"]
+                self.cpp_info.components["cudss_mtlayer_omp"].system_libs = ["gomp"]
+            else:
+                self.cpp_info.components["cudss_mtlayer_omp"].libs = ["cudss_mtlayer_vcomp140"]
