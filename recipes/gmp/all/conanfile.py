@@ -2,15 +2,13 @@ import os
 import stat
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GmpConan(ConanFile):
@@ -19,10 +17,9 @@ class GmpConan(ConanFile):
         "GMP is a free library for arbitrary precision arithmetic, operating "
         "on signed integers, rational numbers, and floating-point numbers."
     )
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("math", "arbitrary", "precision", "integer")
     license = ("LGPL-3.0", "GPL-2.0")
     homepage = "https://gmplib.org"
+    topics = ("math", "arbitrary", "precision", "integer")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -47,31 +44,27 @@ class GmpConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
+        # GMP does not export symbols for a shared build on Windows
         if self.settings.os == "Windows":
+            del self.options.shared
             del self.options.fPIC
+            self.package_type = "static-library"
         if self.settings.arch not in ["x86", "x86_64"]:
             del self.options.enable_fat
 
     def configure(self):
-        if self.options.shared:
+        if self.options.get_safe("shared"):
             self.options.rm_safe("fPIC")
         if self.options.get_safe("enable_fat"):
             del self.options.disable_assembly
         if not self.options.enable_cxx:
-            self.settings.rm_safe("compiler.libcxx")
-            self.settings.rm_safe("compiler.cppstd")
+            self.languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.options.run_checks  # run_checks doesn't affect package's ID
-
-    def validate(self):
-        if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} cannot be built as a shared library using Visual Studio: some error occurs at link time",
-            )
 
     def build_requirements(self):
         self.tool_requires("m4/[^1.4.20]")
