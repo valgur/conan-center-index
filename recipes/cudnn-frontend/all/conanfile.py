@@ -36,7 +36,7 @@ class CuDnnFrontendConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        max_version = "9.11" if Version(self.settings.cuda.version) < 12 else "10"
+        max_version = "9.11" if self.cuda.major < 12 else "10"
         self.requires(f"cudnn/[>=8.5.0 <{max_version}]")
         if self.options.with_json:
             self.requires("nlohmann_json/[^3]")

@@ -1415,7 +1415,7 @@ class OpenCVConan(ConanFile):
             raise ConanInvalidConfiguration("openjpeg is not available for OpenCV before 4.3.0")
         if self.options.with_cuda:
             self.cuda.validate_settings()
-            if Version(self.version) <= "4.12.0" and Version(self.settings.cuda.version) >= "13.0":
+            if Version(self.version) <= "4.12.0" and self.cuda.major >= 13:
                 raise ConanInvalidConfiguration(f"{self.ref} does not support CUDA 13+")
 
     def build_requirements(self):

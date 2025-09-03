@@ -73,12 +73,18 @@ class Interface:
             raise AttributeError(f"No method named '{item}' exists in the conan-cuda interface")
 
     @cached_property
-    def version(self):
+    def version(self) -> Version:
+        """major.minor version of the CUDA Toolkit"""
         if self._conanfile.name in packages_following_ctk_minor_version:
             v = Version(self._conanfile.version)
         else:
             v = self._conanfile.dependencies["cuda-driver-stubs"].ref.version
         return Version(f"{v.major}.{v.minor}")
+
+    @cached_property
+    def major(self) -> int:
+        """Major version of the CUDA Toolkit"""
+        return int(Version(self._conanfile.settings.cuda.version).major.value)
 
     @cached_property
     def architectures(self):

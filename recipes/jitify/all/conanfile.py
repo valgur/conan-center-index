@@ -6,7 +6,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -56,7 +55,7 @@ class JitifyConan(ConanFile):
     def requirements(self):
         self.cuda.requires("nvrtc", transitive_headers=True, transitive_libs=True)
         if self.options.v2:
-            if Version(self.settings.cuda.version) >= "12.0":
+            if self.cuda.major >= 12:
                 self.cuda.requires("nvjitlink", transitive_headers=True, transitive_libs=True)
             if self.options.with_nvtx:
                 self.cuda.requires("nvtx", transitive_headers=True, transitive_libs=True)

@@ -53,7 +53,7 @@ class NcclConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.name} only supports Linux.")
-        check_min_cppstd(self, 14 if Version(self.settings.cuda.version) < 13 else 17)
+        check_min_cppstd(self, 17 if self.cuda.major >= 13 else 14)
         if self.options.with_mlx5 and not self.dependencies["rdma-core"].options.build_libmlx5:
             raise ConanInvalidConfiguration("rdma-core must be built with 'build_libmlx5=True' to use the 'with_mlx5' option.")
 

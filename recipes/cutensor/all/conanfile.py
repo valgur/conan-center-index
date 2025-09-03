@@ -70,7 +70,7 @@ class CuTensorConan(ConanFile):
             lib_dir = os.path.join(self.source_folder, "lib")
             bin_dir = os.path.join(self.source_folder, "bin")
         else:
-            cuda_ver = str(Version(self.settings.cuda.version).major) if Version(self.settings.cuda.version) != "11.0" else "11.0"
+            cuda_ver = "11.0" if self.cuda.version == "11.0" else str(self.cuda.major)
             lib_dir = os.path.join(self.source_folder, "lib", cuda_ver)
             bin_dir = lib_dir
 

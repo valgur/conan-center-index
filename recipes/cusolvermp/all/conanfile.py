@@ -37,16 +37,15 @@ class CusolvermpConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        cuda_major = Version(self.settings.cuda.version).major
         self.cuda.requires("cusolver", transitive_headers=True, transitive_libs=True)
         self.cuda.requires("cusparse", transitive_headers=True, transitive_libs=True)
-        if cuda_major >= 12:
+        if self.cuda.major >= 12:
             self.cuda.requires("nvjitlink")
         if Version(self.version) >= "0.7":
             self.requires("nccl/[^2]", transitive_headers=True)
-        elif cuda_major == 12:
+        elif self.cuda.major == 12:
             self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True)
-        elif cuda_major == 11:
+        elif self.cuda.major == 11:
             self.requires("cuda-cal/0.4.3.36", transitive_headers=True)
 
     def validate(self):

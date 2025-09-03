@@ -79,7 +79,7 @@ class StdgpuConan(ConanFile):
         check_min_cppstd(self, self._min_cppstd)
         if self.options.backend == "cuda":
             self.cuda.validate_settings()
-            if Version(self.settings.cuda.version) >= "12.0":
+            if self.cuda.major >= 12:
                 raise ConanInvalidConfiguration("CUDA 12 and newer are not supported yet.")
 
     def source(self):

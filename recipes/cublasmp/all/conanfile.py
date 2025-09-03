@@ -35,14 +35,13 @@ class CublasMpConan(ConanFile):
         del self.info.settings.cuda.architectures
 
     def requirements(self):
-        cuda_major = Version(self.settings.cuda.version).major
         self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)
         self.requires("nvshmem/[^3.1]", run=True)
         if Version(self.version) >= "0.5":
             self.requires("nccl/[^2.18.5]", transitive_headers=True)
-        elif cuda_major == 12:
+        elif self.cuda.major == 12:
             self.requires("cuda-cal/[>=0.4 <1]", transitive_headers=True)
-        elif cuda_major == 11:
+        elif self.cuda.major == 11:
             self.requires("cuda-cal/0.4.3.36", transitive_headers=True)
 
     def validate(self):

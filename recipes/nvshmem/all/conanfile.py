@@ -115,7 +115,7 @@ class NvshmemConan(ConanFile):
             # /usr/bin/ld: src/lib/nvshmem_transport_libfabric.so.3.0.0: version node not found for symbol fi_freeparams@@FABRIC_1.0
             # /usr/bin/ld: failed to set dynamic section sizes: bad value
             raise ConanInvalidConfiguration("libfabric/*:shared=True is required")
-        check_min_cppstd(self, 11 if Version(self.settings.cuda.version) < 13 else 17)
+        check_min_cppstd(self, 17 if self.cuda.major >= 13 else 11)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.19 <5]")

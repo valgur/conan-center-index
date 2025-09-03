@@ -388,8 +388,7 @@ class FFMpegConan(ConanFile):
             self.requires("libdrm/[~2.4.119]")
         if self.options.with_cuda:
             self.cuda.requires("npp")
-            cuda_major = Version(self.settings.cuda.version).major
-            self.requires(f"ffnvcodec/[^{cuda_major}]")
+            self.requires(f"ffnvcodec/[^{self.cuda.major}]")
         elif self.options.with_ffnvcodec:
             self.requires("ffnvcodec/[*]")
 

@@ -439,7 +439,7 @@ class PclConan(ConanFile):
         if self._is_enabled("rssdk2"):
             self.requires("librealsense/[^2.49.0]")
         if self._is_enabled("cuda"):
-            if Version(self.version) < "1.15.1" and Version(self.settings.cuda.version).major == 12:
+            if Version(self.version) < "1.15.1" and self.cuda.major == 12:
                 self.requires("cuda-cccl/[^2 <2.8]")
             else:
                 self.cuda.requires("cuda-cccl")
@@ -479,9 +479,9 @@ class PclConan(ConanFile):
         check_min_cppstd(self, 17)
         if self._is_enabled("cuda"):
             self.cuda.validate_settings()
-            if self.cuda.version >= "13.0" and Version(self.version) < "1.15.1":
+            if self.cuda.major >= 13 and Version(self.version) < "1.15.1":
                 raise ConanInvalidConfiguration("CUDA 13 or newer is only supported since PCL 1.15.1")
-            if self.cuda.version >= "12.0":
+            if self.cuda.major >= 12:
                 for mod in ["gpu_people", "gpu_kinfu", "gpu_kinfu_large_scale"]:
                     if self.options.get_safe(mod):
                         raise ConanInvalidConfiguration(f"{mod} module does not support CUDA 12 or newer")

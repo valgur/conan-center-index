@@ -70,7 +70,8 @@ class CuFFTConan(ConanFile):
 
     def validate(self):
         self.cuda.validate_package("libcufft")
-        if self.cuda.version.major != Version(self.settings.cuda.version).major:
+        package_cuda_major = Version(self.conan_data["sources"][self.version]["url"].rsplit("_")[1].replace(".json", "")).major
+        if package_cuda_major != self.cuda.major:
             raise ConanInvalidConfiguration(f"{self.ref} expects CUDA v{self.cuda.version.major}, but cuda.version={self.settings.cuda.version}")
 
     def build(self):

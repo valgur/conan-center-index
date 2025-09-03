@@ -54,7 +54,7 @@ class NvJpeg2kConan(ConanFile):
 
     def validate(self):
         self.cuda.validate_package("libnvjpeg_2k")
-        if Version(self.settings.cuda.version) >= 13 and Version(self.version) < "0.9":
+        if self.cuda.major >= 13 and Version(self.version) < "0.9":
             raise ConanInvalidConfiguration(f"CUDA {self.settings.cuda.version} requires nvjpeg2k >= 0.9")
 
     def build(self):

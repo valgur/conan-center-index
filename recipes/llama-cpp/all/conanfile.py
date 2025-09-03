@@ -7,7 +7,6 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -58,7 +57,7 @@ class LlamaCppConan(ConanFile):
         check_min_cppstd(self, 17)
         if self.options.with_cuda:
             self.cuda.validate_settings()
-            if self.version == "b4570" and Version(self.settings.cuda.version) >= "13.0":
+            if self.version == "b4570" and self.cuda.major >= 13:
                 raise ConanInvalidConfiguration(f"{self.ref} does not support CUDA 13 or newer")
 
     def validate_build(self):

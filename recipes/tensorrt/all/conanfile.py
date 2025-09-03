@@ -78,20 +78,16 @@ class TensorRtConan(ConanFile):
             ("Windows", "x86_64"): "windows-x86_64",
         }.get((self.settings.os.value, self.settings.arch.value))
 
-    @cached_property
-    def _cuda_version(self):
-        return int(Version(self.settings.cuda.version).major.value)
-
     def validate(self):
         if self._platform is None:
             raise ConanInvalidConfiguration(f"{self.settings.arch} {self.settings.os} is not supported")
-        if self._cuda_version not in self.conan_data["sources"][self.version][self._platform]:
-            raise ConanInvalidConfiguration(f"{self.ref} {self._platform} does not support CUDA {self._cuda_version}")
+        if self.cuda.major not in self.conan_data["sources"][self.version][self._platform]:
+            raise ConanInvalidConfiguration(f"{self.ref} {self._platform} does not support CUDA {self.cuda.major}")
         if Version(self.version) < "10.0" and self.options.get_safe("shared", True):
             self.cuda.require_shared_deps(["cublas", "cudnn"])
 
     def build(self):
-        get(self, **self.conan_data["sources"][self.version][self._platform][self._cuda_version],
+        get(self, **self.conan_data["sources"][self.version][self._platform][self.cuda.major],
             destination=self.source_folder, strip_root=True)
 
     def package(self):
