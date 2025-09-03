@@ -240,7 +240,8 @@ class OpenblasConan(ConanFile):
 
         # Fix a fatal compiler warning on GCC 14
         # https://github.com/OpenMathLib/OpenBLAS/pull/4894
-        tc.extra_cflags.append("-Wno-error=incompatible-pointer-types")
+        if self.settings.compiler != "msvc":
+            tc.extra_cflags.append("-Wno-error=incompatible-pointer-types")
 
         tc.generate()
 
