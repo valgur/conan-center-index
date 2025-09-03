@@ -363,7 +363,8 @@ class BoostConan(ConanFile):
         def disable_component(name):
             super_modules = self._all_super_modules(name)
             for smod in super_modules:
-                getattr(self.options, f"with_{smod}").value = False
+                if f"with_{smod}" in self.options:
+                    getattr(self.options, f"with_{smod}").value = False
 
         # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
         # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
