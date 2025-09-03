@@ -150,8 +150,6 @@ class LibpngConan(ConanFile):
 
         prefix = "lib" if (is_msvc(self) or self._is_clang_cl) else ""
         suffix = major_min_version
-        if is_msvc(self) or self._is_clang_cl and not self.options.shared:
-            suffix += "_static"
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":
             suffix += "d"
         self.cpp_info.libs = [f"{prefix}png{suffix}"]
