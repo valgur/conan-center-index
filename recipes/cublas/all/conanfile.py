@@ -4,7 +4,6 @@ from functools import cached_property
 from conan import ConanFile
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.18"
 
@@ -76,11 +75,14 @@ class CublasConan(ConanFile):
         else:
             move_folder_contents(self, os.path.join(self.package_folder, "lib", "x64"),
                                  os.path.join(self.package_folder, "lib"))
+            if self.cuda.version >= 13:
+                move_folder_contents(self, os.path.join(self.package_folder, "bin", "x64"),
+                                     os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "none")
 
-        lib = "cublas" if self.options.shared else "cublas_static"
+        lib = "cublas" if self.options.get_safe("shared", True) else "cublas_static"
         self.cpp_info.components["cublas_"].set_property("cmake_target_name", f"CUDA::{lib}")
         if self.options.cmake_alias:
             alias = "cublas_static" if self.options.get_safe("shared", True) else "cublas"
@@ -92,7 +94,7 @@ class CublasConan(ConanFile):
             self.cpp_info.components["cublas_"].libdirs = ["lib/stubs", "lib"]
         if self.settings.os == "Linux":
             self.cpp_info.components["cublas_"].system_libs = ["dl", "m", "pthread", "rt"]
-            self.cpp_info.components["cublas_"].requires = ["cublasLt"]
+        self.cpp_info.components["cublas_"].requires = ["cublasLt"]
 
         lib = "cublasLt" if self.options.get_safe("shared", True) else "cublasLt_static"
         self.cpp_info.components["cublasLt"].set_property("cmake_target_name", f"CUDA::{lib}")

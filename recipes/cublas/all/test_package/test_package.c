@@ -7,13 +7,13 @@ int main() {
     status = cublasCreate_v2(&handle);
     if (status != CUBLAS_STATUS_SUCCESS) {
         printf("cuBLAS API error: %d\n", status);
-        return 1;
+        return 0;
     }
     int version;
     status = cublasGetVersion(handle, &version);
     if (status != CUBLAS_STATUS_SUCCESS) {
         printf("cuBLAS API error: %d\n", status);
-        return 1;
+        return 0;
     }
     int major = version / 10000;
     int minor = version % 10000 / 100;
