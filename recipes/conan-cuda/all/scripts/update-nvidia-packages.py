@@ -64,10 +64,10 @@ def get_redist_urls(conandata_path):
 
 def find_nvidia_redist_json_packages():
     packages = {}
-    pattern = re.compile(r'download_cuda_package\(self, "(\S+)"')
+    pattern = re.compile(r'cuda\.download_package\("(\S+)"')
     for conanfile in find_conanfiles():
         content = conanfile.read_text(encoding="utf-8")
-        if "download_cuda_package" not in content:
+        if "cuda.download_package" not in content:
             continue
         conan_pkg_name = conanfile.parent.parent.name
         nv_pkg_names = nv_packages.get(conan_pkg_name)
