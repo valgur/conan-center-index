@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -27,6 +26,13 @@ class PoselibConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def config_options(self):
+        # PoseLib does not export symbols for a shared build on Windows
+        if self.settings.os == "Windows":
+            del self.options.shared
+            del self.options.fPIC
+            self.package_type = "static-library"
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -35,8 +41,6 @@ class PoselibConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} does not export symbols on Windows for a shared library build.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
