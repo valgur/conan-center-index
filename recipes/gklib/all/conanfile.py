@@ -2,7 +2,6 @@ import os
 from os import path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
@@ -12,12 +11,10 @@ required_conan_version = ">=2.4"
 
 class GKlibConan(ConanFile):
     name = "gklib"
+    description = "A library of various helper routines and frameworks used by many of the lab's software"
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/GKlib"
-    description = "A library of various helper routines and frameworks" \
-                  " used by many of the lab's software"
-    topics = ("karypislab")
+    topics = ("karypislab",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -35,6 +32,12 @@ class GKlibConan(ConanFile):
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.shared
+            del self.options.fPIC
+            self.package_type = "static-library"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -43,11 +46,6 @@ class GKlibConan(ConanFile):
 
     def requirements(self):
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
-
-    def validate(self):
-        if self.options.shared and is_msvc(self):
-            raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} shared not supported with Visual Studio")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
