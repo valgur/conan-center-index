@@ -47,8 +47,8 @@ class CuTensorConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        del self.info.settings.cuda.version
         del self.info.settings.cuda.architectures
+        self.info.settings.cuda.version = self.cuda.major
 
     def requirements(self):
         self.cuda.requires("cublas", transitive_headers=True, transitive_libs=True)

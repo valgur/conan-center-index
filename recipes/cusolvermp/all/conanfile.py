@@ -32,9 +32,8 @@ class CusolvermpConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        self.info.cuda_version = self.info.settings.cuda.version
-        del self.info.settings.cuda.version
         del self.info.settings.cuda.architectures
+        self.info.settings.cuda.version = self.cuda.major
 
     def requirements(self):
         self.cuda.requires("cusolver", transitive_headers=True, transitive_libs=True)

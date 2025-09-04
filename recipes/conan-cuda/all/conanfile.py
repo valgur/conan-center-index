@@ -84,7 +84,11 @@ class Interface:
     @cached_property
     def major(self) -> int:
         """Major version of the CUDA Toolkit"""
-        return int(Version(self._conanfile.settings.cuda.version).major.value)
+        if self._conanfile.info and self._conanfile.info.settings.get_safe("cuda.version"):
+            version = self._conanfile.info.settings.cuda.version
+        else:
+            version = self._conanfile.settings.cuda.version
+        return int(Version(version).major.value)
 
     @cached_property
     def architectures(self):
