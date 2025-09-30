@@ -12,7 +12,7 @@ index e575d8334..f3b485b5a 100644
  #include <spirv_glsl.hpp>
  #include <spirv_msl.hpp>
 diff --git a/libs/filamat/src/GLSLPostProcessor.cpp b/libs/filamat/src/GLSLPostProcessor.cpp
-index 7b6e83f03..950ee2b36 100644
+index 06ea41067..d58c51fab 100644
 --- a/libs/filamat/src/GLSLPostProcessor.cpp
 +++ b/libs/filamat/src/GLSLPostProcessor.cpp
 @@ -16,8 +16,9 @@
@@ -27,7 +27,7 @@ index 7b6e83f03..950ee2b36 100644
  #include <spirv_glsl.hpp>
  #include <spirv_msl.hpp>
 diff --git a/libs/filamat/src/GLSLPostProcessor.h b/libs/filamat/src/GLSLPostProcessor.h
-index 2a78c133b..14e8cb4c4 100644
+index 3c0e96fa0..c07464601 100644
 --- a/libs/filamat/src/GLSLPostProcessor.h
 +++ b/libs/filamat/src/GLSLPostProcessor.h
 @@ -27,7 +27,7 @@
@@ -174,10 +174,10 @@ index 8537b4a13..6d6ab7ed4 100644
  #include "sca/builtinResource.h"
  #include "sca/GLSLTools.h"
 diff --git a/tools/matc/src/matc/MaterialCompiler.cpp b/tools/matc/src/matc/MaterialCompiler.cpp
-index d85e14ebf..3f3981615 100644
+index 4ce91aca0..9bd466f1e 100644
 --- a/tools/matc/src/matc/MaterialCompiler.cpp
 +++ b/tools/matc/src/matc/MaterialCompiler.cpp
-@@ -28,8 +28,8 @@
+@@ -30,8 +30,8 @@
  #include <utils/Log.h>
  #include <utils/Path.h>
  

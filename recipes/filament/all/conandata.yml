@@ -1,4 +1,4 @@
 sources:
-  "1.64.0":
-    url: "https://github.com/google/filament/archive/refs/tags/v1.64.0.tar.gz"
-    sha256: "4efc6d2b05ecfc706d2f79bc67b90f2d8d46bbedd4d535942c85d6cf0f9d7e0d"
+  "1.65.2":
+    url: "https://github.com/google/filament/archive/refs/tags/v1.65.2.tar.gz"
+    sha256: "ccc6b2c92b671ea48a9cb8bf3bcab4548ccf0e97ed39c9982869d36bc549ad27"

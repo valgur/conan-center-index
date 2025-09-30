@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 7c53c7371..2a76e728c 100644
+index 15f5f52ac..2baf61166 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -331,13 +331,7 @@ endif()
+@@ -335,13 +335,7 @@ endif()
  # ==================================================================================================
  # General compiler flags
  # ==================================================================================================
@@ -16,7 +16,7 @@ index 7c53c7371..2a76e728c 100644
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_STANDARD} /W0 /Zc:__cplusplus")
  else()
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_STANDARD} -fstrict-aliasing -Wno-unknown-pragmas -Wno-unused-function -Wno-deprecated-declarations")
-@@ -358,7 +352,7 @@ if (WIN32)
+@@ -362,7 +356,7 @@ if (WIN32)
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_USE_MATH_DEFINES=1")
  endif()
  
@@ -25,7 +25,7 @@ index 7c53c7371..2a76e728c 100644
      option(USE_STATIC_LIBCXX "Link against the static runtime libraries." ON)
      if (${USE_STATIC_LIBCXX})
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-@@ -397,8 +391,8 @@ endif()
+@@ -401,8 +395,8 @@ endif()
  
  # Use hidden by default and expose what we need.
  if (NOT WIN32)
@@ -36,7 +36,7 @@ index 7c53c7371..2a76e728c 100644
  endif()
  
  # ==================================================================================================
-@@ -685,7 +679,7 @@ function(list_licenses OUTPUT MODULES)
+@@ -697,7 +691,7 @@ function(list_licenses OUTPUT MODULES)
      set(STR_OPENER "R\"FILAMENT__(")
      set(STR_CLOSER ")FILAMENT__\"")
      set(CONTENT)
@@ -45,7 +45,7 @@ index 7c53c7371..2a76e728c 100644
      foreach(module ${_MODULES})
          set(license_path "../../third_party/${module}/LICENSE")
          get_filename_component(fullname "${license_path}" ABSOLUTE)
-@@ -785,7 +779,6 @@ endfunction()
+@@ -797,7 +791,6 @@ endfunction()
  # ==================================================================================================
  
  # Common to all platforms
@@ -53,7 +53,7 @@ index 7c53c7371..2a76e728c 100644
  add_subdirectory(${LIBRARIES}/camutils)
  add_subdirectory(${LIBRARIES}/filabridge)
  add_subdirectory(${LIBRARIES}/filaflat)
-@@ -803,22 +796,23 @@ add_subdirectory(${LIBRARIES}/uberz)
+@@ -815,22 +808,23 @@ add_subdirectory(${LIBRARIES}/uberz)
  add_subdirectory(${LIBRARIES}/utils)
  add_subdirectory(${LIBRARIES}/viewer)
  add_subdirectory(${FILAMENT}/shaders)
@@ -92,7 +92,7 @@ index 7c53c7371..2a76e728c 100644
  
  # Note that this has to be placed after mikktspace in order for combine_static_libs to work.
  add_subdirectory(${LIBRARIES}/geometry)
-@@ -827,9 +821,9 @@ if (FILAMENT_BUILD_FILAMAT OR IS_HOST_PLATFORM)
+@@ -839,9 +833,9 @@ if (FILAMENT_BUILD_FILAMAT OR IS_HOST_PLATFORM)
      # spirv-tools must come before filamat, as filamat relies on the presence of the
      # spirv-tools_SOURCE_DIR variable.
      set(SPIRV-Headers_SOURCE_DIR ${EXTERNAL}/spirv-headers)
@@ -105,7 +105,7 @@ index 7c53c7371..2a76e728c 100644
      add_subdirectory(${LIBRARIES}/filamat)
  
      # the material debugger requires filamat
-@@ -844,13 +838,13 @@ endif()
+@@ -856,13 +850,13 @@ endif()
  
  if (FILAMENT_SUPPORTS_VULKAN)
      add_subdirectory(${LIBRARIES}/bluevk)
@@ -122,7 +122,7 @@ index 7c53c7371..2a76e728c 100644
  endif()
  
  # Add filament after dawn, since filament/backend depends on dawn targets.
-@@ -873,13 +867,13 @@ if (IS_HOST_PLATFORM)
+@@ -885,13 +879,13 @@ if (IS_HOST_PLATFORM)
      add_subdirectory(${LIBRARIES}/imageio)
      add_subdirectory(${LIBRARIES}/filament-matp)
  
@@ -143,20 +143,21 @@ index 7c53c7371..2a76e728c 100644
      add_subdirectory(${TOOLS}/cmgen)
      add_subdirectory(${TOOLS}/cso-lut)
 diff --git a/filament/CMakeLists.txt b/filament/CMakeLists.txt
-index 30425d3f5..b1944f6b2 100644
+index 1628f9d06..95d6b2ecb 100644
 --- a/filament/CMakeLists.txt
 +++ b/filament/CMakeLists.txt
-@@ -754,5 +754,3 @@ install(FILES "../LICENSE" DESTINATION .)
+@@ -757,5 +757,4 @@ install(FILES "../LICENSE" DESTINATION .)
  # Sub-projects
  # ==================================================================================================
  add_subdirectory(backend)
 -add_subdirectory(test)
 -add_subdirectory(benchmark)
++#add_subdirectory(benchmark)
 diff --git a/filament/backend/CMakeLists.txt b/filament/backend/CMakeLists.txt
-index a6d941d14..f978b4af4 100644
+index 989078622..f77b08a4e 100644
 --- a/filament/backend/CMakeLists.txt
 +++ b/filament/backend/CMakeLists.txt
-@@ -546,7 +546,7 @@ endif()
+@@ -547,7 +547,7 @@ endif()
  # Test
  # ==================================================================================================
  option(INSTALL_BACKEND_TEST "Install the backend test library so it can be consumed on iOS" OFF)
@@ -250,10 +251,10 @@ index c4911f7cd..b974bc023 100644
      project(test_filamat)
      set(TARGET test_filamat)
 diff --git a/libs/filament-matp/CMakeLists.txt b/libs/filament-matp/CMakeLists.txt
-index 3c2240d0f..cf9c46289 100644
+index 15d695311..d9af0fcc2 100644
 --- a/libs/filament-matp/CMakeLists.txt
 +++ b/libs/filament-matp/CMakeLists.txt
-@@ -52,6 +52,7 @@ install(DIRECTORY ${PUBLIC_HDR_DIR}/ DESTINATION include)
+@@ -50,6 +50,7 @@ install(DIRECTORY ${PUBLIC_HDR_DIR}/ DESTINATION include)
  # ==================================================================================================
  # Tests
  # ==================================================================================================
@@ -366,10 +367,10 @@ index 838aa2d53..1525370ef 100644
          tests/test_fast.cpp
          tests/test_half.cpp
 diff --git a/libs/utils/CMakeLists.txt b/libs/utils/CMakeLists.txt
-index fb5a018ec..2d8be3737 100644
+index dac610cc0..1ee23716d 100644
 --- a/libs/utils/CMakeLists.txt
 +++ b/libs/utils/CMakeLists.txt
-@@ -111,7 +111,8 @@ include_directories(${PUBLIC_HDR_DIR})
+@@ -113,7 +113,8 @@ include_directories(${PUBLIC_HDR_DIR})
  add_library(${TARGET} STATIC ${PUBLIC_HDRS} ${SRCS})
  target_include_directories(${TARGET} PUBLIC ${PUBLIC_HDR_DIR})
  set_target_properties(${TARGET} PROPERTIES FOLDER Libs)
@@ -379,7 +380,7 @@ index fb5a018ec..2d8be3737 100644
  
  if (ANDROID)
      target_link_libraries(${TARGET} PUBLIC log)
-@@ -152,7 +153,7 @@ endif()
+@@ -156,7 +157,7 @@ endif()
  # ==================================================================================================
  # Test executables
  # ==================================================================================================
@@ -444,10 +445,10 @@ index c278320c3..f459b48f5 100644
      add_executable(test_${TARGET}
              src/GlslMinify.cpp
 diff --git a/tools/matc/CMakeLists.txt b/tools/matc/CMakeLists.txt
-index 7bc037799..741b36a4f 100644
+index 8e7a7832b..a61ec9c64 100644
 --- a/tools/matc/CMakeLists.txt
 +++ b/tools/matc/CMakeLists.txt
-@@ -29,7 +29,7 @@ add_library(${TARGET} STATIC ${SRCS} ${HDRS})
+@@ -31,7 +31,7 @@ add_library(${TARGET} STATIC ${SRCS} ${HDRS})
  target_include_directories(${TARGET} PUBLIC src)
  target_include_directories(${TARGET} PRIVATE ${filamat_SOURCE_DIR}/src)
  
@@ -456,3 +457,11 @@ index 7bc037799..741b36a4f 100644
  set_target_properties(${TARGET} PROPERTIES FOLDER Tools)
  
  # =================================================================================================
+@@ -68,6 +68,7 @@ install(TARGETS ${TARGET} RUNTIME DESTINATION bin)
+ # ==================================================================================================
+ # Tests
+ # ==================================================================================================
++return()
+ project(test_matc)
+ set(TARGET test_matc)
+ set(SRCS tests/test_includer.cpp)
