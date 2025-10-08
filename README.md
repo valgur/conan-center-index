@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-08:
 
 - 7zip/25.01
 - acados-qpoases/3.1+git.20240910
@@ -145,8 +145,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.10.18
 - cpython/3.11.13
 - cpython/3.12.11
-- cpython/3.13.5
-- cpython/3.14.0-b2
+- cpython/3.13.8
+- cpython/3.14.0
 - cpython/3.9.23
 - crashpad/cci.20231107
 - criterion/2.4.2
