@@ -1,22 +1,20 @@
 sources:
-  "4.0.0":
-    url: "https://github.com/ros/urdfdom/archive/refs/tags/4.0.0.tar.gz"
-    sha256: "9848d106dc88dc0b907d5667c09da3ca53241fbcf17e982d8c234fe3e0d6ddcc"
+  "5.0.2":
+    url: "https://github.com/ros/urdfdom/archive/refs/tags/5.0.2.tar.gz"
+    sha256: "f929a33ec6171a57d4ff7d4c0eff6fb79d4725c279189d4f4c8806c4aa4e71ac"
+  "4.0.3":
+    url: "https://github.com/ros/urdfdom/archive/refs/tags/4.0.3.tar.gz"
+    sha256: "6b86624f04476d3d22732dae4f76d67e416ee9b163ea0cef94434b60f7c23269"
   "3.1.1":
     url: "https://github.com/ros/urdfdom/archive/refs/tags/3.1.1.tar.gz"
     sha256: "dd69b2077b8fc1bd2b67022c1dc861cd896ac882df065aa08cabdf2f945a9ac0"
 patches:
-  "4.0.0":
-    - patch_file: "patches/4.0.0/001-optional-build-apps.patch"
-      patch_type: "conan"
-      patch_description: "Disable building of apps by default"
-    - patch_file: "patches/4.0.0/002-use-conan-dependencies.patch"
-      patch_type: "conan"
-      patch_description: "Use dependencies from Conan"
+  "5.0.2":
+    - patch_file: "patches/4.0.3/001-optional-build-apps.patch"
+    - patch_file: "patches/5.0.2/002-use-conan-dependencies.patch"
+  "4.0.3":
+    - patch_file: "patches/4.0.3/001-optional-build-apps.patch"
+    - patch_file: "patches/4.0.3/002-use-conan-dependencies.patch"
   "3.1.1":
     - patch_file: "patches/3.1.1/001-optional-build-apps.patch"
-      patch_type: "conan"
-      patch_description: "Disable building of apps by default"
     - patch_file: "patches/3.1.1/002-use-conan-dependencies.patch"
-      patch_type: "conan"
-      patch_description: "Use dependencies (console_bridge, TinyXML) from Conan"

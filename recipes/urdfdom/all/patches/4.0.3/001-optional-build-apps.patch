@@ -1,6 +1,6 @@
 --- urdf_parser/CMakeLists.txt
 +++ urdf_parser/CMakeLists.txt
-@@ -81,6 +81,7 @@
+@@ -75,6 +75,7 @@
  
  # --------------------------------
  
@@ -8,7 +8,7 @@
  add_executable(check_urdf src/check_urdf.cpp)
  target_include_directories(check_urdf PUBLIC include)
  target_link_libraries(check_urdf urdfdom_model urdfdom_world)
-@@ -97,6 +98,7 @@
+@@ -87,6 +88,7 @@
  add_executable(urdf_mem_test test/memtest.cpp)
  target_include_directories(urdf_mem_test PUBLIC include)
  target_link_libraries(urdf_mem_test urdfdom_model)
@@ -16,7 +16,7 @@
  
  include(CTest)
  if(BUILD_TESTING)
-@@ -104,6 +106,7 @@
+@@ -94,6 +96,7 @@
    add_subdirectory(test)
  endif()
  
@@ -24,7 +24,7 @@
  INSTALL(
    TARGETS
    check_urdf
-@@ -114,6 +117,7 @@
+@@ -103,6 +106,7 @@
    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
  )

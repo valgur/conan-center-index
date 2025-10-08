@@ -1,4 +1,7 @@
 sources:
-  "1.1.1":
-    url: "https://github.com/ros/urdfdom_headers/archive/refs/tags/1.1.1.zip"
-    sha256: "dde77e3dd96ffa41e2ee0a20bddcd6ef05863e95ce0143ede77130d8cd46c644"
+  "2.0.0":
+    url: "https://github.com/ros/urdfdom_headers/archive/refs/tags/2.0.0.zip"
+    sha256: "3759032b656b6a8720ba04ced642a0d8d6458f4103cbf023a6eb7bc7db2623b1"
+  "1.1.2":
+    url: "https://github.com/ros/urdfdom_headers/archive/refs/tags/1.1.2.zip"
+    sha256: "114d567e679c6f3f7231c14f12f6209e7febb398d91ab03f58573932d4954343"

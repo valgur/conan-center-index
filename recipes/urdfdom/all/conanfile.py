@@ -20,10 +20,12 @@ class PackageConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "tools": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "tools": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -34,12 +36,12 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("urdfdom_headers/1.1.1", transitive_headers=True)
-        self.requires("console_bridge/1.0.2")
+        self.requires("urdfdom_headers/[<3]", transitive_headers=True)
+        self.requires("console_bridge/[^1.0.2]")
         if Version(self.version) >= "4.0":
             self.requires("tinyxml2/[^10.0.0]")
         else:
-            self.requires("tinyxml/2.6.2", transitive_headers=True, transitive_libs=True)
+            self.requires("tinyxml/[^2.6.2]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 14)
@@ -47,26 +49,25 @@ class PackageConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Do not hard-code libraries to SHARED
+        replace_in_file(self, "urdf_parser/CMakeLists.txt", " SHARED", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["APPEND_PROJECT_NAME_TO_INCLUDEDIR"] = True
         tc.variables["BUILD_TESTING"] = False
-        tc.variables["BUILD_APPS"] = False
+        tc.variables["BUILD_APPS"] = self.options.tools
         if not self.options.shared:
             tc.preprocessor_definitions["URDFDOM_STATIC"] = "1"
         # Need to set CMP0077 because CMake policy version is too old (3.5 as of v4.0.0)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
-        CMakeDeps(self).generate()
 
-    def _patch_sources(self):
-        # Do not hard-code libraries to SHARED
-        parser_cmakelists = os.path.join(self.source_folder, "urdf_parser", "CMakeLists.txt")
-        replace_in_file(self, parser_cmakelists, " SHARED", "")
+        deps = CMakeDeps(self)
+        deps.set_property("tinyxml2", "cmake_file_name", "TinyXML2")
+        deps.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -91,9 +92,11 @@ class PackageConan(ConanFile):
         def _add_component(lib, requires=None):
             component = self.cpp_info.components[lib]
             component.set_property("cmake_target_name", f"urdfdom::{lib}")
-            component.includedirs.append(os.path.join("include", "urdfdom"))
+            component.includedirs.append("include/urdfdom")
             component.libs.append(lib)
-            component.requires += [
+            if not self.options.shared:
+                component.defines.append("URDFDOM_STATIC=1")
+            component.requires = [
                 "urdfdom_headers::urdfdom_headers",
                 "console_bridge::console_bridge",
             ]
@@ -105,9 +108,7 @@ class PackageConan(ConanFile):
                 component.requires.extend(requires)
 
         _add_component("urdfdom_model")
-        _add_component("urdfdom_model_state")
         _add_component("urdfdom_sensor", requires=["urdfdom_model"])
         _add_component("urdfdom_world")
-
-        if not self.options.shared:
-            self.cpp_info.defines.append("URDFDOM_STATIC=1")
+        if Version(self.version) < "4.0.3":
+            _add_component("urdfdom_model_state")
