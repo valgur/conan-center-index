@@ -11,9 +11,8 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-08:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-09:
 
-- 7zip/25.01
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
 - acl/2.3.2
@@ -1395,6 +1394,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - umf/0.11.2
 - umf/1.0.3
 - uno/2.0.3
+- urdfdom/4.0.3
+- urdfdom/5.0.2
+- urdfdom_headers/1.1.2
+- urdfdom_headers/2.0.0
 - usearch/2.9.1
 - userspace-rcu/0.15.3
 - utf8proc/2.10.0
