@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-10:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-11:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1111,6 +1111,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.8.0
+- openjph/0.24.1
 - openldap/2.6.10
 - openmp/system
 - openmpi/4.1.8
