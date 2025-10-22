@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-21:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-22:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1047,7 +1047,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nvtiff/0.4.0.62
 - nvtiff/0.5.1.75
 - nvtx/3.2.2
-- nvtx/3.3.0
 - nvvm/11.4.152
 - nvvm/11.5.119
 - nvvm/11.6.124
