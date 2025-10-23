@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-23:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1181,6 +1181,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - protobuf/6.31.1
 - protobuf/6.32.0
 - proxsuite/0.7.2
+- proxy/2.2.1
+- proxy/2.3.0
+- proxy/2.3.1
+- proxy/2.3.2
 - prrte/4.0.0
 - pthreadpool/cci.20250723
 - qcoro/0.10.0
