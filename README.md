@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-23:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-24:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -148,6 +148,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.14.0
 - cpython/3.9.23
 - crashpad/cci.20231107
+- create-dmg/1.0.10
+- create-dmg/1.1.0
+- create-dmg/1.2.1
 - criterion/2.4.2
 - crocoddyl/3.0.1
 - crow/1.1.0
@@ -766,6 +769,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libproxy/0.5.9
 - libraw/0.22.0-devel202502
 - libraw1394/2.1.2
+- librdkafka/2.11.1
 - librsvg/2.40.21
 - librsvg/2.60.0
 - libsecret/0.21.7
@@ -1269,9 +1273,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - smol-v/0.0.0+git.20240926
 - smtpclient/1.1.10
 - snopt-mockup/89
+- sofa/20190722
+- sofa/20200721
+- sofa/20210125_a
+- sofa/20210512
 - sophus/1.24.6
 - soplex/3.1.1
-- sparrow/1.2.0
+- sparrow/1.0.0
+- sparrow/1.1.0
 - spectra/1.1.0
 - spectra/1.2.0
 - speech-dispatcher/0.12
