@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-24:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-25:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -622,6 +622,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/7.3.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- hazelcast-cpp-client/5.3.0
 - hdf5/1.10.5
 - hdf5/1.10.6
 - hdf5/1.12.0
@@ -822,7 +823,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxtst/1.2.5
 - libxv/1.0.12
 - libxxf86vm/1.1.5
-- libzip/1.11.4
 - libzippp/7.1
 - lightgbm/4.6.0
 - linux-headers-generic/5.19.17
@@ -859,6 +859,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20240530
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
+- mbedtls/3.6.4
 - mdspan/0.7.0-git.20250826
 - memkind/1.14.0+git.20240523
 - meson/1.6.1
@@ -1149,7 +1150,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - patchelf/0.12
 - patchelf/0.13
 - pcg-cpp/0.98.1+git.20220409
-- pcl/1.14.1
 - pcl/1.15.1
 - pcre2/10.45
 - pcsc-lite/2.3.3
