@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-27:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-28:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -50,6 +50,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - autoconf-archive/2024.10.16
 - automake/1.18.1
 - aws-cdi-sdk/2.4.1
+- azure-sdk-for-cpp/1.11.3
 - azure-sdk-for-cpp/1.13.0
 - basalt/git.20240831
 - bazel/7.6.1
@@ -69,6 +70,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - boost/1.71.0
 - boost/1.74.0
 - boostdep/1.88.0
+- box2d/2.4.0
+- box2d/2.4.1
+- box2d/3.0.0
+- box2d/3.1.0
 - boxfort/0.1.4
 - bqpd_jll/1.0.0
 - cairo/1.18.4
@@ -547,6 +552,24 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ggml/0.9.3
 - gici/cci.20250127
 - gl2ps/1.4.2
+- glaze/2.8.4
+- glaze/2.9.5
+- glaze/3.1.7
+- glaze/3.1.9
+- glaze/3.3.1
+- glaze/3.3.2
+- glaze/3.3.4
+- glaze/3.4.1
+- glaze/3.4.3
+- glaze/3.6.1
+- glaze/3.6.2
+- glaze/4.0.1
+- glaze/4.3.1
+- glaze/4.4.3
+- glaze/5.0.0
+- glaze/5.0.2
+- glaze/5.3.0
+- glaze/5.4.1
 - glfw/3.3.10
 - glib-gir/2.82.4
 - glib-gir/2.84.1
