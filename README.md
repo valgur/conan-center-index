@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-29:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -36,6 +36,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/15.0.3
 - armpl/25.07.0
 - arpack-ng/3.9.1
+- arrow/14.0.2
+- arrow/15.0.0
+- arrow/16.1.0
+- arrow/17.0.0
+- arrow/18.1.0
 - asio-grpc/1.7.0
 - asio-grpc/2.0.0
 - asio-grpc/2.1.0
@@ -469,6 +474,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dlpack/1.1
 - dotconf/1.4.1
 - double-conversion/3.3.1
+- doxygen/1.12.0
+- doxygen/1.13.2
+- doxygen/1.14.0
+- doxygen/1.9.4
 - dpdk/24.07
 - dsdp/5.8
 - dynamic-graph/4.4.3
@@ -480,7 +489,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - eigen/3.3.7
 - eigen/3.3.8
 - eigen/3.3.9
-- eigen/3.4.1
 - eigenpy/3.11.0
 - elfutils/0.192
 - elfutils/0.193
@@ -815,7 +823,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libudev/255.13
 - libudev/255.18
 - libunistring/1.3
-- libusb/1.0.29
 - libv4l/1.28.1
 - libva/2.22.0
 - libwacom/2.15.0
@@ -1463,7 +1470,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-loader/1.4.321.0
 - vulkan-memory-allocator/3.1.0
 - vulkan-memory-allocator/3.2.1
-- vulkan-memory-allocator/3.3.0
 - vulkan-profiles/1.3.290.0
 - vulkan-profiles/1.3.296.0
 - vulkan-profiles/1.4.309.0
