@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-29:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-30:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -494,7 +494,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - elfutils/0.193
 - embag/0.0.43+git.20230120
 - embree/3.13.5
-- embree/4.4.0
 - emsdk/4.0.6
 - ensmallen/2.22.1
 - f2c/20240312
@@ -920,7 +919,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - musl-getopt/1.2.5
 - mysql-connector-cpp/9.3.0
 - nanoarrow/0.7.0
-- nanobind/2.9.2
 - nanoeigenpy/0.4.0
 - nanoflann/1.2.3
 - nanoflann/1.5.5
@@ -1158,6 +1156,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openssl/3.1.8
 - openucx/1.19.0
 - openusd/25.08
+- openvdb/9.1.0
 - openvino/2025.2.0
 - openxr/1.1.47
 - optix-headers/7.7.0
