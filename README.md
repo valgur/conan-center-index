@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-10-31:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -665,6 +665,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - hdf5/1.14.5
 - hdf5/1.8.21
 - highfive/2.10.1
+- highs/1.8.1
 - hlslpp/3.5.3
 - hnswlib/0.8.0
 - hnswlib/0.8.0-cuvs
@@ -1162,6 +1163,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - optix-headers/7.7.0
 - optix-headers/8.1.0
 - optix-headers/9.0.0
+- opus/1.3.1
+- opus/1.4
 - or-tools/9.14
 - osgearth/3.7
 - osqp-eigen/0.10.1
