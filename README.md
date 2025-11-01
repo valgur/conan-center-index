@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-10-31:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-01:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1171,6 +1171,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - osqp/0.5.0-casadi.20211016
 - osqp/1.0.0
 - osrm/5.27.1
+- ouster_sdk/0.10.0
+- ouster_sdk/0.11.0
+- ouster_sdk/0.12.0
+- ouster_sdk/0.13.0
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
 - pango/1.56.3
@@ -1336,6 +1340,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.4.321.0
 - splinter/3.0
 - spral/2025.09.18
+- sqlitecpp/3.1.1
+- sqlitecpp/3.2.1
+- sqlitecpp/3.3.2
 - srrg_hbst/0.0.0+git.20250530
 - stablehlo/1.10.0
 - stablehlo/1.6.3
