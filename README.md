@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-03:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-04:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -644,6 +644,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gurobi/10.0.3
 - gurobi/11.0.3
 - gurobi/12.0.3
+- h5pp/1.10.0
+- h5pp/1.8.6
+- h5pp/1.9.0
 - half/2.2.1
 - harfbuzz/10.4.0
 - harfbuzz/11.2.1
@@ -764,6 +767,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcups/3.0-rc4
 - libde265/1.0.16
 - libdecor/0.2.2
+- libdeflate/1.15
+- libdeflate/1.17
+- libdeflate/1.18
+- libdeflate/1.19
+- libdeflate/1.20
+- libdeflate/1.21
+- libdeflate/1.23
 - libdrm/2.4.126
 - libecwj2/3.3
 - libelas/cci.20150630
@@ -1197,7 +1207,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pipewire/1.4.2
 - piqp/0.6.2
 - pistache/0.4.26
-- pkgconf/2.5.1
 - plf_list/2.77
 - plutovg/0.0.0+git.20230103
 - plutovg/0.0.13
@@ -1300,6 +1309,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - shader-conductor/0.3.0-post.20221128
 - shader-slang/2024.11.1
 - shaderc/2025.2
+- sigslot/1.2.0
+- sigslot/1.2.1
+- sigslot/1.2.2
 - skarupke-flat-hash-map/git.20180716
 - skia/132
 - sleef/3.9.0
