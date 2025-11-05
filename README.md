@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-04:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-05:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -54,6 +54,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - asio-grpc/3.4.1
 - autoconf-archive/2024.10.16
 - automake/1.18.1
+- avcpp/2.4.0
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.11.3
 - azure-sdk-for-cpp/1.13.0
@@ -716,6 +717,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - intel-ur/2025.1.1
 - intel-ur/2025.2.1
 - ios-cmake/4.4.1
+- ipaddress/1.0.1
+- ipaddress/1.1.0
+- ipaddress/1.2.0
 - iridescence/0.1.6
 - isl/0.27
 - ittapi/3.26.1
@@ -1540,7 +1544,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpmem/2.6.5.cci.20240911
 - xpress/9.7.0
 - xtrans/1.5.0
-- xz_utils/5.8.1
 - yasm/1.3.0+git.20230922
 - zenoh-c/1.2.0
 - zenoh-c/1.3.2
