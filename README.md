@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-05:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-06:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -26,6 +26,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ampl-asl/1.0.1
 - ampl-mp/4.0.3
 - antlr4/4.13.2
+- approvaltests.cpp/10.10.0
+- approvaltests.cpp/10.11.0
+- approvaltests.cpp/10.12.0
+- approvaltests.cpp/10.12.1
+- approvaltests.cpp/10.12.2
+- approvaltests.cpp/10.9.1
+- approvaltests.cpp/8.9.2
+- approvaltests.cpp/9.0.0
 - apr-util/1.6.3
 - apr/1.7.6
 - apriltag/3.4.5
@@ -88,6 +96,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cargo-c/0.10.8
 - casadi/3.7.2
 - catalyst/2.0.0
+- catch2/3.10.0
+- catch2/3.4.0
+- catch2/3.5.4
+- catch2/3.6.0
+- catch2/3.7.1
+- catch2/3.8.1
+- catch2/3.9.1
 - ccache/4.11.3
 - cello/2.1.0+git.20241201
 - ceres-solver/2.3.0-git.20250817
@@ -120,6 +135,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cmake/4.0.3
 - cmake/4.1.1
 - cmrc/2.0.1+git.20230724
+- cnats/3.10.1
+- cnats/3.8.0
+- cnats/3.8.2
+- cnats/3.8.3
+- cnats/3.9.1
+- cnats/3.9.2
+- cnats/3.9.3
 - cnmem/1.0.0+git.20181128
 - cocoapi/0.0.0+git.20200220
 - coin-alps/1.5.12
@@ -147,6 +169,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - conopt/4.38.1
 - cose-c/cci.20200603
 - cplex/22.1.2
+- cpp-httplib/0.16.0
+- cpp-httplib/0.17.1
+- cpp-httplib/0.18.0
+- cpp-httplib/0.18.1
+- cpp-httplib/0.18.2
 - cpp-validator/2.1.1
 - cppad/20250000.2
 - cppadcodegen/2.5.0
@@ -499,6 +526,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ensmallen/2.22.1
 - f2c/20240312
 - faac/1.31.1
+- fakeit/2.0.7
+- fakeit/2.0.8
+- fakeit/2.0.9
+- fakeit/2.1.0
+- fakeit/2.2.0
+- fakeit/2.3.0
+- fakeit/2.3.1
+- fakeit/2.3.2
+- fakeit/2.4.0
 - fast_double_parser/0.8.1
 - fatrop/0.0.4+git.20250805
 - fbgemm/1.3.0
@@ -731,7 +767,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - julia/1.11.6
 - kdsingleapplication/1.1.0
 - kineto/0.4.0+git.20250826
-- kiss-icp/1.2.3
 - kleidiai/1.9.0
 - klib/cci.20250205
 - knitro/15.0.1
@@ -747,6 +782,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lessmsi/2.8.1
 - level-zero/1.24.3
 - libalsa/1.2.14
+- libavrocpp/1.10.2
+- libavrocpp/1.11.3
 - libbasisu/1.16.4
 - libbpf/1.4.6
 - libbsd/0.12.2
@@ -1153,6 +1190,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opencv/4.8.1
 - opencv/4.9.0
 - openexr/2.5.10
+- openexr/3.2.4
+- openexr/3.3.5
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.8.0
@@ -1289,6 +1328,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.84.0
 - rust/1.85.1
 - rust/1.90.0
+- sail/0.9.0
+- sail/0.9.1
+- sail/0.9.4
+- sail/0.9.5
+- sail/0.9.6
+- sail/0.9.8
 - sassy/git.20250312
 - sbepp/1.4.2
 - sbepp/1.5.1
