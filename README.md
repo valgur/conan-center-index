@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-06:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-07:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -512,6 +512,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dynolog/0.5.0
 - dynolog/0.5.1-git.20250624
 - easyexif/1.0+openmvg.20200322
+- edyn/1.2.1
 - egl-headers/20220525
 - egl-headers/20250527
 - eigen/3.3.7
@@ -905,6 +906,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxv/1.0.12
 - libxxf86vm/1.1.5
 - libzippp/7.1
+- lielab/0.4.0
+- lielab/0.4.1
 - lightgbm/4.6.0
 - linux-headers-generic/5.19.17
 - linux-headers-generic/6.14.2
@@ -1228,6 +1231,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ouster_sdk/0.11.0
 - ouster_sdk/0.12.0
 - ouster_sdk/0.13.0
+- outcome/2.1.5
+- outcome/2.2.4
+- outcome/2.2.7
+- outcome/2.2.8
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
 - pango/1.56.3
