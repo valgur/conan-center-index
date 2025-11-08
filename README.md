@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-08:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -930,7 +930,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lunasvg/3.5.0
 - lusol/0.0.0+git.20160215
 - lzip/1.25
-- m4/1.4.20
 - madnlp-mockup/89
 - map_closures/2.0.2
 - marchingcubecpp/git.20230911
@@ -1310,6 +1309,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rapids_logger/0.1.1
 - rdma-core/59.0
 - re2/20220601
+- re2/20240702
 - readline/8.3.1
 - reduct-cpp/1.14.0
 - refx/0.2.1
