@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-11:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-12:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -487,6 +487,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daqp/0.4.2-acados
 - daqp/0.7.2
 - darts-clone/0.32h
+- dav1d/1.5.1
 - dawn/cci.20240726
 - dbus/1.16.2
 - debugbreak/1.0
@@ -1417,6 +1418,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - stablehlo/1.8.11
 - stablehlo/1.9.7
 - stb/cci.20250314
+- stc/1.0.0-rc1
+- stc/3.5.1
+- stc/3.9
+- stc/4.1.1
+- stc/4.2
 - stdexec/24.09
 - stdgpu/1.3.0+git.20250210
 - stdgpu/1.3.0-nvblox.20240211
