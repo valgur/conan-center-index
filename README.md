@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-14:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-15:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -60,6 +60,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - asio-grpc/2.7.0
 - asio-grpc/2.9.2
 - asio-grpc/3.4.1
+- assimp/5.1.6
+- assimp/5.2.5
+- assimp/5.3.1
 - autoconf-archive/2024.10.16
 - automake/1.18.1
 - avcpp/2.4.0
@@ -543,7 +546,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fenster/0.1.0
 - ffmpeg/5.1.7
 - ffmpeg/6.1.3
-- ffmpeg/7.1.2
 - ffmpeg/8.0.0
 - ffnvcodec/10.0.26.2
 - ffnvcodec/11.1.5.3
@@ -1195,6 +1197,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openexr/2.5.10
 - openexr/3.2.4
 - openexr/3.3.5
+- openfx/1.4.0
 - opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.8.0
@@ -1487,6 +1490,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tensorrt/10.13.0
 - tensorrt/10.13.2
 - tensorrt/8.6.1
+- tgbot/1.3
+- tgbot/1.5
+- tgbot/1.7.2
+- tgbot/1.8
 - thrust/2.2.0
 - thrust/2.3.2
 - thrust/2.4.0
