@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-18:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -540,6 +540,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fakeit/2.3.1
 - fakeit/2.3.2
 - fakeit/2.4.0
+- fakeit/2.4.1
 - fast_double_parser/0.8.1
 - fatrop/0.0.4+git.20250805
 - fbgemm/1.3.0
@@ -733,6 +734,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imgui/1.92.3
 - imlib2/1.12.3
 - implot/0.17+git.20250319
+- inja/3.0.0
+- inja/3.1.0
+- inja/3.2.0
+- inja/3.3.0
+- inja/3.4.0
 - intel-dpcpp-sycl/2025.1.1
 - intel-dpcpp-sycl/2025.2.1
 - intel-dpcpp/2025.1.1
@@ -1415,6 +1421,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sqlitecpp/3.1.1
 - sqlitecpp/3.2.1
 - sqlitecpp/3.3.2
+- sqlitemap/1.1.0
 - srrg_hbst/0.0.0+git.20250530
 - stablehlo/1.10.0
 - stablehlo/1.6.3
@@ -1525,6 +1532,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - umf/0.11.2
 - umf/1.0.3
 - uno/2.0.3
+- upa-url/2.3.0
 - urdfdom/4.0.3
 - urdfdom/5.0.2
 - urdfdom_headers/1.1.2
