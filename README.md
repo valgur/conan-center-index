@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-19:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -522,6 +522,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - eigen/3.3.7
 - eigen/3.3.8
 - eigen/3.3.9
+- eigen/5.0.0
 - eigenpy/3.11.0
 - elfutils/0.192
 - elfutils/0.193
