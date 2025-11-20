@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-19:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-20:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -66,7 +66,17 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - autoconf-archive/2024.10.16
 - automake/1.18.1
 - avcpp/2.4.0
+- aws-c-auth/0.9.0
+- aws-c-cal/0.9.2
+- aws-c-common/0.12.3
+- aws-c-event-stream/0.5.5
+- aws-c-http/0.10.2
+- aws-c-io/0.21.0
+- aws-c-mqtt/0.13.2
+- aws-c-s3/0.8.3
 - aws-cdi-sdk/2.4.1
+- aws-crt-cpp/0.33.2
+- aws-sdk-cpp/1.11.619
 - azure-sdk-for-cpp/1.11.3
 - azure-sdk-for-cpp/1.13.0
 - basalt/git.20240831
@@ -937,6 +947,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/21.1.2
 - lmdb/0.9.33
 - lttng-ust/2.13.9
+- luau/0.620
+- luau/0.625
+- luau/0.630
+- luau/0.635
+- luau/0.640
+- luau/0.645
+- luau/0.650
+- luau/0.655
+- luau/0.667
 - lunasvg/3.5.0
 - lusol/0.0.0+git.20160215
 - lzip/1.25
@@ -1346,6 +1365,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.84.0
 - rust/1.85.1
 - rust/1.90.0
+- s2n/1.5.22
 - sail/0.9.0
 - sail/0.9.1
 - sail/0.9.4
