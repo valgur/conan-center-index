@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-24:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-25:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -145,6 +145,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cmake/3.28.6
 - cmake/3.29.7
 - cmake/3.30.5
+- cmake/3.31.9
 - cmake/4.0.3
 - cmake/4.1.1
 - cmrc/2.0.1+git.20230724
@@ -734,6 +735,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.4.1
 - icu4x/1.5.1
 - ideep/3.9.0.4
+- idna/cci.20240228
 - ifcopenshell/0.8.0.cci.20250501
 - ignition-cmake/2.17.2
 - ignition-math/6.15.1
@@ -947,6 +949,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/21.1.2
 - lmdb/0.9.33
 - lttng-ust/2.13.9
+- lua/5.4.1
+- lua/5.4.3
+- lua/5.4.4
+- lua/5.4.7
 - luau/0.620
 - luau/0.625
 - luau/0.630
