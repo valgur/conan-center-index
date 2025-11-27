@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-26:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-27:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -559,6 +559,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fenster/0.1.0
 - ffmpeg/5.1.7
 - ffmpeg/6.1.3
+- ffmpeg/7.1.2
 - ffmpeg/8.0.0
 - ffnvcodec/10.0.26.2
 - ffnvcodec/11.1.5.3
