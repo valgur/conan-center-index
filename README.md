@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-11-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-11-29:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -904,8 +904,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libwacom/2.15.0
 - libx11/1.8.10
 - libx264/git.20240224
-- libx265/3.6
-- libx265/4.1
 - libxau/1.0.11
 - libxaw/1.0.16
 - libxcb/1.17.0
@@ -997,6 +995,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mold/2.40.4
 - moltenvk/1.2.11
 - moltenvk/1.2.7
+- mongo-c-driver/1.30.3
 - mosek/10.2.17
 - mosek/11.0.28
 - mosek/8.1.0.83
