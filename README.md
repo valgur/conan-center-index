@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-02:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -807,6 +807,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lessmsi/2.8.1
 - level-zero/1.24.3
 - libalsa/1.2.14
+- libatomic_ops/7.8.2
 - libavrocpp/1.10.2
 - libavrocpp/1.11.3
 - libbasisu/1.16.4
