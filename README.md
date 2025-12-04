@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-03:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-04:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -604,6 +604,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gcc/9.5.0
 - gcg/3.7.2
 - gch-small-vector/0.10.2
+- gdal/3.5.3
+- gdal/3.7.3
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
 - gdrcopy/2.5
@@ -1398,6 +1400,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sdl_ttf/2.22.0
 - secsipidx/1.3.2
 - sentencepiece/0.2.1
+- sentry-native/0.11.1
+- sentry-native/0.9.1
 - serf/1.3.10
 - sfcgal/1.5.0
 - sfl/1.9.0
