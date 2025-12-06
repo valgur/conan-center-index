@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-05:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-06:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1301,7 +1301,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - plutovg/0.0.13
 - plutovg/1.3.1
 - pocketfft/0.0.0+git.20241130
-- podofo/0.10.5
 - poissonrecon/12.00
 - poissonrecon/18.74
 - polyscope/2.5.0
