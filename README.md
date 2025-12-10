@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-10:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -790,6 +790,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - jitify/2.0.0+git.20250823
 - jrl-cmakemodules/cci.20250623
 - json-glib/1.10.6
+- jsoncons/0.177.0
+- jsoncons/0.178.0
+- jsoncons/1.0.0
+- jsoncons/1.2.0
+- jsoncons/1.3.0
 - jsonifier/0.9.98
 - julia/1.11.6
 - kdsingleapplication/1.1.0
@@ -875,6 +880,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpciaccess/0.18.1
 - libphonenumber/8.13.55
 - libphonenumber/9.0.15
+- libpng/1.6.50
 - libpq/17.0
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
@@ -1339,6 +1345,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qrupdate-ng/1.1.5
 - qscintilla/2.14.1
 - qsopt/1.01
+- qt/5.15.16
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
 - raft/25.08.00
@@ -1659,4 +1666,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - zlib-ng/2.0.7
 - zlib-ng/2.1.7
 - zlib-rs/0.5.0
+- zlib/1.2.11
+- zlib/1.2.12
+- zlib/1.2.13
+- zlib/1.3
 
