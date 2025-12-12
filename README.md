@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-11:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-12:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1316,7 +1316,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - portaudio/19.7.0
 - portfft/0.0.0.cci.20240816
-- protobuf-c/1.5.2
 - protobuf/3.29.5
 - protobuf/4.25.8
 - protobuf/4.31.1
@@ -1540,6 +1539,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tgbot/1.5
 - tgbot/1.7.2
 - tgbot/1.8
+- thorvg/0.13.7
+- thorvg/0.13.8
+- thorvg/0.14.10
+- thorvg/0.14.6
+- thorvg/0.15.3
+- thorvg/0.15.4
 - thrust/2.2.0
 - thrust/2.3.2
 - thrust/2.4.0
