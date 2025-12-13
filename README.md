@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-12:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-13:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -884,6 +884,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpq/17.0
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
+- libraw/0.21.3
 - libraw/0.22.0-devel202502
 - libraw1394/2.1.2
 - librdkafka/2.11.1
@@ -992,6 +993,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - meson/1.6.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
+- mfast/1.2.1
 - miniz/3.0.2-pytorch
 - minizip-ng/4.0.10
 - minja/1.0.0+git.20250922
@@ -1301,6 +1303,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pinocchio/3.8.0
 - pipewire/1.4.2
 - piqp/0.6.2
+- pistache/0.0.5
 - pistache/0.4.26
 - plf_list/2.77
 - plutovg/0.0.0+git.20230103
@@ -1460,6 +1463,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sqlitecpp/3.2.1
 - sqlitecpp/3.3.2
 - sqlitemap/1.1.0
+- sqlpp11-connector-sqlite3/0.29
+- sqlpp11/0.60
+- sqlpp11/0.61
+- sqlpp11/0.62
+- sqlpp11/0.63
 - srrg_hbst/0.0.0+git.20250530
 - stablehlo/1.10.0
 - stablehlo/1.6.3
@@ -1653,7 +1661,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xkbcommon/1.10.0
 - xkeyboard-config/2.43
 - xkeyboard-config/2.45
-- xnnpack/cci.20241203
+- xnnpack/cci.20240229
 - xnnpack/cci.20250729
 - xorg-macros/1.20.2
 - xorg/1.8.10
