@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-15:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-16:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -724,6 +724,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - hdf5/1.14.4.3
 - hdf5/1.14.5
 - hdf5/1.8.21
+- hidapi/0.12.0
+- hidapi/0.13.1
+- hidapi/0.14.0
 - highfive/2.10.1
 - highs/1.8.1
 - hlslpp/3.5.3
@@ -839,6 +842,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcudacxx/3.1.0-rc9
 - libcups/2.2.12
 - libcups/3.0-rc4
+- libdatachannel/0.22.2
 - libde265/1.0.16
 - libdecor/0.2.2
 - libdeflate/1.15
@@ -1011,6 +1015,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mosek/11.0.28
 - mosek/8.1.0.83
 - mosek/9.3.22
+- mosquitto/2.0.10
+- mosquitto/2.0.11
+- mosquitto/2.0.12
+- mosquitto/2.0.14
+- mosquitto/2.0.15
+- mosquitto/2.0.18
+- mosquitto/2.0.21
+- mosquitto/2.0.3
+- mosquitto/2.0.5
+- mosquitto/2.0.7
 - mpdecimal/4.0.1
 - mpg123/1.33.2
 - mrcal/2.4.1
