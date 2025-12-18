@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-18:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1367,6 +1367,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qscintilla/2.14.1
 - qsopt/1.01
 - qt/5.15.16
+- qt/6.6.3
+- qt/6.7.3
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
 - raft/25.08.00
