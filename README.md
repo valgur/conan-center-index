@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-19:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1240,6 +1240,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onemkl/2025.1.0
 - onemkl/2025.2.0
 - oniguruma/6.9.10
+- onnx/1.13.1
+- onnx/1.14.1
+- onnx/1.15.0
+- onnx/1.16.2
+- onnx/1.17.0
+- onnx/1.18.0
 - onnxruntime/1.18.2
 - onnxruntime/1.22.2
 - ooqp/0.99.27
@@ -1442,7 +1448,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sigslot/1.2.2
 - skarupke-flat-hash-map/git.20180716
 - skia/132
-- sleef/3.9.0
 - sleqp/1.0.2
 - slicot/5.9
 - small_gicp/0.1.2
