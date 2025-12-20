@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-19:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-20:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -523,6 +523,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - doxygen/1.9.4
 - dpdk/24.07
 - dsdp/5.8
+- duckdb/0.10.1
+- duckdb/0.10.2
+- duckdb/0.9.2
+- duckdb/1.0.0
+- duckdb/1.1.0
+- duckdb/1.1.1
+- duckdb/1.1.2
+- duckdb/1.1.3
 - dynamic-graph/4.4.3
 - dynolog/0.5.0
 - dynolog/0.5.1-git.20250624
