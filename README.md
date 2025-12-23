@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-23:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -576,6 +576,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ffts/0.9.0+git.20240906
 - filament/1.65.3
 - firebird/5.0.0
+- flatbush/1.1.0
+- flatbush/1.2.0
+- flatbush/1.2.1
+- flatbush/1.3.0
 - flite/2.2
 - fmi2/2.0.5
 - fontconfig/2.16.2
@@ -612,6 +616,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gcc/9.5.0
 - gcg/3.7.2
 - gch-small-vector/0.10.2
+- gdal/3.10.3
 - gdal/3.5.3
 - gdal/3.7.3
 - gdalcpp/1.3.0
@@ -623,6 +628,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - ggml/0.9.3
 - gici/cci.20250127
+- ginkgo/1.3.0
+- ginkgo/1.4.0
+- ginkgo/1.7.0
+- ginkgo/1.8.0
 - gl2ps/1.4.2
 - glaze/2.8.4
 - glaze/2.9.5
@@ -1025,6 +1034,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mongo-c-driver/1.30.3
+- mongo-cxx-driver/3.10.1
+- mongo-cxx-driver/3.10.2
+- mongo-cxx-driver/3.6.7
+- mongo-cxx-driver/3.7.0
+- mongo-cxx-driver/3.7.2
+- mongo-cxx-driver/3.8.0
+- mongo-cxx-driver/3.8.1
 - mosek/10.2.17
 - mosek/11.0.28
 - mosek/8.1.0.83
@@ -1587,6 +1603,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thorvg/0.14.6
 - thorvg/0.15.3
 - thorvg/0.15.4
+- thrift/0.14.1
+- thrift/0.14.2
+- thrift/0.15.0
+- thrift/0.16.0
+- thrift/0.17.0
+- thrift/0.18.1
 - thrust/2.2.0
 - thrust/2.3.2
 - thrust/2.4.0
@@ -1695,6 +1717,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xkbcommon/1.10.0
 - xkeyboard-config/2.43
 - xkeyboard-config/2.45
+- xmlsec/1.2.30
+- xmlsec/1.2.31
+- xmlsec/1.2.32
+- xmlsec/1.2.33
+- xmlsec/1.2.38
+- xmlsec/1.3.2
+- xmlsec/1.3.3
+- xmlsec/1.3.4
+- xmlsec/1.3.6
 - xnnpack/cci.20240229
 - xnnpack/cci.20250729
 - xorg-macros/1.20.2
@@ -1704,6 +1735,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpress/9.7.0
 - xtrans/1.5.0
 - yasm/1.3.0+git.20230922
+- zbar/0.10
 - zenoh-c/1.2.0
 - zenoh-c/1.3.2
 - zenoh-cpp/1.3.2
