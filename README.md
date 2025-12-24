@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-12-23:
+Package versions that are available here but not yet on the main CCI repo as of 2025-12-24:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -103,7 +103,25 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - box2d/3.1.0
 - boxfort/0.1.4
 - bqpd_jll/1.0.0
+- c-ares/1.31.0
+- c-ares/1.32.1
+- c-ares/1.32.2
+- c-ares/1.32.3
+- c-ares/1.33.0
+- c-ares/1.33.1
+- c-ares/1.34.1
+- c-ares/1.34.3
+- c-ares/1.34.5
 - cairo/1.18.4
+- capnproto/0.10.0
+- capnproto/0.10.1
+- capnproto/0.10.3
+- capnproto/0.10.4
+- capnproto/0.7.0
+- capnproto/0.8.0
+- capnproto/0.9.1
+- capnproto/1.0.0
+- capnproto/1.0.1
 - capnproto/1.0.1.1
 - cargo-c/0.10.12
 - cargo-c/0.10.8
@@ -878,7 +896,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfabric/2.2.0
 - libfontenc/1.1.8
 - libgcrypt/1.11.2
-- libgit2/1.9.1
 - libgpg-error/1.55
 - libgudev/238
 - libhdfs3/cci.20191105
@@ -1275,6 +1292,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ooqp/0.99.27
 - ooura-fft/cci.20061228
 - open3d/0.19
+- open62541pp/0.17.0
 - openapv/0.2.0.3
 - opencc/1.1.9
 - opencl-clhpp-headers/2024.10.24
@@ -1422,6 +1440,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rocksdb/8.8.1
 - rocksdb/9.10.0
 - rosx_introspection/1.0.2
+- rotor/0.29
+- rotor/0.30
+- rotor/0.31
+- rotor/0.32
+- rotor/0.33
+- rotor/0.34
 - roundingsat/0.0.0+git.20240602
 - roundingsat/0.0.0+git.20250909
 - rsync/3.4.1
@@ -1450,8 +1474,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - scs/3.2.8
 - sdl/2.28.5
 - sdl/2.30.9
-- sdl_image/2.8.8
-- sdl_mixer/2.8.1
+- sdl_net/2.0.1
 - sdl_ttf/2.0.15
 - sdl_ttf/2.0.18
 - sdl_ttf/2.20.1
@@ -1534,7 +1557,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - stdgpu/1.3.0-nvblox.20240211
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
-- stk/5.0.1
 - suitesparse-amd/3.3.3
 - suitesparse-amd/3.3.4
 - suitesparse-btf/2.3.2
