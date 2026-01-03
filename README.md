@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-02:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-03:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -201,11 +201,19 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - conopt/4.38.1
 - cose-c/cci.20200603
 - cplex/22.1.2
+- cpp-httplib/0.14.1
+- cpp-httplib/0.14.3
+- cpp-httplib/0.15.3
 - cpp-httplib/0.16.0
+- cpp-httplib/0.16.3
 - cpp-httplib/0.17.1
+- cpp-httplib/0.17.3
 - cpp-httplib/0.18.0
 - cpp-httplib/0.18.1
 - cpp-httplib/0.18.2
+- cpp-httplib/0.18.3
+- cpp-httplib/0.19.0
+- cpp-httplib/0.20.1
 - cpp-validator/2.1.1
 - cppad/20250000.2
 - cppadcodegen/2.5.0
@@ -1651,6 +1659,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - torch-mlir/cci.20250203
 - tpl/cci.20210302
 - tracy/0.11.1
+- tracy/0.12.2
 - treelite/4.4.1
 - trianglemeshdistance/1.0.0+git.20240817
 - trlib/0.4+git.20240730
