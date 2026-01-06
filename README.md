@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-05:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-06:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -103,6 +103,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - box2d/3.1.0
 - boxfort/0.1.4
 - bqpd_jll/1.0.0
+- bshoshany-thread-pool/3.0.0
+- bshoshany-thread-pool/3.1.0
+- bshoshany-thread-pool/3.2.0
+- bshoshany-thread-pool/3.3.0
+- bshoshany-thread-pool/3.4.0
+- bshoshany-thread-pool/3.5.0
+- bshoshany-thread-pool/4.0.1
 - c-ares/1.31.0
 - c-ares/1.32.1
 - c-ares/1.32.2
@@ -932,9 +939,22 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libphonenumber/9.0.15
 - libpng/1.6.50
 - libpq/17.0
+- libpqxx/7.10.0
+- libpqxx/7.10.1
+- libpqxx/7.3.2
+- libpqxx/7.4.2
+- libpqxx/7.5.3
+- libpqxx/7.6.1
+- libpqxx/7.7.5
+- libpqxx/7.8.0
+- libpqxx/7.8.1
+- libpqxx/7.9.0
+- libpqxx/7.9.1
+- libpqxx/7.9.2
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
 - libraw/0.21.3
+- libraw/0.21.4
 - libraw/0.22.0-devel202502
 - libraw1394/2.1.2
 - librdkafka/2.11.1
@@ -1314,6 +1334,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opencv/4.5.5
 - opencv/4.8.1
 - opencv/4.9.0
+- opene57/1.6.3
+- opene57/1.6.4
+- opene57/1.6.5
 - openexr/2.5.10
 - openexr/3.2.4
 - openexr/3.3.5
@@ -1479,6 +1502,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sbepp/1.6.0
 - scalapack/2.2.2
 - scdoc/1.11.3
+- scnlib/2.0.3
+- scnlib/3.0.1
 - scs/3.2.8
 - sdl/2.28.5
 - sdl/2.30.9
@@ -1501,6 +1526,19 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sigslot/1.2.0
 - sigslot/1.2.1
 - sigslot/1.2.2
+- simdutf/4.0.5
+- simdutf/5.3.1
+- simdutf/5.3.2
+- simdutf/5.3.5
+- simdutf/5.3.7
+- simdutf/5.4.15
+- simdutf/5.5.0
+- simdutf/5.6.0
+- simdutf/5.6.2
+- simdutf/5.6.3
+- simdutf/6.2.0
+- simdutf/6.3.1
+- simdutf/7.1.0
 - skarupke-flat-hash-map/git.20180716
 - skia/132
 - sleqp/1.0.2
