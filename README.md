@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-07:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-08:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -97,6 +97,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - boost/1.71.0
 - boost/1.74.0
 - boostdep/1.88.0
+- botan/3.9.0
 - box2d/2.4.0
 - box2d/2.4.1
 - box2d/3.0.0
