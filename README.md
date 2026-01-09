@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-08:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-09:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -529,6 +529,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cuvs/25.08.00
 - cuxxfilt/13.0.85
 - cv-cuda/0.15.0
+- cyrus-sasl/2.1.27
 - daggy/2.1.3
 - daggy/2.2.3
 - dali/1.51.0
@@ -556,6 +557,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - doxygen/1.14.0
 - doxygen/1.9.4
 - dpdk/24.07
+- drogon/1.8.7
+- drogon/1.9.10
 - dsdp/5.8
 - duckdb/0.10.1
 - duckdb/0.10.2
@@ -1465,6 +1468,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - renderdoc/1.37
 - rerun-c/0.25.1
 - rerun-cpp/0.25.1
+- resiprocate/1.12.0
 - rko_lio/0.1.4
 - rmlui/5.1
 - rmm/25.06.00
@@ -1656,6 +1660,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - superscs/1.3.3+git.20210825
 - swig-matlab/3.0.11+git.20250327
 - swig/4.3.1
+- taocpp-taopq/cci.20200222
+- taocpp-taopq/cci.20210727
 - tcl/8.6.16
 - tcl/9.0.1
 - tensorpipe/cci.20250815
@@ -1768,6 +1774,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - wayland/1.24.0
 - worhp/1.16.3
 - workflow/0.11.10
+- wt/4.10.1
+- wt/4.6.2
+- wt/4.7.1
+- wt/4.8.0
+- wt/4.9.1
 - wuffs/0.3.4
 - x86simdsortcpp/7.0
 - xbyak/7.26
@@ -1804,6 +1815,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpmem/2.6.5.cci.20240911
 - xpress/9.7.0
 - xtrans/1.5.0
+- yandex-ozo/cci.20210509
 - yasm/1.3.0+git.20230922
 - zbar/0.10
 - zenoh-c/1.2.0
