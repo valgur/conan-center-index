@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-12:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-13:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -763,6 +763,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/10.4.0
 - harfbuzz/11.2.1
 - harfbuzz/11.3.2
+- harfbuzz/11.4.1
 - harfbuzz/6.0.0
 - harfbuzz/7.3.0
 - harfbuzz/8.5.0
