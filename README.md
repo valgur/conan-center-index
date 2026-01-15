@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-14:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-15:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -82,7 +82,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - basalt/git.20240831
 - bazel/7.6.1
 - bazel/8.4.1
-- bear/3.1.6
 - beauty/1.0.6
 - binutils/2.41
 - binutils/2.44
