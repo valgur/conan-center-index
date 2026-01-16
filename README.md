@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-15:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-16:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -38,6 +38,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - apr/1.7.6
 - apriltag/3.4.5
 - arbiter/cci.20231122
+- arcus/4.9.1
 - arm-compute-library/52.2.0
 - armadillo/12.8.3
 - armadillo/14.6.2
