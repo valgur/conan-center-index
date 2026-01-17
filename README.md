@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-16:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-17:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -184,6 +184,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cnats/3.9.2
 - cnats/3.9.3
 - cnmem/1.0.0+git.20181128
+- coal/3.0.1
 - cocoapi/0.0.0+git.20200220
 - coin-alps/1.5.12
 - coin-alps/2.0.2
@@ -718,6 +719,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - googleapis/cci.20250506
 - gpu.cpp/0.1.0
 - gputreehsap/22.02.00
+- graphene/1.10.2
+- graphene/1.10.4
+- graphene/1.10.6
 - grass/8.5.0-cci.20240507
 - grpc/1.72.2
 - grpc/1.74.1
@@ -1036,6 +1040,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/20.1.8
 - llvm-openmp/21.1.2
 - lmdb/0.9.33
+- log4cxx/1.5.0
 - lttng-ust/2.13.9
 - lua/5.4.1
 - lua/5.4.3
