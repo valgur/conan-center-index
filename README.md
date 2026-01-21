@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-20:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-21:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -87,6 +87,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - binutils/2.41
 - binutils/2.44
 - bison/3.5.3
+- bitserializer/0.50
+- bitserializer/0.65
+- bitserializer/0.70
+- bitserializer/0.75
 - blas/latest
 - blasfeo/0.1.4.2
 - blasfeo/0.1.4.2+git.20250704
@@ -121,7 +125,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - c-ares/1.34.1
 - c-ares/1.34.3
 - c-ares/1.34.5
-- cairo/1.18.4
 - capnproto/0.10.0
 - capnproto/0.10.1
 - capnproto/0.10.3
@@ -659,6 +662,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gdal/3.5.3
 - gdal/3.7.3
 - gdalcpp/1.3.0
+- gdk-pixbuf/2.42.10
 - gdk-pixbuf/2.42.12
 - gdrcopy/2.5
 - gecode/6.2.0
@@ -961,7 +965,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpqxx/7.9.0
 - libpqxx/7.9.1
 - libpqxx/7.9.2
-- libprotobuf-mutator/1.5
+- libprotobuf-mutator/1.3
 - libproxy/0.5.9
 - libraw/0.21.3
 - libraw/0.21.4
@@ -993,6 +997,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libunistring/1.3
 - libv4l/1.28.1
 - libva/2.22.0
+- libvips/8.14.2
+- libvips/8.15.1
+- libvips/8.15.2
+- libvips/8.15.3
 - libwacom/2.15.0
 - libx11/1.8.10
 - libx264/git.20240224
@@ -1005,7 +1013,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxdmcp/1.1.5
 - libxext/1.3.6
 - libxfixes/6.0.1
-- libxft/2.3.9
+- libxft/2.3.8
 - libxi/1.8.2
 - libxinerama/1.1.5
 - libxkbfile/1.1.3
@@ -1394,6 +1402,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - outcome/2.2.8
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
+- pango/1.54.0
 - pango/1.56.3
 - pangolin/0.9.3
 - pangomm/2.46.4
