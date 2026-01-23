@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-22:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-23:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -231,6 +231,21 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cppad/20250000.2
 - cppadcodegen/2.5.0
 - cppserver/1.0.4.1
+- cpptrace/0.2.1
+- cpptrace/0.3.1
+- cpptrace/0.6.0
+- cpptrace/0.6.1
+- cpptrace/0.6.2
+- cpptrace/0.6.3
+- cpptrace/0.7.0
+- cpptrace/0.7.1
+- cpptrace/0.7.2
+- cpptrace/0.7.3
+- cpptrace/0.7.4
+- cpptrace/0.7.5
+- cpptrace/0.8.2
+- cpptrace/0.8.3
+- cpptrace/1.0.3
 - cpuinfo/cci.20250522
 - cpython/3.10.18
 - cpython/3.11.13
@@ -1694,6 +1709,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thorvg/0.14.6
 - thorvg/0.15.3
 - thorvg/0.15.4
+- thorvg/0.15.9
 - thrift/0.14.1
 - thrift/0.14.2
 - thrift/0.15.0
