@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-23:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-24:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -767,7 +767,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtest/1.14.0
 - gtest/1.15.0
 - gtk/3.24.49
-- gtk/4.18.6
 - gtkmm/3.24.9
 - gtkmm/4.16.0
 - gtsam/4.3-a0
@@ -896,6 +895,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lessmsi/2.8.1
 - level-zero/1.24.3
 - libalsa/1.2.14
+- libassert/2.0.2
+- libassert/2.1.4
 - libatomic_ops/7.8.2
 - libavrocpp/1.10.2
 - libavrocpp/1.11.3
@@ -1342,6 +1343,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - onemkl/2025.0.1
 - onemkl/2025.1.0
 - onemkl/2025.2.0
+- onetbb/2021.13.0
+- onetbb/2022.2.0
 - oniguruma/6.9.10
 - onnx/1.13.1
 - onnx/1.14.1
@@ -1381,7 +1384,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openjph/0.24.1
 - openldap/2.6.10
 - openmp/system
-- openmpi/4.1.8
 - openmpi/5.0.8
 - openmvg/2.1
 - openni2/2.2.0.33
@@ -1849,6 +1851,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xtrans/1.5.0
 - yandex-ozo/cci.20210509
 - yasm/1.3.0+git.20230922
+- z3/4.10.2
+- z3/4.11.2
+- z3/4.12.1
+- z3/4.12.2
+- z3/4.12.4
+- z3/4.9.1
 - zbar/0.10
 - zenoh-c/1.2.0
 - zenoh-c/1.3.2
