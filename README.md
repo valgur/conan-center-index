@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-26:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-27:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -990,7 +990,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - librdkafka/2.11.1
 - librsvg/2.40.21
 - librsvg/2.60.0
-- libsecret/0.21.7
 - libsgm/3.1.0+git.20240708
 - libsigcpp/2.12.1
 - libsm/1.2.4
