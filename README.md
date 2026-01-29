@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-28:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-29:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -205,7 +205,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-mumps/3.0.10
 - coin-osi/0.108.11
 - coin-symphony/5.7.2
-- coin-utils/2.11.12
 - coin-vol/1.5.4
 - colmap/3.12.5
 - conan-cuda/latest
@@ -810,6 +809,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - hidapi/0.14.0
 - highfive/2.10.1
 - highs/1.8.1
+- highway/0.12.2
+- highway/0.17.0
+- highway/1.0.0
+- highway/1.0.1
+- highway/1.0.2
+- highway/1.0.3
+- highway/1.0.4
+- highway/1.0.5
+- highway/1.0.6
+- highway/1.2.0
 - hlslpp/3.5.3
 - hnswlib/0.8.0
 - hnswlib/0.8.0-cuvs
@@ -1394,7 +1403,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openpmix/6.0.0
 - openrng/25.04
 - openspecfun/0.5.7
+- openssl/3.0.18
 - openssl/3.1.8
+- openssl/3.3.5
+- openssl/3.4.3
+- openssl/3.5.4
+- openssl/3.6.0
 - openucx/1.19.0
 - openusd/25.08
 - openvdb/9.1.0
@@ -1547,6 +1561,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - scs/3.2.8
 - sdl/2.28.5
 - sdl/2.30.9
+- sdl/3.2.20
 - sdl_net/2.0.1
 - sdl_ttf/2.0.15
 - sdl_ttf/2.0.18
