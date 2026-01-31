@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-01-30:
+Package versions that are available here but not yet on the main CCI repo as of 2026-01-31:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1154,7 +1154,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mujoco/3.3.6
 - musl-getopt/1.2.5
 - mysql-connector-cpp/9.3.0
-- nanoarrow/0.7.0
 - nanoeigenpy/0.4.0
 - nanoflann/1.2.3
 - nanoflann/1.5.5
