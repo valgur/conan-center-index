@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-03:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-04:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1864,6 +1864,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpack/1.0.6
 - xpmem/2.6.5.cci.20240911
 - xpress/9.7.0
+- xtr/3.0.0
 - xtrans/1.5.0
 - yandex-ozo/cci.20210509
 - yasm/1.3.0+git.20230922
