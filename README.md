@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-09:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-10:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -83,6 +83,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - basalt/git.20240831
 - bazel/7.6.1
 - bazel/8.4.1
+- bdwgc/8.0.4
+- bdwgc/8.2.2
+- bdwgc/8.2.4
+- bdwgc/8.2.6
+- bdwgc/8.2.8
 - beauty/1.0.6
 - binutils/2.41
 - binutils/2.44
@@ -897,6 +902,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - klib/cci.20250205
 - knitro/15.0.1
 - kokkos/4.7.00
+- ktx/4.0.0
+- ktx/4.3.2
 - kvikio/25.08.00
 - ladel/0.0.4
 - lapack-reference/3.12.1
@@ -935,6 +942,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcudacxx/3.1.0-rc9
 - libcups/2.2.12
 - libcups/3.0-rc4
+- libcurl/8.15.0
 - libdatachannel/0.22.2
 - libde265/1.0.16
 - libdecor/0.2.2
@@ -1823,7 +1831,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.4.309.0
 - vulkan-validationlayers/1.4.313.0
 - vulkan-validationlayers/1.4.321.0
-- wayland/1.24.0
 - worhp/1.16.3
 - workflow/0.11.10
 - wt/4.10.1
