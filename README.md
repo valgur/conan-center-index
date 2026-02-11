@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-10:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-11:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -896,6 +896,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - jsoncons/1.3.0
 - jsonifier/0.9.98
 - julia/1.11.6
+- kaitai_struct_cpp_stl_runtime/0.10
+- kaitai_struct_cpp_stl_runtime/cci.20210701
 - kdsingleapplication/1.1.0
 - kineto/0.4.0+git.20250826
 - kleidiai/1.9.0
@@ -1579,6 +1581,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sdl_ttf/2.22.0
 - secsipidx/1.3.2
 - sentencepiece/0.2.1
+- sentry-native/0.10.0
 - sentry-native/0.11.1
 - sentry-native/0.9.1
 - serf/1.3.10
