@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-12:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-13:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -39,6 +39,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - apriltag/3.4.5
 - arbiter/cci.20231122
 - arcus/4.9.1
+- args-parser/6.0.1.0
+- args-parser/6.1.0.0
+- args-parser/6.2.0.0
+- args-parser/6.3.0
+- args-parser/6.3.1
+- args-parser/6.3.2
+- args-parser/6.3.3
+- args-parser/6.3.4
 - arm-compute-library/52.2.0
 - armadillo/12.8.3
 - armadillo/14.6.2
@@ -687,6 +695,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gdrcopy/2.5
 - gecode/6.2.0
 - gecode/6.3.0-git.20211013
+- genie/1141
+- genie/1157
+- genie/1160
+- genie/1181
+- genie/1190
 - gettext/0.24
 - gfortran/13.2.0
 - ggml/0.9.3
@@ -977,6 +990,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libjpeg-turbo/3.0.4
 - libjpeg-turbo/3.1.1
 - libjwt/3.2.1
+- libjxl/0.10.2
+- libjxl/0.10.3
+- libjxl/0.8.2
 - liblas/1.8.1.cci.20240916
 - libmagic/5.46
 - libmediainfo/23.11
