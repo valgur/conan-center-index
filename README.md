@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-17:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-18:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -162,7 +162,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ccache/4.11.3
 - cello/2.1.0+git.20241201
 - ceres-solver/2.3.0-git.20250817
-- cgltf/1.15
 - cgns/4.4.0
 - cilantro/cci.20230816
 - cimg/2.9.9
@@ -983,7 +982,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libheif/1.18.2
 - libiberty/15.1.0
 - libice/1.1.1
-- libigl/2.6.0
 - libjpeg-meta/latest
 - libjpeg-turbo/2.0.6
 - libjpeg-turbo/3.0.3
