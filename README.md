@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-18:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-19:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -72,6 +72,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - assimp/5.1.6
 - assimp/5.2.5
 - assimp/5.3.1
+- at-spi2-core/2.53.1
 - autoconf-archive/2024.10.16
 - automake/1.18.1
 - avcpp/2.4.0
