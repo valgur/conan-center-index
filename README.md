@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-20:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-21:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -862,6 +862,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imgui/1.91.9b
 - imgui/1.92.3
 - imlib2/1.12.3
+- implot/0.11
+- implot/0.12
+- implot/0.13
+- implot/0.14
+- implot/0.15
+- implot/0.16
 - implot/0.17+git.20250319
 - inja/3.0.0
 - inja/3.1.0
@@ -972,6 +978,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libecwj2/3.3
 - libelas/cci.20150630
 - libell/0.76
+- libepoxy/1.5.8
+- libepoxy/1.5.9
 - libexif/0.6.25
 - libfabric/1.22.0
 - libfabric/2.2.0
@@ -1530,7 +1538,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
 - raft/25.08.00
-- rapidjson/cci.20250205
 - rapids-cmake/25.08.00
 - rapids-cmake/25.10.00-git.20250822
 - rapids_logger/0.1.1
@@ -1772,6 +1779,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/3.0.3
 - thrust/3.1.0-rc9
 - tiny-cuda-nn/2.0
+- tinyexif/1.0.2
+- tinyexif/cci.20210411
 - tinyexr/1.0.12
 - tinyfiledialogs/3.20.1
 - tinygltf/2.8.21
