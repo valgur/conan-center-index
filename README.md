@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-23:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-24:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1402,6 +1402,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ooqp/0.99.27
 - ooura-fft/cci.20061228
 - open3d/0.19
+- open62541/1.3.8
+- open62541/1.3.9
+- open62541/1.4.11.1
+- open62541/1.4.13
+- open62541/1.4.6
 - open62541pp/0.17.0
 - openapv/0.2.0.3
 - opencc/1.1.9
