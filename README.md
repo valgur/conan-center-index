@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-24:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-25:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -827,7 +827,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - hidapi/0.13.1
 - hidapi/0.14.0
 - highfive/2.10.1
+- highs/1.10.0
+- highs/1.11.0
 - highs/1.8.1
+- highs/1.9.0
 - highway/0.12.2
 - highway/0.17.0
 - highway/1.0.0
@@ -1871,6 +1874,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - wt/4.8.0
 - wt/4.9.1
 - wuffs/0.3.4
+- wxwidgets/3.2.5
+- wxwidgets/3.2.6
 - x86simdsortcpp/7.0
 - xbyak/7.26
 - xbyak_aarch64/1.1.3
