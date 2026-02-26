@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-25:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-26:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -98,6 +98,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - bdwgc/8.2.6
 - bdwgc/8.2.8
 - beauty/1.0.6
+- behaviortree.cpp/3.8.6
+- behaviortree.cpp/4.7.2
 - binutils/2.41
 - binutils/2.44
 - bison/3.5.3
@@ -1051,7 +1053,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsystemd/255.18
 - libtasn1/4.19.0
 - libtomcrypt/1.18.2
-- libtommath/1.3.0
 - libtool/2.5.4
 - libtorch/2.8.0
 - libtorrent/1.2.20
@@ -1869,6 +1870,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - worhp/1.16.3
 - workflow/0.11.10
 - wt/4.10.1
+- wt/4.11.2
 - wt/4.6.2
 - wt/4.7.1
 - wt/4.8.0
