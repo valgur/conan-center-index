@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-02-26:
+Package versions that are available here but not yet on the main CCI repo as of 2026-02-27:
 
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
@@ -1878,6 +1878,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - wuffs/0.3.4
 - wxwidgets/3.2.5
 - wxwidgets/3.2.6
+- wxwidgets/3.2.8
 - x86simdsortcpp/7.0
 - xbyak/7.26
 - xbyak_aarch64/1.1.3
