@@ -11,8 +11,9 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-03:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-04:
 
+- abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
 - acados/0.5.1
 - acl/2.3.2
@@ -100,6 +101,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - beauty/1.0.6
 - behaviortree.cpp/3.8.6
 - behaviortree.cpp/4.7.2
+- benchmark/1.8.5
 - binutils/2.41
 - binutils/2.44
 - bison/3.5.3
