@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-05:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-06:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1023,6 +1023,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpng/1.6.50
 - libpq/17.0
 - libpq/17.5
+- libpqxx/6.4.8
 - libpqxx/7.10.0
 - libpqxx/7.10.1
 - libpqxx/7.3.2
@@ -1425,6 +1426,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - opencl-icd-loader/2025.07.22
 - opencv/4.10.0
 - opencv/4.11.0
+- opencv/4.12.0
 - opencv/4.5.5
 - opencv/4.8.1
 - opencv/4.9.0
@@ -1556,6 +1558,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rdma-core/59.0
 - re2/20220601
 - re2/20240702
+- reactiveplusplus/0.1.2
+- reactiveplusplus/0.2.1
+- reactiveplusplus/0.2.3
+- reactiveplusplus/2.2.0
+- reactiveplusplus/2.2.1
 - readline/8.3.1
 - reduct-cpp/1.14.0
 - refx/0.2.1
@@ -1677,6 +1684,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
 - spirv-tools/1.4.321.0
+- spix/0.4
+- spix/0.5
+- spix/0.6
+- spix/0.7
 - splinter/3.0
 - spral/2025.09.18
 - sqlitecpp/3.1.1
