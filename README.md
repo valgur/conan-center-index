@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-11:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-12:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1048,6 +1048,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsgm/3.1.0+git.20240708
 - libsigcpp/2.12.1
 - libsm/1.2.4
+- libsodium/1.0.18
+- libsodium/1.0.19
+- libsodium/1.0.20
+- libsodium/cci.20220430
 - libsolv/0.7.29
 - libsoup/3.6.1
 - libssh/0.10.6
@@ -1942,6 +1946,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - zenoh-c/1.3.2
 - zenoh-cpp/1.3.2
 - zenoh-pico/1.3.2
+- zeromq/4.3.2
+- zeromq/4.3.3
+- zeromq/4.3.4
 - zimpl/3.6.2
 - zint/2.13.0
 - zlib-ng/2.0.7
