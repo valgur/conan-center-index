@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-12:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-13:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1104,7 +1104,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libzippp/7.1
 - lielab/0.4.0
 - lielab/0.4.1
-- lightgbm/4.6.0
 - linux-headers-generic/5.19.17
 - linux-headers-generic/6.14.2
 - linux-pam/1.6.1
