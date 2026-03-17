@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-16:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-17:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1021,6 +1021,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libphonenumber/8.13.55
 - libphonenumber/9.0.15
 - libpng/1.6.50
+- libpq/14.9
+- libpq/15.12
+- libpq/15.3
+- libpq/15.4
+- libpq/15.5
+- libpq/16.8
 - libpq/17.0
 - libpq/17.5
 - libpqxx/6.4.8
