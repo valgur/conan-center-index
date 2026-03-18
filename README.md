@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-17:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-18:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1393,6 +1393,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - octave-mockup/89
 - octave/10.2.0
 - odbc/2.3.12
+- odbc/2.3.7
+- odbc/2.3.9
 - ogg/1.3.6
 - ogre/14.3.4
 - onednn-openvino/3.6.2.cci.20250514
