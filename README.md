@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-19:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-20:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1107,6 +1107,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxtst/1.2.5
 - libxv/1.0.12
 - libxxf86vm/1.1.5
+- libyang/2.1.148
 - libzippp/7.1
 - lielab/0.4.0
 - lielab/0.4.1
@@ -1494,6 +1495,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - outcome/2.2.8
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
+- paho-mqtt-cpp/1.2.0
+- paho-mqtt-cpp/1.3.2
+- paho-mqtt-cpp/1.4.0
+- paho-mqtt-cpp/1.4.1
+- paho-mqtt-cpp/1.5.3
 - pango/1.54.0
 - pango/1.56.3
 - pangolin/0.9.3
@@ -1845,6 +1851,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - usearch/2.9.1
 - userspace-rcu/0.15.3
 - utf8proc/2.10.0
+- utfcpp/3.2.5
+- utfcpp/4.0.8
 - util-linux-libuuid/2.39.3
 - util-linux-libuuid/2.41
 - uvatlas/1.9.1
