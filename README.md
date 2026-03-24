@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-23:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-24:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1900,6 +1900,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.4.309.0
 - vulkan-validationlayers/1.4.313.0
 - vulkan-validationlayers/1.4.321.0
+- wiringpi/2.50
+- wiringpi/2.61-1
+- wiringpi/3.2
+- wiringpi/3.4
+- wiringpi/3.6
+- wiringpi/3.8
+- wiringpi/cci.20210727
 - worhp/1.16.3
 - workflow/0.11.10
 - wt/4.10.1
