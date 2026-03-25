@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-24:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-25:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1162,6 +1162,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mdspan/0.7.0-git.20250826
 - memkind/1.14.0+git.20240523
 - meson/1.6.1
+- metall/0.20
+- metall/0.21
+- metall/0.23.1
+- metall/0.24
+- metall/0.25
+- metall/0.26
+- metall/0.27
+- metall/0.28
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
 - mfast/1.2.1
@@ -1786,6 +1794,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - swig/4.3.1
 - taocpp-taopq/cci.20200222
 - taocpp-taopq/cci.20210727
+- taskflow/3.7.0
+- taskflow/3.8.0
+- taskflow/3.9.0
 - tcl/8.6.16
 - tcl/9.0.1
 - tensorpipe/cci.20250815
