@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-25:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-26:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1044,6 +1044,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpqxx/7.9.2
 - libprotobuf-mutator/1.3
 - libproxy/0.5.9
+- libqasm/0.6.9
+- libqasm/1.1.0
+- libqasm/1.2.1
 - libraw/0.21.3
 - libraw/0.21.4
 - libraw/0.22.0-devel202502
@@ -1966,6 +1969,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpress/9.7.0
 - xtr/3.0.0
 - xtrans/1.5.0
+- xz_utils/5.8.1
 - yandex-ozo/cci.20210509
 - yasm/1.3.0+git.20230922
 - z3/4.10.2
