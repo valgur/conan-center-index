@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-30:
+Package versions that are available here but not yet on the main CCI repo as of 2026-03-31:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1691,6 +1691,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - soplex/3.1.1
 - sparrow/1.0.0
 - sparrow/1.1.0
+- sparrow/1.2.0
 - spectra/1.1.0
 - spectra/1.2.0
 - speech-dispatcher/0.12
