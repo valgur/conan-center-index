@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-03-31:
+Package versions that are available here but not yet on the main CCI repo as of 2026-04-01:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1871,6 +1871,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - util-linux-libuuid/2.39.3
 - util-linux-libuuid/2.41
 - uvatlas/1.9.1
+- valijson/0.6
+- valijson/0.7
+- valijson/1.0
+- valijson/1.0.1
+- valijson/1.0.2
+- valijson/1.0.3
 - valijson/1.0.5
 - vc/1.4.5
 - vilib/cci.20210625
