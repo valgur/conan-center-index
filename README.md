@@ -11,7 +11,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2026-04-01:
+Package versions that are available here but not yet on the main CCI repo as of 2026-04-02:
 
 - abseil/20250814.0
 - acados-qpoases/3.1+git.20240910
@@ -1407,6 +1407,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - odbc/2.3.12
 - odbc/2.3.7
 - odbc/2.3.9
+- ogdf/2022.02
+- ogdf/2023.09
 - ogg/1.3.6
 - ogre/14.3.4
 - onednn-openvino/3.6.2.cci.20250514
@@ -1719,6 +1721,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spix/0.7
 - splinter/3.0
 - spral/2025.09.18
+- sqlite3/3.45.3
+- sqlite3/3.49.2
+- sqlite3/3.50.4
 - sqlitecpp/3.1.1
 - sqlitecpp/3.2.1
 - sqlitecpp/3.3.2
@@ -1974,6 +1979,19 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xpack/1.0.6
 - xpmem/2.6.5.cci.20240911
 - xpress/9.7.0
+- xsimd/10.0.0
+- xsimd/11.0.0
+- xsimd/11.1.0
+- xsimd/11.2.0
+- xsimd/12.0.0
+- xsimd/12.1.0
+- xsimd/12.1.1
+- xsimd/7.4.10
+- xsimd/7.5.0
+- xsimd/8.0.3
+- xsimd/8.0.5
+- xsimd/8.1.0
+- xsimd/9.0.1
 - xtr/3.0.0
 - xtrans/1.5.0
 - xz_utils/5.8.1
